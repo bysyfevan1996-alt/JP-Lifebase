@@ -1,4 +1,4 @@
-import {bindReplyViewport} from './reply-viewport.js?v=20261021125935020';
+import {bindReplyViewport} from './reply-viewport.js?v=20261021153644704';
 
 const node=(tag,className,text)=>{const value=document.createElement(tag);value.className=className;if(text!==undefined)value.textContent=text;return value;};
 const glyph=(kind)=>{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',kind==='expand'?'M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5':'m6 9 6 6 6-6');svg.append(path);return svg;};

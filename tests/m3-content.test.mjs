@@ -64,6 +64,23 @@ const visibility=(f,kind,id,hidden,who='author')=>f.app.request(api(kind,id,'vis
 const reply=(f,value={},who='reader',topicId='legacy-topic')=>f.app.request(`/api/topics/${topicId}/replies`,{method:'POST',cookie:f.tokens[who]||'',value:{body:'A new reply body',expectedUserId:who,language:'und',...value}});
 const detail=f=>f.app.request('/api/topics/legacy-topic?lang=original');
 
+test('revision history pages beyond fifty edits with exact timestamps and keeps author/admin visibility',async()=>{
+ const f=await fixture();try{
+  const dates=Array.from({length:65},(_,i)=>new Date(Date.UTC(2026,9,1,0,i)).toISOString());
+  database(f,db=>{const insert=db.prepare('INSERT INTO content_revisions(kind,content_id,version,title,body,body_format,language,editor_id,edited_at) VALUES(?,?,?,?,?,?,?,?,?)');
+   for(let n=1;n<=65;n++)insert.run('topic','legacy-topic',n,'Title version '+n,'Body version '+n,'plain','en','author',dates[n-1]);
+   db.prepare('UPDATE topics SET title=?,body=?,content_version=?,edited_at=? WHERE id=?').run('Title version 65','Body version 65',65,dates[64],'legacy-topic');
+  });
+  const first=await f.app.request(api('topic','legacy-topic','history'),{cookie:f.tokens.author});assert.equal(first.status,200);assert.equal(first.body.total,65);assert.equal(first.body.currentVersion,65);assert.equal(first.body.revisions.length,50);assert.equal(first.body.nextBeforeVersion,16);assert.equal(first.body.revisions[0].editedAt,dates[64]);assert.equal(first.body.revisions[0].editor,'AuthorTest');
+  const next=await f.app.request(api('topic','legacy-topic','history')+'?beforeVersion='+first.body.nextBeforeVersion,{cookie:f.tokens.operator});assert.equal(next.status,200);assert.equal(next.body.nextBeforeVersion,null);
+  const all=[...first.body.revisions,...next.body.revisions];assert.deepEqual(all.map(row=>row.version),Array.from({length:65},(_,i)=>65-i));assert.equal(all.at(-1).body,'Body version 1');assert.equal(all.at(-1).editedAt,dates[0]);
+  for(const value of ['0','-1','bad','1.5','9007199254740992'])assert.equal((await f.app.request(api('topic','legacy-topic','history')+'?beforeVersion='+value,{cookie:f.tokens.author})).status,400);
+  assert.equal((await f.app.request(api('topic','legacy-topic','history'),{cookie:f.tokens.reader})).status,403);assert.equal((await f.app.request(api('topic','legacy-topic','history'))).status,401);
+  const unchanged=await edit(f,'topic','legacy-topic',{expectedVersion:65,title:'Title version 65',body:'Body version 65',bodyFormat:'plain',language:'en'});assert.equal(unchanged.body.content.version,65);assert.equal(unchanged.body.content.editedAt,dates[64]);
+  await visibility(f,'topic','legacy-topic',true);assert.equal((await f.app.request(api('topic','legacy-topic','history'),{cookie:f.tokens.operator})).status,404);
+ }finally{await f.close();}
+});
+
 test('M3 editing preserves legacy plain content, checks owner identity and optimistic versions, and records immutable history',async()=>{
  const f=await fixture();try{
   const source=await f.app.request(api('topic','legacy-topic','source'));

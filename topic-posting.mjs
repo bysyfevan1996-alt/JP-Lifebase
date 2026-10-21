@@ -17,7 +17,7 @@ export function migrateTopicPosting(db){
  CREATE INDEX IF NOT EXISTS topic_tags_filter ON topic_tags(tag_id,topic_id);`);
 }
 
-export function createTopicPosting({db,text,language,httpError,limit,attachments,migrate=true}){
+export function createTopicPosting({db,text,language,httpError,limit,attachments,interactions,migrate=true}){
  if(migrate)migrateTopicPosting(db);
  const q=sql=>db.prepare(sql);
  function normalize(input,user){
@@ -73,6 +73,7 @@ export function createTopicPosting({db,text,language,httpError,limit,attachments
    if(value.attachmentIds.length)attachments.bindToTopic(user.id,value.attachmentIds,id);
    if(value.clientRequestId)q('INSERT INTO topic_create_requests(user_id,client_request_id,payload_hash,topic_id,created_at) VALUES(?,?,?,?,?)')
     .run(user.id,value.clientRequestId,value.payloadHash,id,date);
+   interactions?.onTopicCreated({id,userId:user.id,body:value.content,bodyFormat:value.bodyFormat});
    db.exec('COMMIT');
    return {id,replayed:false};
   }catch(error){db.exec('ROLLBACK');throw error;}

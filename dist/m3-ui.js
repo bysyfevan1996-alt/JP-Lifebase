@@ -1,7 +1,8 @@
-import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261021125935020';
-import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261021125935020';
-import {createReplyMedia} from './m3-media.js?v=20261021125935020';
-import {createReplyWriting} from './reply-writing.js?v=20261021125935020';
+import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261021153644704';
+import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261021153644704';
+import {createReplyMedia} from './m3-media.js?v=20261021153644704';
+import {createReplyWriting} from './reply-writing.js?v=20261021153644704';
+import {formatContentTime} from './content-time.js?v=20261021153644704';
 
 const el=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const action=(text,handler,className='')=>{const node=el('button',text,className);node.type='button';node.onclick=handler;return node;};
@@ -32,7 +33,31 @@ export function createContentUI({root,topic,posts,api,t,getUser,getLanguage,onCh
  function addQuote(content,text){if(!current()||posting||state.pending)return;if(!text?.trim()||text.length>1500||state.quotes.length>=6){toast(t('m3QuoteLimit'));return;}const ref={kind:content.kind,id:content.id,version:content.version||1,excerpt:text.trim(),author:content.author};if(!state.quotes.some(item=>item.kind===ref.kind&&item.id===ref.id&&item.version===ref.version&&item.excerpt===ref.excerpt))state.quotes.push(ref);quoteMarkup(refs,state.quotes,true);changed();navigateWrite();}
  function dialog(title,trigger){const modal=el('dialog',undefined,'m3-dialog');const heading=el('header',undefined,'m3-dialog-heading');heading.append(el('h2',title),action(t('close'),()=>modal.close(),'m3-close'));const body=el('div',undefined,'m3-dialog-body');modal.append(heading,body);document.body.append(modal);dialogs.add(modal);document.body.classList.add('m3-dialog-open');modal.addEventListener('close',()=>{dialogs.delete(modal);modal.remove();if(!dialogs.size)document.body.classList.remove('m3-dialog-open');if(trigger?.isConnected)trigger.focus({preventScroll:true});},{once:true});modal.showModal();return {modal,body};}
  async function openSource(ref){const {modal,body}=dialog(t('m3Source'),document.activeElement);body.append(el('p',t('loading')));try{const result=await request(path(ref)+'/source');if(!current()||!modal.open)return;const content=result.content;body.replaceChildren();body.append(el('p',content.author+' · '+t('m3Version',{version:content.version}),'m3-content-meta'));if(content.title)body.append(el('h3',content.title));const text=el('div',undefined,'post-body markdown-body');bodyInto(text,content);body.append(text);if(ref.version!==content.version)body.prepend(el('p',t('m3Version',{version:ref.version})+' → '+t('m3Version',{version:content.version}),'m3-content-meta'));}catch{if(current()&&modal.open)body.replaceChildren(el('p',t('m3QuoteRemoved')));}}
- async function history(content){const {modal,body}=dialog(t('m3History'),document.activeElement);body.append(el('p',t('loading')));try{const result=await request(path(content)+'/history');if(!current()||!modal.open)return;body.replaceChildren();if(!result.revisions?.length)body.append(el('p',t('m3EmptyHistory')));for(const revision of result.revisions||[]){const section=el('details');section.append(el('summary',t('m3Version',{version:revision.version})+(revision.editedAt?' · '+new Date(revision.editedAt).toLocaleString():'')));if(revision.title)section.append(el('h3',revision.title));const text=el('div',undefined,'post-body markdown-body');bodyInto(text,revision);section.append(text);body.append(section);}}catch{if(current()&&modal.open)body.replaceChildren(el('p',t('m3Error')));}}
+ async function history(content){
+  const {modal,body}=dialog(t('m3History'),document.activeElement);modal.classList.add('m3-history-dialog');
+  const notice=el('p',t('historyPrivate'),'m3-history-notice'),list=el('div',undefined,'m3-history-list'),status=el('p',undefined,'form-error'),more=action(t('historyOlder'),()=>load());status.hidden=true;status.setAttribute('role','status');body.append(notice,list,status,more);
+  let before=null,loading=false,first=true;
+  function revisionCard(revision,currentVersion){
+   const section=el('details',undefined,'m3-history-entry'),summary=el('summary'),heading=el('span',undefined,'m3-history-version');heading.append(el('strong',t('m3Version',{version:revision.version})));
+   if(revision.version===currentVersion)heading.append(el('span',t('historyCurrent'),'m3-history-badge'));else if(revision.version===1)heading.append(el('span',t('historyOriginal'),'m3-history-badge'));
+   const meta=el('span',undefined,'m3-history-info'),time=formatContentTime(revision.editedAt,getLanguage());if(time){const when=el('time',time.label);when.dateTime=time.datetime;meta.append(when);}if(revision.editor)meta.append(el('span',t('historyBy',{name:revision.editor})));
+   summary.append(heading,meta);section.append(summary);
+   const panel=el('div',undefined,'m3-history-content');if(revision.title)panel.append(el('h3',revision.title));
+   const text=el('div',undefined,'post-body markdown-body');bodyInto(text,revision);panel.append(text);
+   const source=el('pre',undefined,'m3-history-source');source.textContent=revision.body;source.hidden=true;let showingSource=false;
+   const toggle=action(t('historySource'),()=>{showingSource=!showingSource;source.hidden=!showingSource;text.hidden=showingSource;toggle.textContent=t(showingSource?'historyRendered':'historySource');toggle.setAttribute('aria-pressed',String(showingSource));},'m3-history-toggle');toggle.setAttribute('aria-pressed','false');panel.append(toggle,source);section.append(panel);return section;
+  }
+  async function load(){
+   if(loading||!current()||!modal.open)return;loading=true;more.disabled=true;more.textContent=t('loading');status.hidden=true;
+   try{const result=await request(path(content)+'/history'+(before?'?beforeVersion='+before:''));if(!current()||!modal.open)return;
+    if(first){list.replaceChildren();first=false;if(!result.revisions?.length)list.append(el('p',t('m3EmptyHistory')));}
+    for(const revision of result.revisions||[])list.append(revisionCard(revision,result.currentVersion||content.version));
+    before=result.nextBeforeVersion;more.hidden=!before;
+   }catch{if(current()&&modal.open){status.textContent=t('m3Error');status.hidden=false;more.hidden=false;more.textContent=t('m3Retry');}}
+   finally{if(current()&&modal.open){loading=false;more.disabled=false;if(status.hidden)more.textContent=t('historyOlder');}}
+  }
+  await load();
+ }
  async function edit(content,retained=null){
   const {modal,body}=dialog(t('m3Edit'),document.activeElement);body.append(el('p',t('loading')));let formEditor;
   modal.addEventListener('close',()=>{formEditor?.destroy();editors.delete(formEditor);if(current()&&editDraft)onReplyState(snapshot());},{once:true});
@@ -77,7 +102,8 @@ export function createContentUI({root,topic,posts,api,t,getUser,getLanguage,onCh
   const content={...post,kind:index===0?'topic':'post',id:index===0?topic.id:post.id,topicId:topic.id,version:Number(post.version||topic.version)||1,...(index===0?{title:topic.title,userId:post.userId||topic.userId,language:topic.language||post.language}:{} )};
   const body=article.querySelector('.post-body'),tools=article.querySelector('.post-tools');article.dataset.contentKind=content.kind;article.dataset.contentId=content.id;article.dataset.contentVersion=String(content.version);body.dataset.original='true';
   const oldQuote=tools.querySelector('.quote-post');oldQuote.onclick=()=>{if(body.dataset.original!=='true'){toast(t('m3QuoteOriginal'));return;}addQuote(content,body.innerText.slice(0,1500));};
-  const meta=el('div',t('m3Language')+': '+languageName(content.language),'m3-content-meta');if(content.editedAt)meta.append(el('span',' · '+t('m3Edited',{version:content.version})));body.before(meta);
+  const meta=el('div',t('m3Language')+': '+languageName(content.language),'m3-content-meta');
+  const editedTime=formatContentTime(content.editedAt,getLanguage());if(editedTime){const edited=el('span',undefined,'m3-edited-at'),time=el('time',editedTime.label);time.dateTime=editedTime.datetime;edited.append(el('span',t('editedAt')+' '),time,el('span',' · v'+content.version));meta.append(edited);}body.before(meta);
   if(post.quoteRefs?.length){const quotes=el('div',undefined,'m3-published-quotes');quoteMarkup(quotes,post.quoteRefs);body.before(quotes);}
   const select=languageSelect(t,getLanguage());select.querySelector('option[value="und"]')?.remove();select.className='m3-target-language';select.setAttribute('aria-label',t('m3Translate'));
   const original=action(t('m3Original'),reset),translate=action(t('m3Translate'),translatePost),status=el('span',undefined,'m3-translation-status');original.hidden=true;status.setAttribute('role','status');tools.append(select,translate,original,status);

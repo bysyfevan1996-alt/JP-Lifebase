@@ -129,3 +129,13 @@ GET /api/content/{topic|post}/<id>/source读取可见原文，/history限作者�
 content-translation.mjs按内容版本/语言/规则缓存，供应商await后重查版本和可见性；Markdown共用markdown-core.js的AST，仅翻译文本节点，代码、链接地址、数值和引用块保留。占位符验证在translation.mjs底层缓存写入前运行，避免失败结果污染重试。独立IP/账号持久配额（UTC日）加原全局预算/2并发；失败也计已登记额度。GET列表和详情不再自动翻译用户帖子；人工UI公共端点限制保持。
 
 运营公告通过publish-announcement.mjs --release-order创建顺序，order-release-note.mjs独立预检/--apply调整既有公告；必须已有有效管理员并审计。只在站务分类按100/110/120显示版本顺序，保留真实日期；公开发布载荷不能设置releaseOrder。不要倒填created_at来伪装补写V1.0。
+
+## M4 通知与互动（2026-10-22）
+
+migration4追加user_handles、community_events/notifications、content_mentions、topic_subscriptions、content_reactions、topic_bookmarks、topic_answers；旧user列/内容/账本不改。统一事件和内容创建/回复/编辑同事务；回执重试不重复hook，事件+接收者唯一，不通知自己。提及>引用>回复合并同事件，编辑只新加入的目标一次，旧内容不补发。seq自增作为新回复seen单调标记，避免同毫秒UUID顺序漏计，不依赖可被VACUUM改变的rowid。
+
+GET /api/me/identity给公开稳定handle，GET /api/users/mentions?q=只搜索昵称/handle，绑定参数最多8，无邮箱；Markdown提及排除pre/code/blockquote和链接URL。GET /api/me/notifications支持unread=1与稳定cursor、可见未读总数；POST /read携ids或all与expectedUserId，只改本人当前可见通知。隐藏主题/回复会动态排除列表、计数和source，通知只存源ID，不复制正文。
+
+GET/POST /api/topics/<id>/interaction|subscription|seen|bookmark|answer，四mode为watching/tracking/normal/muted：watching所有新回复，tracking话题新回复数+直接提醒，normal直接提醒，muted全部新通知静音。收藏仅本人GET /api/me/bookmarks，分页可见过滤。反应GET/POST /api/content/{kind}/{id}/reactions是like/thanks/helpful/null准确期望值，一账号一帖一个当前反应，不许self，重复切换同值不刷通知。最佳答案仅同话题可见回复、作者/管理员可选/换/取消；隐藏后有效答案空，恢复保留选择；solved在server筛选后才LIMIT250。
+
+所有POST在await body后重新核对会话/expectedUserId与限制。禁言阻止公开反应/答案，允许自有订阅/收藏/已读；封禁无效会话仍不能写。完整契约docs/M4_CONTRACT.md，实际发布/权限/迁移/浏览器证据docs/M4_COMPLETION.md；不将本轮功能当M2或M5全量完成。

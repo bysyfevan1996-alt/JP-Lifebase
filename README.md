@@ -4,7 +4,9 @@
 
 Live community: https://www.jp-lifebase.com/
 
-## Current M3
+## Current M4
+
+M4 adds persistent in-site notifications, topic watching/tracking/normal/muted modes, stable public handles and mentions, private bookmarks, mutually exclusive reactions, best answers and solved filtering. Edits display an absolute Japan-time timestamp; private author/admin history supports older-version pagination and source text. See `docs/M4_COMPLETION.md` for current acceptance and deployment evidence. Older milestone sections below retain their historical context. Email notifications and private messaging remain out of scope.
 
 M3 implements Markdown replies/images, versioned edits/history, conflict recovery, structured quotes, image lightboxes and explicit per-post translation. User content stays original until requested. Phone replies have a dedicated inline layout and full-screen writing mode; expanding/collapsing preserves the same text, quotes and uploads. Reply drafts are page-memory only. See `docs/M3_COMPLETION.md` and `docs/MOBILE_REPLY_WRITING.md` for current behavior and release evidence. First-version sections below are historical. M2 stable URLs, full server pagination/search and persistent reading progress remain pending.
 

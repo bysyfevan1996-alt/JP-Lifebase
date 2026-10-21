@@ -7,13 +7,14 @@
   <meta name="description" content="Japan Life Base，在日本生活的讨论社区。">
   <title>Japan Life Base</title>
   <link rel="canonical" href="https://www.jp-lifebase.com/">
-  <link rel="stylesheet" href="/styles.css?v=20261021125935020">
-  <link rel="stylesheet" href="/responsive.css?v=20261021125935020">
-  <link rel="stylesheet" href="/composer.css?v=20261021125935020">
-  <link rel="stylesheet" href="/m3.css?v=20261021125935020">
-  <link rel="stylesheet" href="/reading-nav.css?v=20261021125935020">
-  <link rel="stylesheet" href="/reply-writing.css?v=20261021125935020">
-  <script type="module" src="/app.js?v=20261021125935020"></script>
+  <link rel="stylesheet" href="/styles.css?v=20261021153644704">
+  <link rel="stylesheet" href="/responsive.css?v=20261021153644704">
+  <link rel="stylesheet" href="/composer.css?v=20261021153644704">
+  <link rel="stylesheet" href="/m3.css?v=20261021153644704">
+  <link rel="stylesheet" href="/reading-nav.css?v=20261021153644704">
+  <link rel="stylesheet" href="/reply-writing.css?v=20261021153644704">
+  <link rel="stylesheet" href="/m4.css?v=20261021153644704">
+  <script type="module" src="/app.js?v=20261021153644704"></script>
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">跳到讨论内容</a>
@@ -28,7 +29,9 @@
     <div class="sidebar-inner">
       <button class="sidebar-compose" id="new-topic"><span data-i18n="newTopic">新建话题</span></button>
       <button class="side-link personal-link" id="my-topics" data-i18n="myTopics">我的帖子</button>
-      <button class="side-link personal-link" id="my-messages" data-i18n="myMessages">我的消息</button>
+      <button class="side-link personal-link" id="my-messages"><span data-i18n="m4Notifications">通知</span><span class="m4-badge" id="notification-count" hidden></span></button>
+      <button class="side-link personal-link" id="my-bookmarks" data-i18n="m4Bookmarks">收藏</button>
+      <p class="m4-sidebar-handle" id="my-handle" hidden></p>
       <a class="side-link personal-link" href="#about" data-info="about" data-i18n="about">关于本站</a>
       <a class="side-link personal-link" href="#guide" data-info="guide" data-i18n="guide">使用指南</a>
       <button class="side-promo" id="side-promo"><span class="promo-symbol" aria-hidden="true">↗</span><span class="promo-eyebrow" data-i18n="community">社区</span><strong data-i18n="shareExperience">分享生活经验</strong><span class="promo-link"><span data-i18n="joinDiscussion">浏览讨论</span><span aria-hidden="true">→</span></span></button>
@@ -45,7 +48,7 @@
 
     <div id="translation-notice" class="translation-notice" role="status" hidden><span id="translation-label"></span><button class="plain-button" id="original-toggle"></button></div>
     <section id="list-view" aria-label="全部讨论" data-i18n-aria="allTopics">
-      <div class="list-toolbar"><nav class="tabs" aria-label="话题排序" data-i18n-aria="topicOrder"><button data-sort="latest" class="tab active" aria-pressed="true" data-i18n="latest">最新</button><button data-sort="popular" class="tab" aria-pressed="false" data-i18n="popular">热门</button></nav><span class="topic-total" id="topic-total"></span></div>
+      <div class="list-toolbar"><nav class="tabs" aria-label="话题排序" data-i18n-aria="topicOrder"><button data-sort="latest" class="tab active" aria-pressed="true" data-i18n="latest">最新</button><button data-sort="popular" class="tab" aria-pressed="false" data-i18n="popular">热门</button></nav><div class="m4-list-filter"><select id="solved-filter" aria-label="解决状态" data-i18n-aria="m4SolvedFilter"><option value="all" data-i18n="m4All">全部</option><option value="true" data-i18n="m4Solved">已解决</option><option value="false" data-i18n="m4Unsolved">未解决</option></select><span class="topic-total" id="topic-total"></span></div></div>
       <section class="announcement" id="announcement" aria-label="社区公告" data-i18n-aria="announcement"><div class="announcement-copy"><span class="banner-category" data-i18n="housing">住房与账单</span><h1 data-i18n="bannerTitle">你家的用电量是多少？</h1><p data-i18n="bannerBody">带上所在地区和家庭人数，一起聊聊。</p><button class="banner-link" id="banner-topic"><span data-i18n="viewDiscussion">查看讨论</span><span aria-hidden="true">↗</span></button></div><div class="banner-art" aria-hidden="true"><div class="bill-sheet"><span class="bill-head">電気ご使用量</span><strong>kWh</strong><div class="bill-rule"></div><div class="bill-line long"></div><div class="bill-line"></div><span class="bill-stamp">電</span></div><div class="banner-disc"><span data-icon="zap"></span></div><div class="art-grid"></div></div><button class="banner-close icon-button" id="banner-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button><span class="banner-corner" data-i18n="community">社区</span></section>
       <div class="results-context" id="results-context" hidden><span id="results-label"></span><button class="plain-button" id="reset-list" data-i18n="clearFilters">清除筛选</button></div>
       <p id="tag-filter-scope" class="tag-filter-scope" hidden data-i18n="tagFilterScope"></p>

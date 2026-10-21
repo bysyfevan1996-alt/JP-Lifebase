@@ -1,4 +1,12 @@
 const copy={
+ editedAt:['Edited','編集日時','编辑于','編輯於','수정일'],
+ historyPrivate:['Revision history is visible to the author and administrators.','編集履歴は投稿者と管理者のみ閲覧できます。','编辑记录仅作者和管理员可见。','編輯記錄僅作者與管理員可見。','수정 기록은 작성자와 관리자만 볼 수 있습니다.'],
+ historyCurrent:['Current','現在の版','当前版本','目前版本','현재 버전'],
+ historyOriginal:['Original','初版','初始版本','初始版本','최초 버전'],
+ historyBy:['by {name}','編集者：{name}','编辑者：{name}','編輯者：{name}','수정자: {name}'],
+ historySource:['View source text','ソースを表示','查看原始文本','檢視原始文字','원본 텍스트 보기'],
+ historyRendered:['View formatted content','整形済み内容を表示','查看排版内容','檢視排版內容','서식 적용된 내용 보기'],
+ historyOlder:['Load older versions','以前の版を読み込む','加载更早版本','載入更早版本','이전 버전 더 보기'],
  replyFullscreen:['Full-screen writing','全画面で書く','全屏写作','全螢幕寫作','전체 화면으로 작성'],
  replyCollapse:['Collapse','縮小','收起','收起','접기'],
  replyWrite:['Write','入力','写作','撰寫','작성'],

@@ -22,6 +22,7 @@ import {changeTopicFlags} from './topic-state.mjs';
 import {createCommunityPolicy} from './community-policy.mjs';
 import {createCommunityContent} from './community-content.mjs';
 import {createContentTranslation} from './content-translation.mjs';
+import {createCommunityInteractions} from './community-interactions.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url)),dist=path.join(root,'dist');
 const release=await releaseInfo(root);
@@ -78,12 +79,13 @@ const auth=await createAuth({db,dataDir,secure,body,json,language,limit,text,mig
 const policy=createCommunityPolicy({db,body,json,userRequired,httpError,language});
 const communityAdmin=createCommunityAdmin({db,body,json,userRequired,httpError,policy,migrate:false});
 const topicAttachments=createTopicAttachments({db,body,json,userRequired,httpError,limit,migrate:false,postingRequired:policy.postingRequired});
-const topicPosting=createTopicPosting({db,text,language,httpError,limit,attachments:topicAttachments,migrate:false});
-const communityContent=createCommunityContent({db,body,json,userRequired,postingRequired:policy.postingRequired,httpError,language,limit,attachments:topicAttachments});
+const interactions=createCommunityInteractions({db,body,json,userRequired,session,httpError,limit});
+const topicPosting=createTopicPosting({db,text,language,httpError,limit,attachments:topicAttachments,interactions,migrate:false});
+const communityContent=createCommunityContent({db,body,json,userRequired,postingRequired:policy.postingRequired,httpError,language,limit,attachments:topicAttachments,interactions});
 const contentTranslation=createContentTranslation({db,content:communityContent,translator,body,json,language,session,limit,httpError});
 const attachmentCleanup=setInterval(()=>{try{topicAttachments.cleanup();}catch(e){console.error('Attachment cleanup failed:',e.code||e.name);}},3600000);
 attachmentCleanup.unref();
-function serializeTopic(row){return {id:row.id,version:row.content_version,editedAt:row.edited_at,releaseOrder:row.release_order,title:row.title,body:row.body,bodyFormat:row.body_format||'plain',tagIds:topicPosting.tagsForTopic(row.id),attachments:topicAttachments.forTopic(row.id),excerpt:row.excerpt,category:row.category,author:row.author,...(row.user_id?defaultAvatar(row.author):{avatar:row.avatar,tone:row.tone}),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),pinned:!!row.pinned,seed:!!row.seed,language:row.language,userId:row.user_id,createdAt:row.created_at,updatedAt:row.updated_at,minutes:Math.max(0,Math.floor((Date.now()-Date.parse(row.updated_at))/60000)),replies:Number(row.replies||0)};}
+function serializeTopic(row){const answerPostId=interactions.effectiveAnswer(row.id);return {id:row.id,solved:!!answerPostId,answerPostId,authorHandle:interactions.handleFor(row.user_id),version:row.content_version,editedAt:row.edited_at,releaseOrder:row.release_order,title:row.title,body:row.body,bodyFormat:row.body_format||'plain',tagIds:topicPosting.tagsForTopic(row.id),attachments:topicAttachments.forTopic(row.id),excerpt:row.excerpt,category:row.category,author:row.author,...(row.user_id?defaultAvatar(row.author):{avatar:row.avatar,tone:row.tone}),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),pinned:!!row.pinned,seed:!!row.seed,language:row.language,userId:row.user_id,createdAt:row.created_at,updatedAt:row.updated_at,minutes:Math.max(0,Math.floor((Date.now()-Date.parse(row.updated_at))/60000)),replies:Number(row.replies||0)};}
 const topicQuery='SELECT t.*,u.avatar_hash,(SELECT count(*) FROM posts p WHERE p.topic_id=t.id AND p.hidden=0) AS replies FROM topics t LEFT JOIN users u ON u.id=t.user_id';
 async function localizedTopics(rows,target,full=false){
  const result=rows.map(serializeTopic);
@@ -100,9 +102,9 @@ async function getTopic(id,target,replyWindow='first'){
  const direction=replyWindow==='latest'?'DESC':'ASC';
  const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? AND p.hidden=0 ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
  if(replyWindow==='latest')replies.reverse();
- const posts=[{id:'first-'+id,version:topic.version,editedAt:topic.editedAt,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
+ const posts=[{id:'first-'+id,authorHandle:topic.authorHandle,version:topic.version,editedAt:topic.editedAt,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
  let automatic=localized.translation.automatic,unavailable=localized.translation.unavailable;
- for(const row of replies){const p={id:row.id,version:row.content_version,editedAt:row.edited_at,attachments:topicAttachments.forPost(row.id),quoteRefs:communityContent.quoteRefs(row.id),author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:row.body_format||'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};
+ for(const row of replies){const p={id:row.id,authorHandle:interactions.handleFor(row.user_id),version:row.content_version,editedAt:row.edited_at,attachments:topicAttachments.forPost(row.id),quoteRefs:communityContent.quoteRefs(row.id),author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:row.body_format||'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};
   posts.push(p);
  }
  return {topic,posts,replyWindow:{mode:replyWindow,total:topic.replies,loaded:replies.length,hasEarlier:replyWindow==='latest'&&topic.replies>replies.length,hasLater:replyWindow==='first'&&topic.replies>replies.length},translation:{automatic,unavailable,language:target}};
@@ -116,6 +118,7 @@ async function api(req,res,url){
  if(await topicAttachments.handle(req,res,url))return;
  if(await communityContent.handle(req,res,url))return;
  if(await contentTranslation.handle(req,res,url))return;
+ if(await interactions.handle(req,res,url))return;
  if(method==='GET'&&route==='/api/tags')return json(res,200,{tags:topicTags});
  if(method==='GET'&&route==='/api/denki/catalog')return json(res,200,denkiCatalog(denkiData,undefined,url.searchParams.get('area')??'tokyo'));
  if(method==='GET'&&route==='/api/denki/dataset'){
@@ -133,9 +136,12 @@ async function api(req,res,url){
  }
  if(method==='GET'&&route==='/api/health')return json(res,200,{ok:true,service:'jp-lifebase',...release,schemaVersion:schemaState.version,datasetVersion:denkiData.version,translationConfigured:translator.configured});
  if(method==='GET'&&route==='/api/topics'){
-  limit(req,'read',120,60000);const tag=url.searchParams.get('tag');
+  limit(req,'read',120,60000);const tag=url.searchParams.get('tag'),solved=url.searchParams.get('solved');
   if(tag!==null&&!topicTags.some(item=>item.id===tag))throw httpError(400,'invalid_tags');
-  const rows=tag===null?q(topicQuery+' WHERE t.hidden=0 ORDER BY t.pinned DESC,t.updated_at DESC LIMIT 250').all():q(topicQuery+' WHERE t.hidden=0 AND EXISTS (SELECT 1 FROM topic_tags tt WHERE tt.topic_id=t.id AND tt.tag_id=?) ORDER BY t.pinned DESC,t.updated_at DESC LIMIT 250').all(tag);
+  if(solved!==null&&!['true','false'].includes(solved))throw httpError(400,'invalid_solved_filter');
+  const effectiveAnswer='EXISTS (SELECT 1 FROM topic_answers ta JOIN posts ap ON ap.id=ta.post_id AND ap.topic_id=ta.topic_id WHERE ta.topic_id=t.id AND ap.hidden=0)';
+  const conditions=['t.hidden=0'],params=[];if(tag!==null){conditions.push('EXISTS (SELECT 1 FROM topic_tags tt WHERE tt.topic_id=t.id AND tt.tag_id=?)');params.push(tag);}if(solved!==null)conditions.push((solved==='false'?'NOT ':'')+effectiveAnswer);
+  const rows=q(topicQuery+' WHERE '+conditions.join(' AND ')+' ORDER BY t.pinned DESC,t.updated_at DESC LIMIT 250').all(...params);
   return json(res,200,{...await localizedTopics(rows,target),tag:tag||null});
  }
  if(method==='POST'&&route==='/api/topics'){

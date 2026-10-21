@@ -1,5 +1,9 @@
 # VPS deployment
 
+## M4 schema and events
+
+M4 uses additive migration4; migrations1–3 stay frozen. `community-interactions.mjs` and `interaction-mentions.mjs` provide durable events/recipient notifications, topic subscriptions/seen event sequence, stable public handles, bookmarks, reactions and answers. Notification creation runs inside content creation/edit transactions; do not move it after commit, run hooks on creation receipts, or retroactively notify old posts. Hide filtering is dynamic on every public/private read. Notification events contain references, not copied bodies. Content history remains author/admin-only. The immutable inventory must include all M4 modules, content-time and phone writer assets. Unknown/schema3 code cannot be automatically restored on schema4; prefer a compatible release or forward repair, never overwrite newer data. Exact release and validation are in `../docs/M4_COMPLETION.md`.
+
 ## Current M3 / phone writing
 
 M3 adds frozen migration 3, versioned reply edits and history, structured quotes, reply image binding, explicit content translation and operator release ordering. The phone editor can move the same reply form into a native full-screen dialog, with visual-viewport tracking and reversible collapse. Details and current release evidence are in `../docs/M3_COMPLETION.md` and `../docs/MOBILE_REPLY_WRITING.md`. The M0/M1 sections below are historical baselines, not descriptions of remaining M3 work. Schema-2 releases are not automatic recovery candidates for a schema-3 database. Package all assets using the inventory builder; do not hand-copy an old file list.

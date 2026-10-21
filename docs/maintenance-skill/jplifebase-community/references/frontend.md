@@ -109,3 +109,13 @@ reply-writing.js / reply-writing.css独立安排手机回复，样式在reading-
 reply-viewport.js只在展开期间监听visualViewport/窗口并合并帧，写入可见高度/偏移；缩放回退窗口，不禁止用户缩放。销毁取消帧与监听，恢复之前body样式/滚动。路由/身份切换必须移除body下dialog；延迟close核对当前实例。getReplyState保存fullscreen，成功提交的快照清空；草稿仍只是页内内存。readingNavigation重建时显式传replyInput引用，不能假定全屏input仍在root内部，否则翻译迟到重建会丢写回复入口。
 
 验收全屏写长文→预览→编辑→收起/再展开、图片/引用/切语言保留、离开话题及返回、发送后清空、跨到桌面自动收起，以及小高度发布按钮可见。浏览器缩短视口和自动化测试不是实体手机键盘/IME验证。详情见源码docs/MOBILE_REPLY_WRITING.md。
+
+## V1.3 编辑历史与 M4
+
+content-time.js统一日本时区的绝对日期/时间。m3-ui里的编辑信息用time datetime，历史仍作者/管理员可见，50版本/页beforeVersion游标、当前/初版/编辑者、排版/源文本切换。历史新请求必须校验内容、账号和modal.open；原始文本textContent，不公开旧稿。
+
+m4-ui.js负责站内通知、私有收藏、handle/@、话题订阅、新回复已查看、三种反应、最佳答案。m4-i18n.js人工五语、m4.css手机独立控件。app接入My messages与收藏、未读badge、已解决filter；过滤必须发server（LIMIT250之前），不能仅筛已加载列表。通知只是站内，不声称邮件/浏览器推送；旧messages API兼容不再作为新通知来源。
+
+通知分页/未读/标已读从真实API读取；read-all只当前可见，迟到响应以actor+generation+modal状态隔离。badge轮询不触碰回复草稿；离route abort/关闭私有dialog，身份请求去重并能重试，logout清私有显示。通知source按ID读正文，不假定它在当前250条回复窗口中。每帖反应用IntersectionObserver靠近视口时加载，避免长帖一口气250请求；set期望反应而非盲toggle，发送期间锁按钮。最佳答案更改仅更新本地标记/列表，不重建编辑器。
+
+全屏writer里@选择保留同一textarea并派发input；引用、上传、pending回执和语言切换不能丢失。界面不得把handle当邮箱或可改昵称，昵称和公开标识都用文本节点。跟踪的已查看是话题级事件计数，不是M2精确阅读位置。手机主要按钮约40–44px、反应紧凑灰阶，桌面主面板保持宽布局。

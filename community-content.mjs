@@ -5,7 +5,7 @@ import {changeTopicFlags} from './topic-state.mjs';
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const normalized=value=>String(value).normalize('NFC').replace(/\s+/gu,' ').trim();
-export function createCommunityContent({db,body,json,userRequired,postingRequired,httpError,language,limit,attachments}){
+export function createCommunityContent({db,body,json,userRequired,postingRequired,httpError,language,limit,attachments,interactions}){
  const q=sql=>db.prepare(sql),stamp=()=>new Date().toISOString();
  function transaction(work){db.exec('BEGIN IMMEDIATE');try{const out=work();db.exec('COMMIT');return out;}catch(error){db.exec('ROLLBACK');throw error;}}
  function actor(user){
@@ -32,7 +32,7 @@ export function createCommunityContent({db,body,json,userRequired,postingRequire
    return source?{...common,excerpt:ref.excerpt,author:source.author}:common;
   });
  }
- function serialize(row){return {kind:row.kind,id:row.id,topicId:row.topicId,userId:row.userId,author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.userId,row.avatar_hash),version:row.version,body:row.body,bodyFormat:row.bodyFormat,language:row.language,createdAt:row.createdAt,editedAt:row.editedAt,...(row.kind==='topic'?{title:row.title,attachments:attachments.forTopic(row.id)}:{quote:row.quote,quoteRefs:quoteRefs(row.id),attachments:attachments.forPost(row.id)})};}
+ function serialize(row){return {kind:row.kind,id:row.id,topicId:row.topicId,userId:row.userId,author:row.author,authorHandle:interactions?.handleFor(row.userId)||null,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.userId,row.avatar_hash),version:row.version,body:row.body,bodyFormat:row.bodyFormat,language:row.language,createdAt:row.createdAt,editedAt:row.editedAt,...(row.kind==='topic'?{title:row.title,attachments:attachments.forTopic(row.id)}:{quote:row.quote,quoteRefs:quoteRefs(row.id),attachments:attachments.forPost(row.id)})};}
  function source(kind,id){return serialize(required(kind,id));}
  function version(value){if(!Number.isSafeInteger(value)||value<1)throw httpError(400,'invalid_content_version');return value;}
  function sourceLanguage(value){const lang=value===undefined?'und':language(value);if(lang==='original')throw httpError(400,'invalid_language');return lang;}
@@ -54,14 +54,18 @@ export function createCommunityContent({db,body,json,userRequired,postingRequire
    snapshot(row);const date=stamp();
    if(kind==='topic')q('UPDATE topics SET title=?,body=?,body_format=?,language=?,excerpt=?,content_version=content_version+1,edited_at=?,updated_at=? WHERE id=? AND content_version=?').run(title,value,format,lang,value.slice(0,160),date,date,id,row.version);
    else{q('UPDATE posts SET body=?,body_format=?,language=?,content_version=content_version+1,edited_at=? WHERE id=? AND content_version=?').run(value,format,lang,date,id,row.version);q('UPDATE topics SET updated_at=? WHERE id=?').run(date,row.topicId);}
-   const updated=required(kind,id);snapshot(updated,current.id,date);audit(current,updated,'edit_'+kind,{beforeVersion:row.version,afterVersion:updated.version});return serialize(updated);
+   const updated=required(kind,id);snapshot(updated,current.id,date);audit(current,updated,'edit_'+kind,{beforeVersion:row.version,afterVersion:updated.version});interactions?.onContentEdited({kind,id,topicId:row.topicId,userId:current.id,body:value,bodyFormat:format,version:updated.version,previousBody:row.body,previousBodyFormat:row.bodyFormat});return serialize(updated);
   });
  }
- function history(kind,id,user){
+ function history(kind,id,user,beforeVersion=null){
   const row=required(kind,id);const current=q('SELECT id,role FROM users WHERE id=? AND banned=0').get(user.id);if(!current)throw httpError(401,'login_required');owned(row,current);
-  const records=q('SELECT r.*,u.name AS editor FROM content_revisions r LEFT JOIN users u ON u.id=r.editor_id WHERE r.kind=? AND r.content_id=? ORDER BY version DESC LIMIT 50').all(kind,id);
-  if(!records.some(record=>record.version===row.version))records.unshift({version:row.version,title:row.title,body:row.body,body_format:row.bodyFormat,language:row.language,edited_at:row.editedAt||row.createdAt,editor:row.author});
-  return records.slice(0,50).map(record=>({version:record.version,...(kind==='topic'?{title:record.title}:{}),body:record.body,bodyFormat:record.body_format,language:record.language,editedAt:record.edited_at,editor:record.editor||null}));
+  if(beforeVersion!==null&&(!/^[1-9]\d{0,14}$/.test(String(beforeVersion))||!Number.isSafeInteger(Number(beforeVersion))))throw httpError(400,'invalid_history_cursor');
+  const before=beforeVersion===null?Number.MAX_SAFE_INTEGER:Number(beforeVersion);
+  const recorded=!!q('SELECT 1 FROM content_revisions WHERE kind=? AND content_id=? AND version=?').get(kind,id,row.version);
+  const records=q('SELECT r.*,u.name AS editor FROM content_revisions r LEFT JOIN users u ON u.id=r.editor_id WHERE r.kind=? AND r.content_id=? AND r.version<? ORDER BY r.version DESC LIMIT 51').all(kind,id,before);
+  if(!recorded&&row.version<before)records.unshift({version:row.version,title:row.title,body:row.body,body_format:row.bodyFormat,language:row.language,edited_at:row.editedAt||row.createdAt,editor:row.author});
+  const page=records.slice(0,50);
+  return {revisions:page.map(record=>({version:record.version,...(kind==='topic'?{title:record.title}:{}),body:record.body,bodyFormat:record.body_format,language:record.language,editedAt:record.edited_at,editor:record.editor||null})),currentVersion:row.version,total:Number(q('SELECT count(*) AS n FROM content_revisions WHERE kind=? AND content_id=?').get(kind,id).n)+(recorded?0:1),nextBeforeVersion:records.length>50?page.at(-1).version:null};
  }
  function visibility(kind,id,user,input){
   if(typeof input.hidden!=='boolean')throw httpError(400,'invalid_input');const current=actor(user);expected(current,input);
@@ -103,14 +107,14 @@ export function createCommunityContent({db,body,json,userRequired,postingRequire
    if(attachmentIds.length)attachments.bindToPost(user.id,attachmentIds,topicId,id);
    for(const [position,ref]of refs.entries())q('INSERT INTO content_quotes(post_id,position,source_kind,source_id,source_topic_id,source_version,excerpt) VALUES(?,?,?,?,?,?,?)').run(id,position,ref.kind,ref.id,topicId,ref.version,ref.excerpt);
    if(requestId)q('INSERT INTO reply_create_requests(user_id,client_request_id,payload_hash,post_id,created_at) VALUES(?,?,?,?,?)').run(user.id,requestId.toLowerCase(),hash,id,date);
-   q('UPDATE topics SET updated_at=? WHERE id=?').run(date,topicId);const row=required('post',id);snapshot(row);return {post:serialize(row),replayed:false};
+   q('UPDATE topics SET updated_at=? WHERE id=?').run(date,topicId);const row=required('post',id);snapshot(row);interactions?.onReplyCreated({id,topicId,userId:user.id,body:value,bodyFormat:format,quotes:refs});return {post:serialize(row),replayed:false};
   });
  }
  async function handle(req,res,url){
   const match=url.pathname.match(/^\/api\/content\/(topic|post)\/([a-zA-Z0-9_-]{1,100})\/(source|edit|history|visibility|hidden-replies)$/);if(!match)return false;
   const [,kind,id,action]=match;
   if(req.method==='GET'&&action==='source'){limit(req,'content-read',120,60000);json(res,200,{content:source(kind,id)});return true;}
-  if(req.method==='GET'&&action==='history'){json(res,200,{revisions:history(kind,id,userRequired(req))});return true;}
+  if(req.method==='GET'&&action==='history'){json(res,200,history(kind,id,userRequired(req),url.searchParams.get('beforeVersion')));return true;}
   if(req.method==='GET'&&kind==='topic'&&action==='hidden-replies'){
    const user=userRequired(req);if(user.role!=='admin')throw httpError(403,'forbidden');required('topic',id);
    json(res,200,{posts:q('SELECT p.id,u.name AS author,p.created_at AS createdAt,p.content_version AS version FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? AND p.hidden=1 ORDER BY p.created_at DESC,p.id LIMIT 100').all(id)});return true;

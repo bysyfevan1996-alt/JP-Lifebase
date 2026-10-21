@@ -1,7 +1,7 @@
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021125935020';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021125935020';
-import {resolveLocale} from './locale.js?v=20261021125935020';
-import {dictionaries,loadDictionary} from './denki-i18n.js?v=20261021125935020';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021153644704';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021153644704';
+import {resolveLocale} from './locale.js?v=20261021153644704';
+import {dictionaries,loadDictionary} from './denki-i18n.js?v=20261021153644704';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
