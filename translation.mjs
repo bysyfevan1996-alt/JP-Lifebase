@@ -8,12 +8,13 @@ export function createTranslator(db){
  async function translate(target,source,items,options={}){
   if(!items||Array.isArray(items)||typeof items!=='object'||Object.keys(items).length>200)throw failure(400,'invalid_translation_items');
   const entries=Object.entries(items);if(entries.some(([k,v])=>k.length>160||typeof v!=='string'||v.length>24000)||entries.reduce((n,[,v])=>n+v.length,0)>60000)throw failure(400,'translation_too_large');
+  const scopedSource=options.cacheScope?source+'|'+options.cacheScope:source;
   if(target==='original'||source===target)return {items:{...items},automatic:false,language:target};
   const result={},missing=[];
-  for(const [id,text]of entries){const cached=db.prepare('SELECT value FROM translations WHERE cache_key=?').get(digest(target,source,text));if(cached)result[id]=cached.value;else if(!text.trim())result[id]=text;else missing.push([id,text]);}
+  for(const [id,text]of entries){const cached=db.prepare('SELECT value FROM translations WHERE cache_key=?').get(digest(target,scopedSource,text));if(cached)result[id]=cached.value;else if(!text.trim())result[id]=text;else missing.push([id,text]);}
   if(!missing.length)return {items:result,automatic:true,language:target};
   if(!configured)throw failure(503,'translation_unavailable');
-  const batchKey=digest(target,source,JSON.stringify(missing));
+  const batchKey=digest(target,scopedSource,JSON.stringify(missing));
   if(pending.has(batchKey)){const values=await pending.get(batchKey);return {items:{...result,...values},automatic:true,language:target};}
   const task=(async()=>{
    if(active>=2)throw failure(429,'translation_busy');
@@ -31,7 +32,8 @@ export function createTranslator(db){
     if(typeof content!=='string')throw failure(503,'translation_unavailable');
     let translated;try{translated=JSON.parse(content.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,''));}catch{throw failure(503,'translation_unavailable');}
     const values={};for(const [id,text]of missing){if(typeof translated[id]!=='string'||translated[id].length>Math.max(2000,text.length*10))throw failure(503,'translation_unavailable');values[id]=translated[id];}
-    const insert=db.prepare('INSERT OR REPLACE INTO translations VALUES(?,?,?)');for(const [id,text]of missing)insert.run(digest(target,source,text),values[id],new Date().toISOString());
+    options.validate?.({...result,...values});
+    const insert=db.prepare('INSERT OR REPLACE INTO translations VALUES(?,?,?)');for(const [id,text]of missing)insert.run(digest(target,scopedSource,text),values[id],new Date().toISOString());
     return values;
    }finally{active--;}
   })();

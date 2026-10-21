@@ -1,0 +1,65 @@
+/* Phone writing is its own layout; desktop retains the inline reply and reading rail. */
+#topic-reply-editor.reply-writing{padding:0;background:#fff;border:1px solid #dedede;border-radius:14px;overflow:hidden;box-shadow:0 3px 16px #00000004}
+.reply-writing-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px 10px}
+.reply-writing-head>label{margin:0;font-size:15px;font-weight:650;color:#333;line-height:1.4}
+.reply-expand{display:none;align-items:center;justify-content:center;gap:7px;background:#f7f7f7;border:1px solid #e6e6e6;border-radius:8px;padding:0 10px;min-height:40px;font-size:12px;color:#555;white-space:nowrap}
+.reply-expand svg{width:15px;height:15px}.reply-expand:hover{background:#ededed}
+.reply-writing-context{display:none;margin:0;padding:0 20px 12px;color:#888;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none}
+.reply-writing-modes{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;border-bottom:1px solid #eaeaea;flex:none}
+.reply-writing-tabs{display:flex;gap:22px;min-width:0}
+.reply-writing-tabs button{background:none;border:0;border-bottom:2px solid transparent;border-radius:0;min-height:42px;padding:0 2px;color:#929292;font-size:13px;white-space:nowrap}
+.reply-writing-tabs button[aria-pressed=true]{color:#303030;border-bottom-color:#404040;font-weight:600}
+.reply-character-count{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap;color:#aaa}
+.reply-writing-area{min-width:0}
+.reply-writing .m3-editor-toolbar{display:flex;align-items:center;gap:6px;margin:0;padding:6px 14px;border:0;border-bottom:1px solid #f0f0f0;border-radius:0;background:#fafafa;flex:none}
+.reply-writing .m3-editor-toolbar button{display:flex;align-items:center;justify-content:center;width:36px;min-width:36px;min-height:36px;padding:3px;font-size:14px;border:0;border-radius:6px;background:transparent;color:#737373}
+.reply-writing .m3-editor-toolbar button:nth-child(2){font-weight:750}.reply-writing .m3-editor-toolbar button:nth-child(3){font-family:Georgia,serif;font-style:italic}
+.reply-writing .m3-editor-toolbar button:hover{background:#ededed;color:#222}
+#topic-reply-editor.reply-writing textarea{display:block;border:0;border-radius:0!important;margin:0;padding:18px 20px;background:white;font-size:15px;line-height:1.85;min-height:230px;color:#3d3d3d;box-shadow:none}
+#topic-reply-editor.reply-writing textarea:focus{outline:none}
+.reply-writing:focus-within{border-color:#bbb!important}
+.reply-writing .m3-editor-preview{margin:0;padding:18px 20px;border:0;border-radius:0;min-height:230px;font-size:15px;line-height:1.85;color:#3d3d3d}
+.reply-writing .is-preview .m3-editor-toolbar{display:none}
+.reply-writing .m3-media{margin:0;padding:0 16px 12px;flex:none}
+.reply-writing .m3-media>button{min-height:40px;padding:7px 11px;border:1px solid #e8e8e8;border-radius:8px;background:#fff;color:#777;font-size:12px}
+.reply-writing .m3-media-list{margin-top:8px;gap:6px}.reply-writing .m3-media-list:empty{margin:0}
+.reply-writing .m3-media-card{width:auto;gap:6px;padding:6px;border-radius:8px;background:#fafafa;font-size:11px}
+.reply-writing .m3-media-card img{width:42px;height:42px}.reply-writing .m3-media-card button{min-height:36px;padding:0 7px}
+.reply-writing .m3-draft-quotes{padding:0 16px}.reply-writing .m3-draft-quotes:empty{display:none}
+.reply-writing .m3-draft-quotes .quote{margin:12px 0;font-size:12px;max-height:180px;overflow:auto}
+.reply-writing-settings{border-top:1px solid #f0f0f0;padding:0 20px;flex:none}
+.reply-writing-settings>summary{display:flex;align-items:center;gap:6px;list-style:none;cursor:pointer;color:#999;min-height:36px;font-size:11px}
+.reply-writing-settings>summary::-webkit-details-marker{display:none}.reply-writing-settings>summary::after{content:'⌄';font-size:14px}
+.reply-writing-settings[open]>summary::after{transform:rotate(180deg)}
+.reply-writing-settings .m3-language-field{margin:0 0 12px;font-size:12px;justify-content:space-between}
+.reply-writing-settings select{min-height:36px;font-size:14px;max-width:55%;color:#666}
+#topic-reply-editor.reply-writing .editor-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:12px 20px;border-top:1px solid #eaeaea;background:#fff;flex:none}
+.reply-writing .reply-draft-hint{font-size:11px;line-height:1.5;color:#aaa;min-width:0}
+.reply-writing #send-reply{flex:none;min-height:40px;border-radius:9px;padding:8px 20px;font-size:13px}
+.reply-writing>.form-error{padding:0 20px 12px;margin:0;background:white;flex:none}
+.reply-writing>.m3-moderation{margin:0;padding:0 20px 8px}.reply-writing>.m3-moderation button{font-size:10px}
+body.reply-fullscreen-open .reading-mobile{display:none!important}
+.reply-writing-dialog{position:fixed;inset:0 auto auto 0;width:100%;max-width:none;height:var(--reply-viewport-height,100dvh);max-height:none;top:var(--reply-viewport-top,0px);margin:0;padding:0;border:0;border-radius:0;background:white;color:#333;overflow:hidden;box-shadow:none}
+.reply-writing-dialog::backdrop{background:#fff}
+@media(max-width:760px){
+ #topic-reply-editor.reply-writing{margin-top:24px;border-radius:12px}
+ .reply-writing-head{padding:12px 14px 8px}.reply-writing-head>label{font-size:15px}
+ .reply-expand{display:inline-flex}.reply-writing-modes{padding:0 16px}.reply-writing-tabs{gap:24px}.reply-writing-tabs button{min-height:44px}
+ .reply-writing .m3-editor-toolbar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;padding:3px 9px}
+ .reply-writing .m3-editor-toolbar button{width:100%;min-width:0;min-height:42px;padding:0;font-size:15px}
+ #topic-reply-editor.reply-writing textarea{min-height:240px;font-size:16px;line-height:1.85;padding:16px;resize:none}
+ .reply-writing .m3-editor-preview{min-height:240px;padding:16px;font-size:16px;line-height:1.85}
+ .reply-writing .m3-media{padding:0 12px 10px}.reply-writing-settings{padding:0 16px}
+ #topic-reply-editor.reply-writing .editor-actions{padding:12px 14px;gap:8px}.reply-writing #send-reply{min-height:44px;padding:9px 20px}
+ .reply-writing .reply-draft-hint{font-size:10px;max-width:58%}
+ #topic-reply-editor.reply-writing.is-fullscreen{height:100%;min-height:0;display:flex;flex-direction:column;margin:0;border:0;border-radius:0;box-shadow:none}
+ .is-fullscreen .reply-writing-head{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:4px;flex:none}
+ .is-fullscreen .reply-writing-context{display:block;padding:0 16px 10px}
+ .is-fullscreen .reply-writing-area{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain}
+ #topic-reply-editor.reply-writing.is-fullscreen textarea{flex:1;min-height:140px;height:100%;overflow:auto;overscroll-behavior:contain}
+ .is-fullscreen .m3-editor-preview{flex:1;min-height:140px;overflow:auto;overscroll-behavior:contain}
+ .is-fullscreen .m3-draft-quotes{flex:none;max-height:25%;overflow:auto}
+ .is-fullscreen .m3-media{padding-bottom:8px}.is-fullscreen .m3-media-list{flex-wrap:nowrap;overflow:auto}.is-fullscreen .m3-media-card{flex:none;max-width:260px}
+ #topic-reply-editor.reply-writing.is-fullscreen .editor-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+ .is-fullscreen>.m3-moderation{display:none}
+}

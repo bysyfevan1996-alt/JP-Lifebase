@@ -1,4 +1,4 @@
-import {normalizeLanguage,resolveLocale} from './locale.js?v=20261021114642341';
+import {normalizeLanguage,resolveLocale} from './locale.js?v=20261021125935020';
 
 const languageKey='jlb-language',metadataKey='jlb-language-meta';
 function availableStorage(storage){try{return storage===undefined?globalThis.localStorage:storage;}catch{return null;}}

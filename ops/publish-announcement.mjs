@@ -2,6 +2,7 @@
 import {DatabaseSync} from 'node:sqlite';
 import {readFile} from 'node:fs/promises';
 import {createTopicPosting} from '../topic-posting.mjs';
+import {setReleaseOrder} from '../release-notes.mjs';
 const args=process.argv.slice(2),get=name=>args[args.indexOf(name)+1];
 if(!args.includes('--db')||!args.includes('--actor')||!args.includes('--file')||!args.includes('--request-id'))throw Error('Usage: --db <absolute.sqlite> --actor <existing-admin-email> --file <public-json> --request-id <uuid> [--publish]');
 const input=JSON.parse(await readFile(get('--file'),'utf8'));
@@ -15,6 +16,8 @@ try{
  text(input.title,3,140);text(input.body,5,12000);
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(get('--request-id')))throw Error('A stable UUID request ID is required');
  const payload={...input,clientRequestId:get('--request-id'),expectedUserId:actor.id};
+ const order=args.includes('--release-order')?Number(get('--release-order')):null;
+ if(order!==null&&(!Number.isSafeInteger(order)||order<0||order>10000))throw Error('Invalid release order');
  if(!args.includes('--publish'))console.log(JSON.stringify({validated:true,title:input.title,category:'site',publish:false}));
- else{const result=posting.create({},actor,payload);console.log(JSON.stringify({published:true,...result,url:'https://www.jp-lifebase.com/#topic='+result.id}));}
+ else{const result=posting.create({},actor,payload);if(order!==null)setReleaseOrder(db,{topicId:result.id,order,operatorId:actor.id});console.log(JSON.stringify({published:true,...result,releaseOrder:order,url:'https://www.jp-lifebase.com/#topic='+result.id}));}
 }finally{db.close();}

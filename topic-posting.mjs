@@ -30,7 +30,7 @@ export function createTopicPosting({db,text,language,httpError,limit,attachments
    if(typeof input.body!=='string'||input.body.trim().length<5||input.body.length>12000||input.body.includes('\0'))throw httpError(400,'invalid_input');
    content=input.body;
   }
-  const lang=language(input.language||'zh-CN');
+  const lang=language(input.language===undefined?'und':input.language);
   if(lang==='original'||!categories.has(input.category)||input.category==='site'&&user.role!=='admin')throw httpError(400,'invalid_category');
   let clientRequestId=null;
   if(input.clientRequestId!==undefined){

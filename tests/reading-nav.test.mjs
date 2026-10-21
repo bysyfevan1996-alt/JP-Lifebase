@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createReadingNavigation} from '../dist/reading-nav.js';
 export function createNavigationDOMHarness(createReadingNavigation, {
  width=1440, viewport=900, scroll=700, repliesTop=2400,
- repliesBottom=3200, editorTop=3300, docHeight=4200, bookmark=null,
+ repliesBottom=3200, editorTop=3300, docHeight=4200, bookmark=null,portaled=false,
 }={}) {
  const globalNames=['window','document','getComputedStyle','matchMedia','requestAnimationFrame','cancelAnimationFrame'];
  const previous=new Map(globalNames.map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
@@ -65,7 +65,8 @@ export function createNavigationDOMHarness(createReadingNavigation, {
  globalThis.matchMedia=query=>({matches:query==='(max-width:760px)'&&width<=760});
  globalThis.requestAnimationFrame=callback=>{queue.set(++frameId,callback);return frameId;};
  globalThis.cancelAnimationFrame=id=>queue.delete(id);
- const navigation=createReadingNavigation({root,mobile,bookmark,t:key=>key,
+ if(portaled)selectors['#reply-text']=null;
+ const navigation=createReadingNavigation({root,mobile,bookmark,replyInput:portaled?input:null,t:key=>key,
   onBookmark:point=>{saved=point;},onWindow:()=>false,
  });
  const flush=()=>{while(queue.size){const pending=[...queue.values()];queue.clear();pending.forEach(callback=>callback());}};
@@ -101,5 +102,10 @@ test('mobile reply focus hides only mobile actions and preserves a return after 
 test('short reply area clamped by the bottom of the document still exposes the return action',()=>{
  const harness=createNavigationDOMHarness(createReadingNavigation,{width:390,viewport:900,repliesTop:2400,repliesBottom:2500,editorTop:2600,docHeight:2900});
  try{harness.navigation.navigate('replies');harness.flush();assert.equal(harness.window.scrollY,2000);assert.equal(harness.mobileLeft.dataset.readingAction,'return');}
+ finally{harness.dispose();}
+});
+test('navigation rebuilt while the reply editor is in a full-screen dialog keeps the original input reference',()=>{
+ const harness=createNavigationDOMHarness(createReadingNavigation,{portaled:true});
+ try{harness.input.value='Long reply retained';harness.navigation.navigate('write');harness.flush();assert.equal(document.activeElement,harness.input);assert.equal(harness.buttons.get('return').disabled,false);harness.click('return');assert.equal(harness.input.value,'Long reply retained');assert.equal(harness.window.scrollY,700);}
  finally{harness.dispose();}
 });

@@ -4,6 +4,10 @@
 
 Live community: https://www.jp-lifebase.com/
 
+## Current M3
+
+M3 implements Markdown replies/images, versioned edits/history, conflict recovery, structured quotes, image lightboxes and explicit per-post translation. User content stays original until requested. Phone replies have a dedicated inline layout and full-screen writing mode; expanding/collapsing preserves the same text, quotes and uploads. Reply drafts are page-memory only. See `docs/M3_COMPLETION.md` and `docs/MOBILE_REPLY_WRITING.md` for current behavior and release evidence. First-version sections below are historical. M2 stable URLs, full server pagination/search and persistent reading progress remain pending.
+
 Tool entry: https://jp-lifebase.com/denkikakaku
 
 ## First version
@@ -54,7 +58,7 @@ See `ops/README.md` for service names, backup, rollback and operator administrat
 
 ## Current boundaries
 
-The electricity tool uses verified historical monthly rates and a versioned calculation engine; see `denki/README.md` for coverage and evidence. The moving tool remains in preparation. Contact messages are stored for the operator; email forwarding is not configured. Reply images, arbitrary file attachments, remote Markdown images and cross-device drafts are not implemented. The administrator interface is at `/admin`; public registration cannot grant administrator privileges. Existing accounts retain their privileges and must confirm their original password before verifying their email; an unverified legacy email cannot reset a password.
+The electricity tool uses verified historical monthly rates and a versioned calculation engine; see `denki/README.md` for coverage and evidence. The moving tool remains in preparation. Contact messages are stored for the operator; email forwarding is not configured. Arbitrary file attachments, remote Markdown images and cross-device drafts are not implemented. The administrator interface is at `/admin`; public registration cannot grant administrator privileges. Existing accounts retain their privileges and must confirm their original password before verifying their email; an unverified legacy email cannot reset a password.
 
 ## Upgrade baseline M0
 

@@ -1,17 +1,23 @@
-import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021114642341';
-import {readingControls} from './reading-controls.js?v=20261021114642341';
-import {icon} from './icons.js?v=20261021114642341';
-import {createReadingHeader} from './reading-header.js?v=20261021114642341';
+import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021125935020';
+import {readingControls} from './reading-controls.js?v=20261021125935020';
+import {icon} from './icons.js?v=20261021125935020';
+import {createReadingHeader} from './reading-header.js?v=20261021125935020';
 
 // Page-local return points. No browser history or persistent read/unread state.
-export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow}){
+export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow,replyInput=null}){
  const controller=new AbortController(),options={signal:controller.signal};
  const original=root.querySelector('#topic-original'),replies=root.querySelector('#topic-replies');
- const desktop=root.querySelector('.reading-nav'),input=root.querySelector('#reply-text');
+ const desktop=root.querySelector('.reading-nav'),input=replyInput||root.querySelector('#reply-text');
  const header=createReadingHeader(root);
  let frame=0,disposed=false,returnPoint=bookmark,restoring=false,jumped=false;
  const anchors=[...root.querySelectorAll('.post-header,.post-body,.post-body > *,.topic-image-gallery a,.post .quote')].filter(element=>!element.classList.contains('post-body')||!element.children.length);
- anchors.forEach((element,index)=>element.dataset.readingKey=String(index));
+ const anchorCounts=new Map();
+ anchors.forEach((element,index)=>{
+  const post=element.closest?.('[data-post-id]'),postId=post?.dataset.postId;
+  if(!postId){element.dataset.readingKey=String(index);return;}
+  const ordinal=anchorCounts.get(postId)||0;anchorCounts.set(postId,ordinal+1);
+  element.dataset.readingKey=postId+':'+ordinal;
+ });
  const inset=()=>header.inset();
  const items=()=>anchors.map(element=>{const rect=element.getBoundingClientRect();return {key:element.dataset.readingKey,top:rect.top+window.scrollY,bottom:rect.bottom+window.scrollY};});
  function remember(){

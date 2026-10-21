@@ -20,6 +20,8 @@ import {applySchema} from './schema.mjs';
 import {releaseInfo} from './release.mjs';
 import {changeTopicFlags} from './topic-state.mjs';
 import {createCommunityPolicy} from './community-policy.mjs';
+import {createCommunityContent} from './community-content.mjs';
+import {createContentTranslation} from './content-translation.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url)),dist=path.join(root,'dist');
 const release=await releaseInfo(root);
@@ -77,58 +79,32 @@ const policy=createCommunityPolicy({db,body,json,userRequired,httpError,language
 const communityAdmin=createCommunityAdmin({db,body,json,userRequired,httpError,policy,migrate:false});
 const topicAttachments=createTopicAttachments({db,body,json,userRequired,httpError,limit,migrate:false,postingRequired:policy.postingRequired});
 const topicPosting=createTopicPosting({db,text,language,httpError,limit,attachments:topicAttachments,migrate:false});
+const communityContent=createCommunityContent({db,body,json,userRequired,postingRequired:policy.postingRequired,httpError,language,limit,attachments:topicAttachments});
+const contentTranslation=createContentTranslation({db,content:communityContent,translator,body,json,language,session,limit,httpError});
 const attachmentCleanup=setInterval(()=>{try{topicAttachments.cleanup();}catch(e){console.error('Attachment cleanup failed:',e.code||e.name);}},3600000);
 attachmentCleanup.unref();
-function serializeTopic(row){return {id:row.id,title:row.title,body:row.body,bodyFormat:row.body_format||'plain',tagIds:topicPosting.tagsForTopic(row.id),attachments:topicAttachments.forTopic(row.id),excerpt:row.excerpt,category:row.category,author:row.author,...(row.user_id?defaultAvatar(row.author):{avatar:row.avatar,tone:row.tone}),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),pinned:!!row.pinned,seed:!!row.seed,language:row.language,userId:row.user_id,createdAt:row.created_at,updatedAt:row.updated_at,minutes:Math.max(0,Math.floor((Date.now()-Date.parse(row.updated_at))/60000)),replies:Number(row.replies||0)};}
-const topicQuery='SELECT t.*,u.avatar_hash,(SELECT count(*) FROM posts p WHERE p.topic_id=t.id) AS replies FROM topics t LEFT JOIN users u ON u.id=t.user_id';
+function serializeTopic(row){return {id:row.id,version:row.content_version,editedAt:row.edited_at,releaseOrder:row.release_order,title:row.title,body:row.body,bodyFormat:row.body_format||'plain',tagIds:topicPosting.tagsForTopic(row.id),attachments:topicAttachments.forTopic(row.id),excerpt:row.excerpt,category:row.category,author:row.author,...(row.user_id?defaultAvatar(row.author):{avatar:row.avatar,tone:row.tone}),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),pinned:!!row.pinned,seed:!!row.seed,language:row.language,userId:row.user_id,createdAt:row.created_at,updatedAt:row.updated_at,minutes:Math.max(0,Math.floor((Date.now()-Date.parse(row.updated_at))/60000)),replies:Number(row.replies||0)};}
+const topicQuery='SELECT t.*,u.avatar_hash,(SELECT count(*) FROM posts p WHERE p.topic_id=t.id AND p.hidden=0) AS replies FROM topics t LEFT JOIN users u ON u.id=t.user_id';
 async function localizedTopics(rows,target,full=false){
- const result=rows.map(serializeTopic);let automatic=false,unavailable=false;
- if(target==='original')return {topics:result,translation:{automatic:false,language:target}};
- const pending=[],markdownOriginals=[];
- for(const t of result){
-  const manual=t.seed?seedContent[target]?.find(s=>s.id===t.id):null;
-  if(manual){Object.assign(t,{title:manual.title,body:manual.body,excerpt:manual.excerpt||manual.body.slice(0,160)});continue;}
-  if(humanLanguage(target))continue;
-  if(t.language.split('-')[0]===target.split('-')[0])continue;
-  if(full&&t.bodyFormat==='markdown')markdownOriginals.push(t);
-  pending.push({item:t,source:t.language,keys:full&&t.bodyFormat!=='markdown'?['title','body','excerpt']:['title','excerpt']});
+ const result=rows.map(serializeTopic);
+ for(const topic of result){
+  const manual=topic.seed?seedContent[target]?.find(item=>item.id===topic.id):null;
+  if(manual)Object.assign(topic,{title:manual.title,body:manual.body,excerpt:manual.excerpt||manual.body.slice(0,160)});
  }
- const translated=await batchTranslate(pending,target);automatic=translated.automatic;unavailable=translated.unavailable;
- for(const t of markdownOriginals){t.original={...t.original,body:t.body,bodyFormat:t.bodyFormat,language:t.language};t.translation={...t.translation,unavailable:true,language:target};unavailable=true;}
- return {topics:result,translation:{automatic,unavailable,language:target}};
-}
-async function batchTranslate(entries,target){
- let automatic=false,unavailable=false;
- const groups=new Map();
- for(const entry of entries){if(!groups.has(entry.source))groups.set(entry.source,[]);groups.get(entry.source).push(entry);}
- await Promise.all([...groups].map(async([source,group])=>{
-  const items={},selected=[];let chars=0,count=0;
-  for(const [index,entry]of group.entries()){
-   const size=entry.keys.reduce((n,k)=>n+String(entry.item[k]||'').length,0);
-   if(count+entry.keys.length>190||chars+size>55000){entry.item.translation={automatic:false,unavailable:true,language:target};unavailable=true;continue;}
-   count+=entry.keys.length;chars+=size;selected.push({entry,index});for(const k of entry.keys)items[`p${index}_${k}`]=String(entry.item[k]||'');
-  }
-  if(!selected.length)return;
-  try{const out=await translator.translate(target,source,items,{timeout:12000});for(const {entry,index}of selected){entry.item.original=Object.fromEntries([...entry.keys.map(k=>[k,entry.item[k]]),['language',source],['bodyFormat',entry.item.bodyFormat||'plain']]);for(const k of entry.keys)entry.item[k]=out.items[`p${index}_${k}`];entry.item.translation={automatic:true,language:target};}automatic=true;}
-  catch{for(const {entry}of selected)entry.item.translation={automatic:false,unavailable:true,language:target};unavailable=true;}
- }));
- return {automatic,unavailable};
+ return {topics:result,translation:{automatic:false,unavailable:false,language:target}};
 }
 async function getTopic(id,target,replyWindow='first'){
  if(!['first','latest'].includes(replyWindow))throw httpError(400,'invalid_reply_window');
  const row=q(topicQuery+' WHERE t.id=? AND t.hidden=0').get(id);if(!row)throw httpError(404,'topic_not_found');
  const localized=await localizedTopics([row],target,true),topic=localized.topics[0];
  const direction=replyWindow==='latest'?'DESC':'ASC';
- const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
+ const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? AND p.hidden=0 ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
  if(replyWindow==='latest')replies.reverse();
- const posts=[{id:'first-'+id,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
+ const posts=[{id:'first-'+id,version:topic.version,editedAt:topic.editedAt,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
  let automatic=localized.translation.automatic,unavailable=localized.translation.unavailable;
- const pending=[];
- for(const row of replies){const p={id:row.id,author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};
-  if(target!=='original'&&!humanLanguage(target)&&p.language.split('-')[0]!==target.split('-')[0])pending.push({item:p,source:p.language,keys:p.quote?['body','quote']:['body']});
+ for(const row of replies){const p={id:row.id,version:row.content_version,editedAt:row.edited_at,attachments:topicAttachments.forPost(row.id),quoteRefs:communityContent.quoteRefs(row.id),author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:row.body_format||'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};
   posts.push(p);
  }
- const translated=await batchTranslate(pending,target);automatic||=translated.automatic;unavailable||=translated.unavailable;
  return {topic,posts,replyWindow:{mode:replyWindow,total:topic.replies,loaded:replies.length,hasEarlier:replyWindow==='latest'&&topic.replies>replies.length,hasLater:replyWindow==='first'&&topic.replies>replies.length},translation:{automatic,unavailable,language:target}};
 }
 async function api(req,res,url){
@@ -138,6 +114,8 @@ async function api(req,res,url){
  if(await policy.handle(req,res,url))return;
  if(await communityAdmin.handle(req,res,url))return;
  if(await topicAttachments.handle(req,res,url))return;
+ if(await communityContent.handle(req,res,url))return;
+ if(await contentTranslation.handle(req,res,url))return;
  if(method==='GET'&&route==='/api/tags')return json(res,200,{tags:topicTags});
  if(method==='GET'&&route==='/api/denki/catalog')return json(res,200,denkiCatalog(denkiData,undefined,url.searchParams.get('area')??'tokyo'));
  if(method==='GET'&&route==='/api/denki/dataset'){
@@ -168,18 +146,15 @@ async function api(req,res,url){
  if(match){const id=match[1];
   if(method==='GET'&&!match[2]){limit(req,'read',120,60000);return json(res,200,await getTopic(id,target,url.searchParams.get('replyWindow')||'first'));}
   if(method==='POST'&&match[2]==='replies'){
-   const previous=policy.postingRequired(req);limit(req,'reply',15,10*60000);const b=await body(req),user=policy.postingRequired(req);if(user.id!==previous.id)throw httpError(409,'account_changed');const content=text(b.body,1,6000),lang=language(b.language||'zh-CN');if(lang==='original')throw httpError(400,'invalid_language');
-   if(!q('SELECT id FROM topics WHERE id=? AND hidden=0').get(id))throw httpError(404,'topic_not_found');
-   const quote=b.quote?text(typeof b.quote==='string'?b.quote:`${b.quote.author||''}: ${b.quote.body||''}`,1,5000):null;
-   const post={id:randomUUID(),topicId:id,body:content,bodyFormat:'plain',author:user.name,userId:user.id,avatar:user.avatar,tone:user.tone,avatarUrl:user.avatarUrl,createdAt:now(),language:lang,quote};
-   transaction(()=>{q('INSERT INTO posts VALUES(?,?,?,?,?,?,?)').run(post.id,id,user.id,content,quote,lang,post.createdAt);q('UPDATE topics SET updated_at=? WHERE id=?').run(post.createdAt,id);});return json(res,201,{post});
+   const previous=policy.postingRequired(req),input=await body(req),user=policy.postingRequired(req);if(user.id!==previous.id)throw httpError(409,'account_changed');
+   const result=communityContent.createReply(req,user,id,input);return json(res,result.replayed?200:201,result);
   }
   if(method==='POST'&&match[2]==='report'){const previous=userRequired(req);limit(req,'report',5,3600000);const b=await body(req),u=userRequired(req);if(u.id!==previous.id)throw httpError(409,'account_changed');if(!q('SELECT id FROM topics WHERE id=? AND hidden=0').get(id))throw httpError(404,'topic_not_found');q('INSERT INTO reports(id,topic_id,user_id,reason,created_at) VALUES(?,?,?,?,?)').run(randomUUID(),id,u.id,text(b.reason,3,1000),now());return json(res,201,{ok:true});}
   if(method==='DELETE'&&!match[2]){const u=policy.postingRequired(req);const topic=changeTopicFlags(db,{topicId:id,operator:u,hidden:true,action:'author_hide',allowAuthor:true});return json(res,200,{ok:true,topic,recoverable:true});}
  }
  if(method==='GET'&&route==='/api/me/topics'){const u=userRequired(req);return json(res,200,await localizedTopics(q(topicQuery+' WHERE t.user_id=? AND t.hidden=0 ORDER BY t.updated_at DESC').all(u.id),target));}
  if(method==='GET'&&route==='/api/me/messages'){
-  const u=userRequired(req);const rows=q('SELECT p.id,p.topic_id AS topicId,t.title AS topicTitle,u.name AS author,p.body,p.created_at AS createdAt FROM posts p JOIN topics t ON t.id=p.topic_id JOIN users u ON u.id=p.user_id WHERE t.user_id=? AND p.user_id<>? AND t.hidden=0 ORDER BY p.created_at DESC LIMIT 100').all(u.id,u.id);
+  const u=userRequired(req);const rows=q('SELECT p.id,p.topic_id AS topicId,t.title AS topicTitle,u.name AS author,p.body,p.created_at AS createdAt FROM posts p JOIN topics t ON t.id=p.topic_id JOIN users u ON u.id=p.user_id WHERE t.user_id=? AND p.user_id<>? AND t.hidden=0 AND p.hidden=0 ORDER BY p.created_at DESC LIMIT 100').all(u.id,u.id);
   return json(res,200,{messages:rows});
  }
  if(method==='POST'&&route==='/api/contact'){limit(req,'contact',3,3600000);const b=await body(req);q('INSERT INTO contacts VALUES(?,?,?,?,?)').run(randomUUID(),text(b.name,1,60),email(b.email),text(b.message,5,5000),now());return json(res,201,{ok:true});}
@@ -213,7 +188,7 @@ const server=http.createServer(async(req,res)=>{
   const filename=path.resolve(dist,'.'+pathname);if(!filename.startsWith(dist+path.sep)||!mime[path.extname(filename)])throw httpError(404,'not_found');
   let bytes;try{if(!(await stat(filename)).isFile())throw 0;bytes=await readFile(filename);}catch{throw httpError(404,'not_found');}
   res.writeHead(200,{'Content-Type':mime[path.extname(filename)],'Cache-Control':'no-store, max-age=0'});res.end(req.method==='HEAD'?undefined:bytes);
- }catch(e){if(!res.headersSent)json(res,e.status||500,{error:e.code||'server_error',code:e.code||'server_error',...(e.retryAfter?{retryAfter:e.retryAfter}:{}),...(Number.isInteger(e.remainingAttempts)?{remainingAttempts:e.remainingAttempts}:{})},e.retryAfter?{'Retry-After':String(e.retryAfter)}:{});else res.end();if(!e.status)console.error('Request failed:',e.code||e.name);}
+ }catch(e){if(!res.headersSent)json(res,e.status||500,{error:e.code||'server_error',code:e.code||'server_error',...(e.retryAfter?{retryAfter:e.retryAfter}:{}),...(Number.isInteger(e.currentVersion)?{currentVersion:e.currentVersion}:{}),...(Number.isInteger(e.remainingAttempts)?{remainingAttempts:e.remainingAttempts}:{})},e.retryAfter?{'Retry-After':String(e.retryAfter)}:{});else res.end();if(!e.status)console.error('Request failed:',e.code||e.name);}
 });
 server.headersTimeout=15000;server.requestTimeout=30000;
 server.listen(port,'127.0.0.1',()=>console.log(`Japan Life Base listening on http://127.0.0.1:${server.address().port}`));

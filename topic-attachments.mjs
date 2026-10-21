@@ -5,7 +5,7 @@ const TTL=7*24*60*60*1000;
 const HOUR=60*60*1000;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const BASE='/api/topic-attachments';
-const columns='a.id,a.user_id,a.topic_id,a.width,a.height,length(a.bytes) AS byte_length,a.expires_at,a.created_at,a.position';
+const baseColumns='a.id,a.user_id,a.topic_id,a.width,a.height,length(a.bytes) AS byte_length,a.expires_at,a.created_at,a.position';
 
 export function migrateTopicAttachments(db){
  db.exec(`CREATE TABLE IF NOT EXISTS topic_attachments(
@@ -23,7 +23,11 @@ export function migrateTopicAttachments(db){
 export function createTopicAttachments({db,body,json,userRequired,httpError,limit,now=Date.now,migrate=true,postingRequired=userRequired}){
  if(migrate)migrateTopicAttachments(db);
  const q=sql=>db.prepare(sql);
- const lookup=q(`SELECT ${columns},t.hidden AS topic_hidden FROM topic_attachments a LEFT JOIN topics t ON t.id=a.topic_id WHERE a.id=?`);
+ const hasPosts=db.prepare('PRAGMA table_info(topic_attachments)').all().some(column=>column.name==='post_id');
+ const columns=baseColumns+(hasPosts?',a.post_id':',NULL AS post_id');
+ const joins=' LEFT JOIN topics t ON t.id=a.topic_id'+(hasPosts?' LEFT JOIN posts p ON p.id=a.post_id':'');
+ const visibility='t.hidden AS topic_hidden,'+(hasPosts?'p.hidden':'0')+' AS post_hidden';
+ const lookup=q(`SELECT ${columns},${visibility} FROM topic_attachments a${joins} WHERE a.id=?`);
  const cleanupAt=time=>q('DELETE FROM topic_attachments WHERE topic_id IS NULL AND expires_at<=?').run(time).changes;
  const cleanup=()=>cleanupAt(now());
  function transaction(work){db.exec('BEGIN IMMEDIATE');try{const out=work();db.exec('COMMIT');return out;}catch(e){db.exec('ROLLBACK');throw e;}}
@@ -36,7 +40,7 @@ export function createTopicAttachments({db,body,json,userRequired,httpError,limi
  }
  function expected(userId,value){if(typeof value!=='string'||value!==userId)throw httpError(409,'account_changed');}
  function metadata(row){return {id:row.id,url:BASE+'/'+row.id,mime:'image/png',width:row.width,height:row.height,bytes:Number(row.byte_length),expiresAt:row.topic_id?null:new Date(row.expires_at).toISOString()};}
- function visible(row){return !row.topic_id||row.topic_hidden===0;}
+ function visible(row){return !row.topic_id||row.topic_hidden===0&&(!row.post_id||row.post_hidden===0);}
  function validateForPost(userId,ids){
   const canonical=canonicalIds(ids),time=now();
   for(const id of canonical){
@@ -54,7 +58,15 @@ export function createTopicAttachments({db,body,json,userRequired,httpError,limi
   const update=q('UPDATE topic_attachments SET topic_id=?,position=? WHERE id=? AND user_id=? AND topic_id IS NULL AND expires_at>?');
   for(const [position,id]of canonical.entries())if(update.run(topicId,position,id,userId,now()).changes!==1)throw httpError(400,'invalid_attachment');
  }
- function forTopic(topicId){return q(`SELECT ${columns} FROM topic_attachments a JOIN topics t ON t.id=a.topic_id WHERE a.topic_id=? AND t.hidden=0 ORDER BY a.position,a.created_at,a.id`).all(topicId).map(metadata);}
+ function forTopic(topicId){return q(`SELECT ${columns} FROM topic_attachments a JOIN topics t ON t.id=a.topic_id WHERE a.topic_id=? AND t.hidden=0${hasPosts?' AND a.post_id IS NULL':''} ORDER BY a.position,a.created_at,a.id`).all(topicId).map(metadata);}
+ function forPost(postId){return !hasPosts?[]:q(`SELECT ${columns} FROM topic_attachments a JOIN topics t ON t.id=a.topic_id JOIN posts p ON p.id=a.post_id WHERE a.post_id=? AND t.hidden=0 AND p.hidden=0 ORDER BY a.position,a.created_at,a.id`).all(postId).map(metadata);}
+ function bindToPost(userId,ids,topicId,postId){
+  if(!hasPosts)throw httpError(400,'invalid_attachment');
+  const canonical=validateForPost(userId,ids);
+  if(!q('SELECT p.id FROM posts p JOIN topics t ON t.id=p.topic_id WHERE p.id=? AND p.topic_id=? AND p.user_id=? AND p.hidden=0 AND t.hidden=0').get(postId,topicId,userId))throw httpError(400,'invalid_attachment');
+  const update=q('UPDATE topic_attachments SET topic_id=?,post_id=?,position=? WHERE id=? AND user_id=? AND topic_id IS NULL AND expires_at>?');
+  for(const [position,id]of canonical.entries())if(update.run(topicId,postId,position,id,userId,now()).changes!==1)throw httpError(400,'invalid_attachment');
+ }
  async function upload(req,user){
   expected(user.id,req.headers['x-expected-user-id']);
   limit(req,'attachment-attempt:'+user.id,120,HOUR);
@@ -67,7 +79,7 @@ export function createTopicAttachments({db,body,json,userRequired,httpError,limi
   const decoded=validateTopicImage(Buffer.concat(chunks)),time=now();
   return transaction(()=>{
    cleanupAt(time);
-   const existing=q(`SELECT ${columns},a.payload_hash,t.hidden AS topic_hidden FROM topic_attachments a LEFT JOIN topics t ON t.id=a.topic_id WHERE a.user_id=? AND a.upload_id=?`).get(user.id,uploadId.toLowerCase());
+   const existing=q(`SELECT ${columns},a.payload_hash,${visibility} FROM topic_attachments a${joins} WHERE a.user_id=? AND a.upload_id=?`).get(user.id,uploadId.toLowerCase());
    if(existing){
     if(existing.payload_hash!==decoded.hash)throw httpError(409,'upload_conflict');
     if(!visible(existing))throw httpError(404,'attachment_not_found');
@@ -111,7 +123,7 @@ export function createTopicAttachments({db,body,json,userRequired,httpError,limi
   const id=route.slice(BASE.length+1);if(!UUID.test(id))return false;
   if(req.method==='GET'){
    limit(req,'attachment-read',120,60000);cleanup();
-   const row=q('SELECT a.*,t.hidden AS topic_hidden FROM topic_attachments a LEFT JOIN topics t ON t.id=a.topic_id WHERE a.id=?').get(id.toLowerCase());
+   const row=q(`SELECT a.*,${visibility} FROM topic_attachments a${joins} WHERE a.id=?`).get(id.toLowerCase());
    if(!row||!visible(row))throw httpError(404,'attachment_not_found');
    if(!row.topic_id){let user;try{user=userRequired(req);}catch(e){if(e.status!==401)throw e;}if(!user||user.id!==row.user_id)throw httpError(404,'attachment_not_found');}
    const bytes=Buffer.from(row.bytes);res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Length':String(bytes.length)});res.end(bytes);return true;
@@ -125,5 +137,5 @@ export function createTopicAttachments({db,body,json,userRequired,httpError,limi
   throw httpError(405,'method_not_allowed');
  }
  cleanup();
- return {handle,validateForPost,bindToTopic,forTopic,cleanup};
+ return {handle,validateForPost,bindToTopic,bindToPost,forTopic,forPost,cleanup};
 }

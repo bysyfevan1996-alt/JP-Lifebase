@@ -13,7 +13,7 @@ function fixture(filename=':memory:'){
  db.prepare('INSERT INTO users(id,name,email,password,salt,role,created_at) VALUES(?,?,?,?,?,?,?)').run('admin','Admin','admin@example.test','unused','unused','admin','date');
  db.prepare('INSERT INTO users(id,name,email,password,salt,role,created_at) VALUES(?,?,?,?,?,?,?)').run('author','Author','author@example.test','unused','unused','member','date');
  db.prepare('INSERT INTO topics(id,title,body,excerpt,category,user_id,author,avatar,language,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run('topic','Original title','Original body','Original excerpt','daily','author','Author','A','en','created','unchanged');
- db.prepare('INSERT INTO posts VALUES(?,?,?,?,?,?,?)').run('reply','topic','admin','Original reply','Original quote','en','created');
+ db.prepare('INSERT INTO posts(id,topic_id,user_id,body,quote,language,created_at) VALUES(?,?,?,?,?,?,?)').run('reply','topic','admin','Original reply','Original quote','en','created');
  return db;
 }
 const admin={id:'admin',role:'admin'},author={id:'author',role:'member'};

@@ -1,6 +1,8 @@
-import {renderMarkdown} from './markdown.js?v=20261021114642341';
-import {createDraftStore} from './compose-drafts.js?v=20261021114642341';
-import {createComposerExtras} from './composer-extras.js?v=20261021114642341';
+import {formatMarkdown} from './m3-format.js?v=20261021125935020';
+import {languageSelect} from './m3-editor.js?v=20261021125935020';
+import {renderMarkdown} from './markdown.js?v=20261021125935020';
+import {createDraftStore} from './compose-drafts.js?v=20261021125935020';
+import {createComposerExtras} from './composer-extras.js?v=20261021125935020';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const drawings = {
@@ -64,7 +66,8 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
   let extras=null;
   extras=createComposerExtras({root,t,api,getContext:()=>({owner,authenticated,frozen:posting||Boolean(pending)||discarding,conflict:Boolean(conflict),identity:draft.clientRequestId,category:draft.category}),onChange:changed,onState:syncControls,onProblem:error,onAuth:()=>{saveNow();suspend();onAuth();}});
 
-  function blank() {return {title:'',body:'',category:'',language:getLanguage(),clientRequestId:newId(),tagIds:[],attachmentIds:[]};}
+  function blank() {return {title:'',body:'',category:'',language:'und',clientRequestId:newId(),tagIds:[],attachmentIds:[]};}
+  const languageField=document.createElement('label');languageField.className='m3-compose-language';const languageText=document.createElement('span');const language=languageSelect(t);languageField.append(languageText,language);$('form').insertBefore(languageField,root.querySelector('.title-row'));language.onchange=()=>{draft.language=language.value;changed();};
   function extraValues(){const value=extras?.getDraft()||draft;return {tagIds:[...(value.tagIds||[])].sort(),attachmentIds:[...(value.attachmentIds||[])]};}
   function hasContent(){const extra=extras?.getDraft()||draft;return Boolean(title.value.trim()||body.value.trim()||draft.category||pending||extra.tagIds?.length||extra.attachmentIds?.length||extras?.hasVolatileFiles());}
   function snapshot(){return {...draft,...extraValues(),title:title.value,body:body.value,...(pending?{pendingSubmission:{...pending}}:{})};}
@@ -81,7 +84,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
   function syncTip(){const small=root.getBoundingClientRect().width<=760;$('tip-expand').setAttribute('aria-expanded',String(!small||mobileTipExpanded));$('tip').classList.toggle('expanded',mobileTipExpanded);}
   function syncControls(){
     const frozen=posting||Boolean(pending)||discarding;
-    title.readOnly=frozen;body.readOnly=frozen;$('category').disabled=frozen;
+    title.readOnly=frozen;body.readOnly=frozen;language.disabled=frozen;language.value=draft.language;languageText.textContent=t('m3Language');language.setAttribute('aria-label',t('m3Language')); language.querySelector('[value=und]').textContent=t('m3Unknown');$('category').disabled=frozen;
     for(const b of root.querySelectorAll('[data-write-format]'))b.disabled=frozen;
     $('more').disabled=frozen;$('discard').disabled=posting||discarding;
     $('load-other').disabled=discarding||posting;$('keep-current').disabled=discarding||posting;
@@ -153,7 +156,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
     const user=getUser();if(!user){onAuth();return;}
     setUser(user);routeHidden=false;
     const restoring=Boolean(currentRecord)&&sheet.hidden;
-    if(!hasContent()&&!currentRecord){draft.language=getLanguage();const category=getCategory();if(categories[category]&&category!=='site')draft.category=category;}
+    if(!hasContent()&&!currentRecord){draft.language='und';const category=getCategory();if(categories[category]&&category!=='site')draft.category=category;}
     sheet.hidden=false;$('shade').hidden=false;syncBackground(true);labels();
     extras.renew();
     if(pending)error('composePending');
@@ -266,20 +269,9 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
   // Format insertion reuses the prototype's verified textarea selection behavior.
   function applyFormat(format){
     if(posting||pending||discarding)return;closeMenus();setMode(false);
-    let start=body.selectionStart,end=body.selectionEnd;const value=body.value,selected=value.slice(start,end);let replacement,selectFrom=0,selectTo;
-    if(['heading','quote','list','ordered'].includes(format)){
-      start=start===0?0:value.lastIndexOf('\n',start-1)+1;
-      const selectedEnd=end>start&&value[end-1]==='\n'?end-1:end,nextBreak=value.indexOf('\n',selectedEnd);end=nextBreak<0?value.length:nextBreak;
-      const text=value.slice(start,end)||t('body'),prefix={heading:'## ',quote:'> ',list:'- ',ordered:'1. '}[format];
-      replacement=text.split('\n').map((line,index)=>(format==='ordered'?`${index+1}. `:prefix)+line).join('\n');selectFrom=prefix.length;selectTo=replacement.length;
-    }else if(['bold','italic','code'].includes(format)){
-      const wrapper=format==='bold'?'**':format==='italic'?'*':selected.includes('\n')?'```\n':'`',closing=wrapper==='```\n'?'\n```':wrapper,text=selected||t('body');
-      replacement=wrapper+text+closing;selectFrom=wrapper.length;selectTo=selectFrom+text.length;
-    }else if(format==='link'){const text=selected||t('composeLink');replacement=`[${text}](https://example.com)`;selectFrom=selected?text.length+3:1;selectTo=selected?replacement.length-1:text.length+1;}
-    else if(format==='emoji'){replacement='🙂';selectFrom=replacement.length;selectTo=selectFrom;}
-    else if(format==='rule'){replacement='\n---\n';selectFrom=replacement.length;selectTo=selectFrom;}else return;
-    if(value.length-(end-start)+replacement.length>12000){toast(t('composeInvalidBody'));return;}
-    body.focus();body.setRangeText(replacement,start,end,'end');body.setSelectionRange(start+selectFrom,start+(selectTo??replacement.length));changed();
+    const result=formatMarkdown({value:body.value,start:body.selectionStart,end:body.selectionEnd,format,placeholder:t('body'),linkLabel:t('composeLink'),maxLength:12000});
+    if(!result){toast(t('composeInvalidBody'));return;}
+    body.value=result.value;body.focus();body.setSelectionRange(result.start,result.end);changed();
   }
   for(const b of root.querySelectorAll('[data-write-format]'))b.onclick=()=>applyFormat(b.dataset.writeFormat);
   root.addEventListener('compositionstart',()=>{composing=true;});root.addEventListener('compositionend',()=>{composing=false;});

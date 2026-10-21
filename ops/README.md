@@ -1,5 +1,9 @@
 # VPS deployment
 
+## Current M3 / phone writing
+
+M3 adds frozen migration 3, versioned reply edits and history, structured quotes, reply image binding, explicit content translation and operator release ordering. The phone editor can move the same reply form into a native full-screen dialog, with visual-viewport tracking and reversible collapse. Details and current release evidence are in `../docs/M3_COMPLETION.md` and `../docs/MOBILE_REPLY_WRITING.md`. The M0/M1 sections below are historical baselines, not descriptions of remaining M3 work. Schema-2 releases are not automatic recovery candidates for a schema-3 database. Package all assets using the inventory builder; do not hand-copy an old file list.
+
 ## Upgrade M1
 
 The verified pre-M1 runtime is `20261021T070826Z-denki-v5`, application `0.1.1`, schema 1 and tariff dataset `2026-10-21.tokyo-v5`. Preserve the newer tariff source: the M0 notes below are historical.

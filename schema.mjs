@@ -64,6 +64,7 @@ function baseline(db){
 }
 const checksum=createHash('sha256').update([coreSchema,legacyAuth.toString(),legacyAdmin.toString(),legacyPosting.toString(),legacyAttachments.toString(),baseline.toString()].join('\n')).digest('hex');
 import {migrationV2} from './migration-v2.mjs';
-export const migrations=Object.freeze([{version:1,name:'existing-community-baseline',checksum,up:baseline},migrationV2]);
-export const SCHEMA_VERSION=2;
+import {migrationV3} from './migration-v3.mjs';
+export const migrations=Object.freeze([{version:1,name:'existing-community-baseline',checksum,up:baseline},migrationV2,migrationV3]);
+export const SCHEMA_VERSION=3;
 export function applySchema(db){return runMigrations(db,migrations);}

@@ -103,7 +103,7 @@ test('old topics default to plain and posting validates formats, whitespace and 
    assert.equal(manual.body.topic.body,raw);assert.equal(manual.body.translation.automatic,false);assert.equal(manual.body.translation.unavailable,false);
   }
   const unavailable=await context.app.request('/api/topics/'+markdown.body.topic.id+'?lang=fr');
-  assert.equal(unavailable.body.topic.body,raw);assert.equal(unavailable.body.translation.unavailable,true);assert.equal(unavailable.body.topic.original.bodyFormat,'markdown');
+  assert.equal(unavailable.body.topic.body,raw);assert.equal(unavailable.body.translation.unavailable,false);assert.equal(unavailable.body.topic.bodyFormat,'markdown');
   const repeatedLegacy=await create(context,payload({body:'  Plain body with spaces  ',bodyFormat:'plain'}));
   assert.equal(repeatedLegacy.status,201);assert.notEqual(repeatedLegacy.body.topic.id,plain.body.topic.id);
   const boundary=await create(context,payload({body:' '+('x'.repeat(12000))+' '}));
@@ -231,35 +231,24 @@ test('maintained tags persist in detail and list, and server filtering happens b
  }finally{await context.close();}
 });
 
-test('automatic translation preserves Markdown bodies and format while translating ordinary text and replies',async()=>{
+test('all selected UI languages leave user topics and replies original without contacting translation provider',async()=>{
  const calls=[];
- const provider=http.createServer(async(req,res)=>{
-  const chunks=[];for await(const chunk of req)chunks.push(chunk);
-  const request=JSON.parse(Buffer.concat(chunks).toString('utf8')),items=JSON.parse(request.messages[1].content);calls.push(items);
-  res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({choices:[{message:{content:JSON.stringify(Object.fromEntries(Object.entries(items).map(([key,value])=>[key,'French: '+value])))}}]}));
- });
+ const provider=http.createServer(async(req,res)=>{calls.push(true);res.writeHead(503);res.end();});
  const providerPort=await testPort();
  await new Promise(resolve=>provider.listen(Number(providerPort),'127.0.0.1',resolve));
  let context;
  try{
   context=await fixture('http://127.0.0.1:'+provider.address().port);
-  const raw='  ## Markdown heading\n\n'+('content '.repeat(30))+'\n\n    code must stay intact  ';
+  const raw='## Markdown heading\n\nOriginal content with `code` and 303kWh';
   const created=await create(context,payload({body:raw,bodyFormat:'markdown',clientRequestId:randomUUID()})),id=created.body.topic.id;
-  const detail=await context.app.request('/api/topics/'+id+'?lang=fr');
-  assert.equal(detail.status,200);assert.equal(detail.body.topic.body,raw);assert.equal(detail.body.topic.bodyFormat,'markdown');assert(detail.body.topic.title.startsWith('French: '));
-  assert.equal(detail.body.topic.original.body,raw);assert.equal(detail.body.topic.original.bodyFormat,'markdown');
-  assert.equal(detail.body.posts[0].body,raw);assert.equal(detail.body.posts[0].original.bodyFormat,'markdown');assert.equal(detail.body.posts[0].translation.automatic,false);
-  assert.equal(detail.body.topic.translation.unavailable,true);assert.equal(detail.body.translation.unavailable,true);assert.equal(detail.body.translation.automatic,true);
-  assert(calls.length>0);assert(calls.every(items=>Object.keys(items).every(key=>!key.endsWith('_body'))));
-  assert(calls.every(items=>!Object.values(items).includes(raw)));
-  const callCount=calls.length;
-  for(const lang of ['original','ja','en','ko','zh-CN','zh-TW'])assert.equal((await context.app.request('/api/topics/'+id+'?lang='+lang)).body.topic.body,raw);
-  assert.equal(calls.length,callCount);
-  assert.equal((await context.app.request('/api/topics/'+id+'/replies',{method:'POST',cookie:context.tokens.reader,value:{body:'Reply to translate',language:'en'}})).status,201);
-  const withReply=await context.app.request('/api/topics/'+id+'?lang=fr');
-  assert.equal(withReply.body.topic.body,raw);assert.equal(withReply.body.translation.unavailable,true);assert.equal(withReply.body.posts[1].body,'French: Reply to translate');assert.equal(withReply.body.posts[1].original.bodyFormat,'plain');
-  const plain=await create(context,payload({body:'Ordinary body to translate',bodyFormat:'plain'}));
-  const translated=await context.app.request('/api/topics/'+plain.body.topic.id+'?lang=fr');
-  assert.equal(translated.body.topic.body,'French: Ordinary body to translate');assert.equal(translated.body.topic.original.body,'Ordinary body to translate');assert.equal(translated.body.topic.original.bodyFormat,'plain');assert.equal(translated.body.translation.unavailable,false);
+  assert.equal((await context.app.request('/api/topics/'+id+'/replies',{method:'POST',cookie:context.tokens.reader,value:{body:'Original reply',quote:'Legacy original quote',language:'en'}})).status,201);
+  for(const lang of ['original','ja','en','ko','zh-CN','zh-TW','fr']){
+   const detail=await context.app.request('/api/topics/'+id+'?lang='+lang);
+   assert.equal(detail.status,200);assert.equal(detail.body.topic.body,raw);assert.equal(detail.body.topic.title,'New topic title');
+   assert.equal(detail.body.posts[1].body,'Original reply');assert.equal(detail.body.posts[1].quote,'Legacy original quote');
+   assert.equal(detail.body.translation.automatic,false);
+   const listed=await context.app.request('/api/topics?lang='+lang);assert.equal(listed.body.topics.find(t=>t.id===id).title,'New topic title');
+  }
+  assert.equal(calls.length,0);
  }finally{if(context)await context.close();await new Promise(resolve=>provider.close(resolve));}
 });

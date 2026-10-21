@@ -14,7 +14,7 @@ import urllib.request
 
 NODE = '/opt/whyfshenlab/node/bin/node'
 RUNUSER = '/usr/sbin/runuser'
-REQUIRED = {'server.mjs','schema.mjs','migrations.mjs','migration-v2.mjs','community-policy.mjs','audit-cursor.mjs','release.mjs','topic-state.mjs','sitemap.mjs','auth.mjs','mailer.mjs','avatar.mjs','community-admin.mjs','topic-posting.mjs','topic-attachments.mjs','topic-image.mjs','translation.mjs','package.json','denki/data.mjs','denki/engine.mjs','denki/store.mjs','denki/model.mjs','dist/index.html','dist/denki.html','dist/responsive.css','dist/admin.html','dist/admin.js','dist/composer.js','dist/preferences.js','dist/language-ui.js','ops/verify-migration.mjs','ops/backup.mjs','ops/jplifebase.service','ops/jplifebase-backup.service','ops/jplifebase-backup.timer'}
+REQUIRED = {'server.mjs','schema.mjs','migrations.mjs','migration-v2.mjs','migration-v3.mjs','community-content.mjs','content-translation.mjs','content-translation-text.mjs','dist/markdown-core.js','community-policy.mjs','audit-cursor.mjs','release.mjs','topic-state.mjs','sitemap.mjs','auth.mjs','mailer.mjs','avatar.mjs','community-admin.mjs','topic-posting.mjs','topic-attachments.mjs','topic-image.mjs','translation.mjs','package.json','denki/data.mjs','denki/engine.mjs','denki/store.mjs','denki/model.mjs','dist/index.html','dist/denki.html','dist/responsive.css','dist/admin.html','dist/admin.js','dist/composer.js','dist/preferences.js','dist/language-ui.js','ops/verify-migration.mjs','ops/backup.mjs','ops/jplifebase.service','ops/jplifebase-backup.service','ops/jplifebase-backup.timer'}
 
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()
