@@ -139,3 +139,13 @@ GET /api/me/identity给公开稳定handle，GET /api/users/mentions?q=只搜索�
 GET/POST /api/topics/<id>/interaction|subscription|seen|bookmark|answer，四mode为watching/tracking/normal/muted：watching所有新回复，tracking话题新回复数+直接提醒，normal直接提醒，muted全部新通知静音。收藏仅本人GET /api/me/bookmarks，分页可见过滤。反应GET/POST /api/content/{kind}/{id}/reactions是like/thanks/helpful/null准确期望值，一账号一帖一个当前反应，不许self，重复切换同值不刷通知。最佳答案仅同话题可见回复、作者/管理员可选/换/取消；隐藏后有效答案空，恢复保留选择；solved在server筛选后才LIMIT250。
 
 所有POST在await body后重新核对会话/expectedUserId与限制。禁言阻止公开反应/答案，允许自有订阅/收藏/已读；封禁无效会话仍不能写。完整契约docs/M4_CONTRACT.md，实际发布/权限/迁移/浏览器证据docs/M4_COMPLETION.md；不将本轮功能当M2或M5全量完成。
+
+## M5 搜索、资料与目录
+
+migration5新增community_categories/tags、user_profiles与community_search_fts及同步触发器；1–4冻结。FTS存当前原文（包含隐藏状态的记录），API每次JOIN主题/回复当前可见性后才分页，不能把索引本身当授权。索引无旧修订/邮箱/联系/机器译文。>=3字符词用trigram，1–2字符字面回退，q最多100字符6词，字面AND、参数绑定、30条分页和筛选指纹cursor。GET /api/search覆盖全库，不再依赖首页250篇；精确回复来源按ID权限检查。全文检索增加内容不扩大公开权限。
+
+GET /api/me/profile与POST保存私人设置；公开页默认关闭，showActivity独立，公开API只白名单昵称/头像/handle/加入时间/自填简介地区HTTPS网站。关闭资料不删除公开帖子，公开活动排隐藏与seed；邮箱、收藏、通知和管理字段不公开。保存在await及事务中重验当前会话，禁言可管理私人资料，封禁不可写。
+
+GET /api/directory含所有active和inactive，显示历史用全部，新选择只active。后台POST /api/admin/directory/categories|tags稳定ID不能重命名，不提供物理删除；保护site及最后普通分类。修改与update_category/update_tag审计同事务且重查admin。新发帖先规范化回执并匹配成功记录，再检查当前active；不能让目录停用破坏已成功发布的重试。
+
+GET /api/admin/insights?days=7|30|90说明UTC半开区间及定义；可见非seed主题/回复、去重作者、有效答案/当前反应、待处理举报积压分开。没有访客/浏览量采集，不把作者数叫访问人数。静态指标定义保持五语人工字典，不能直接展示API英文来替代其他语言。

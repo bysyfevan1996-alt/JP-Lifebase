@@ -1,13 +1,17 @@
-import {ensureLanguageOption} from './language-ui.js?v=20261021223719402';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021223719402';
-import {resolveLocale} from './locale.js?v=20261021223719402';
-import {dictionaries} from './admin-i18n.js?v=20261021223719402';
+import {createM5Admin} from './m5-admin.js?v=20261021225303391';
+import {m5Dictionaries} from './m5-i18n.js?v=20261021225303391';
+import {ensureLanguageOption} from './language-ui.js?v=20261021225303391';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021225303391';
+import {resolveLocale} from './locale.js?v=20261021225303391';
+import {dictionaries} from './admin-i18n.js?v=20261021225303391';
 
+for(const [language,copy]of Object.entries(m5Dictionaries))Object.assign(dictionaries[language],copy,{directory:copy.m5Directory,insights:copy.m5Insights});
 const $=selector=>document.querySelector(selector);
-const views=['overview','topics','users','reports','contacts','audit'];
+const views=['overview','topics','users','reports','contacts','audit','directory','insights'];
 const readPreference=()=>readLanguagePreference();
 const state={user:null,view:views.includes(location.hash.slice(1))?location.hash.slice(1):'overview',preference:readPreference(),language:'zh-CN',dictionary:dictionaries['zh-CN'],translationUnavailable:false,topicsQuery:'',usersQuery:'',status:'all',writeBusy:false,auditBefore:null,auditAction:''};
 let viewRequest=0,languageRequest=0;
+const m5Admin=createM5Admin({request,t:(...args)=>t(...args),getUser:()=>state.user,getLanguage:()=>state.language,onError:message=>showError(message),onUnauthorized:handlePermission});
 const t=(key,values={})=>String(state.dictionary[key]??dictionaries.en[key]??key).replace(/\{(\w+)\}/g,(_,name)=>values[name]??`{${name}}`);
 const preferences=createLanguagePreferences({api:request,onChange:value=>setLanguage(value),onError:()=>showError(t('preferenceSaveError'))});
 const element=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=String(text);return el;};
@@ -43,6 +47,7 @@ async function loadLanguage(preference,languages){
 }
 
 function showGate(message,canLogin=false,retry=false){
+ m5Admin.leave();
  viewRequest++;state.writeBusy=false;$('#admin-layout').hidden=true;$('#admin-content').replaceChildren();$('#view-status').hidden=true;
  const gate=$('#admin-gate');gate.hidden=false;gate.replaceChildren(element('p','',message));
  const link=element('a','',t(canLogin?'login':'back'));link.href=canLogin?'/account/login?return=%2Fadmin':'/';gate.append(link);
@@ -82,7 +87,7 @@ function makeTable(columns){
 }
 function cell(row,key,className,value){const td=element('td',className);td.dataset.label=t(key);if(value instanceof Node)td.append(value);else if(value!==undefined)td.textContent=String(value);row.append(td);return td;}
 function badge(key,extra=''){return element('span','badge '+extra,t(key));}
-function topicLink(topic){const a=element('a','',topic.title||topic.id);a.href='/#topic='+encodeURIComponent(topic.id);return a;}
+function topicLink(topic){const a=element('a','',topic.title||topic.id);a.href='/t/'+encodeURIComponent(topic.id);return a;}
 function listNote(){return element('p','admin-note',t('shownLimit'));}
 function empty(){return element('p','empty-state',t('empty'));}
 
@@ -152,6 +157,7 @@ async function loadView(){
  if(state.user?.role!=='admin'||state.writeBusy)return;
  const ticket=++viewRequest,view=state.view,content=$('#admin-content');content.setAttribute('aria-busy','true');$('#view-status').hidden=true;
  if(!content.childElementCount)content.append(element('p','loading-state',t('loading')));
+ m5Admin.leave();if(view==='directory'||view==='insights'){await m5Admin[view](content);if(ticket===viewRequest)content.setAttribute('aria-busy','false');return;}
  let path='/api/admin/'+view;
  if(view==='topics')path+='?'+new URLSearchParams({query:state.topicsQuery,status:state.status});
  if(view==='audit')path+='?'+new URLSearchParams({...state.auditBefore?{before:state.auditBefore}:{},...state.auditAction?{action:state.auditAction}:{}});
@@ -182,7 +188,7 @@ async function initialize(){
 }
 document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>changeView(el.dataset.view)));
 $('#admin-language').addEventListener('change',event=>{if(!state.writeBusy)preferences.choose(event.target.value);});
-window.addEventListener('pagehide',()=>{viewRequest++;state.user=null;preferences.setUser(null);$('#admin-content').replaceChildren();$('#admin-layout').hidden=true;});
+window.addEventListener('pagehide',()=>{m5Admin.leave();viewRequest++;state.user=null;preferences.setUser(null);$('#admin-content').replaceChildren();$('#admin-layout').hidden=true;});
 window.addEventListener('pageshow',event=>{if(event.persisted)initialize();});
 for(const language of navigator.languages||[]){const resolved=resolveLocale(language,[]).language;if(![...$('#admin-language').options].some(option=>option.value===resolved)){const option=element('option','',resolved);option.value=resolved;$('#admin-language').append(option);}}
 function renderLanguageSuggestion(){

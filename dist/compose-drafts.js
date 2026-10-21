@@ -1,8 +1,7 @@
-import {normalizeTopicTags} from './topic-tags.js?v=20261021223719402';
+import {normalizeTopicTags} from './topic-tags.js?v=20261021225303391';
 const PREFIX = 'jlb-compose-v1:';
 const TTL = 7 * 24 * 60 * 60 * 1000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CATEGORIES = new Set(['', 'housing', 'visa', 'work', 'car', 'daily']);
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isUuid = value => typeof value === 'string' && UUID.test(value);
 function isUser(value) {
@@ -15,7 +14,7 @@ const isTime = value => typeof value === 'number' && Number.isFinite(value) && v
 function copyPayload(value, pending = false) {
   if (!isObject(value) || typeof value.title !== 'string' || value.title.length > 140 ||
       typeof value.body !== 'string' || value.body.length > 12000 ||
-      typeof value.category !== 'string' || !CATEGORIES.has(value.category) ||
+      typeof value.category !== 'string' || !(value.category===''||/^[a-z][a-z0-9-]{0,39}$/.test(value.category)) ||
       typeof value.language !== 'string' || value.language.length === 0 || value.language.length > 35 ||
       !isUuid(value.clientRequestId) || (pending && value.bodyFormat !== 'markdown')) return null;
   const copy = {
@@ -26,7 +25,7 @@ function copyPayload(value, pending = false) {
     clientRequestId: value.clientRequestId,
   };
   if (Object.hasOwn(value,'tagIds')) {
-    try { copy.tagIds=normalizeTopicTags(value.tagIds); } catch { return null; }
+    try { copy.tagIds=normalizeTopicTags(value.tagIds,{allowUnknown:true}); } catch { return null; }
   }
   if (Object.hasOwn(value,'attachmentIds')) {
     if(!Array.isArray(value.attachmentIds)||value.attachmentIds.length>5) return null;

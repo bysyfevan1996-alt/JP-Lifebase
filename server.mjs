@@ -14,7 +14,6 @@ import {defaultAvatar,avatarUrl} from './avatar.mjs';
 import {createCommunityAdmin} from './community-admin.mjs';
 import {createTopicPosting} from './topic-posting.mjs';
 import {createTopicAttachments} from './topic-attachments.mjs';
-import {topicTags} from './dist/topic-tags.js';
 import {sitemapForHost,robotsForHost} from './sitemap.mjs';
 import {applySchema} from './schema.mjs';
 import {releaseInfo} from './release.mjs';
@@ -23,6 +22,11 @@ import {createCommunityPolicy} from './community-policy.mjs';
 import {createCommunityContent} from './community-content.mjs';
 import {createContentTranslation} from './content-translation.mjs';
 import {createCommunityInteractions} from './community-interactions.mjs';
+import {createCommunityDirectory} from './community-directory.mjs';
+import {createCommunityProfiles} from './community-profiles.mjs';
+import {createCommunityInsights} from './community-insights.mjs';
+import {createCommunitySearch} from './community-search.mjs';
+import {createCommunitySEO} from './community-seo.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url)),dist=path.join(root,'dist');
 const release=await releaseInfo(root);
@@ -80,7 +84,12 @@ const policy=createCommunityPolicy({db,body,json,userRequired,httpError,language
 const communityAdmin=createCommunityAdmin({db,body,json,userRequired,httpError,policy,migrate:false});
 const topicAttachments=createTopicAttachments({db,body,json,userRequired,httpError,limit,migrate:false,postingRequired:policy.postingRequired});
 const interactions=createCommunityInteractions({db,body,json,userRequired,session,httpError,limit});
-const topicPosting=createTopicPosting({db,text,language,httpError,limit,attachments:topicAttachments,interactions,migrate:false});
+const directory=createCommunityDirectory({db,body,json,userRequired,session,httpError,limit});
+const profiles=createCommunityProfiles({db,body,json,userRequired,session,httpError,limit,interactions});
+const insights=createCommunityInsights({db,body,json,userRequired,session,httpError,limit});
+const search=createCommunitySearch({db,body,json,userRequired,session,httpError,limit,interactions});
+const seo=createCommunitySEO({db,interactions});
+const topicPosting=createTopicPosting({db,text,language,httpError,limit,attachments:topicAttachments,interactions,directory,migrate:false});
 const communityContent=createCommunityContent({db,body,json,userRequired,postingRequired:policy.postingRequired,httpError,language,limit,attachments:topicAttachments,interactions});
 const contentTranslation=createContentTranslation({db,content:communityContent,translator,body,json,language,session,limit,httpError});
 const attachmentCleanup=setInterval(()=>{try{topicAttachments.cleanup();}catch(e){console.error('Attachment cleanup failed:',e.code||e.name);}},3600000);
@@ -114,12 +123,15 @@ async function api(req,res,url){
  if(await auth.handle(req,res,route))return;
  if(req.method==='POST'&&route==='/api/me/preferences')limit(req,'preferences',60,60000);
  if(await policy.handle(req,res,url))return;
+ if(await directory.handle(req,res,url))return;
+ if(await profiles.handle(req,res,url))return;
+ if(await insights.handle(req,res,url))return;
+ if(await search.handle(req,res,url))return;
  if(await communityAdmin.handle(req,res,url))return;
  if(await topicAttachments.handle(req,res,url))return;
  if(await communityContent.handle(req,res,url))return;
  if(await contentTranslation.handle(req,res,url))return;
  if(await interactions.handle(req,res,url))return;
- if(method==='GET'&&route==='/api/tags')return json(res,200,{tags:topicTags});
  if(method==='GET'&&route==='/api/denki/catalog')return json(res,200,denkiCatalog(denkiData,undefined,url.searchParams.get('area')??'tokyo'));
  if(method==='GET'&&route==='/api/denki/dataset'){
   const version=url.searchParams.get('version')||denkiData.version;
@@ -137,7 +149,7 @@ async function api(req,res,url){
  if(method==='GET'&&route==='/api/health')return json(res,200,{ok:true,service:'jp-lifebase',...release,schemaVersion:schemaState.version,datasetVersion:denkiData.version,translationConfigured:translator.configured});
  if(method==='GET'&&route==='/api/topics'){
   limit(req,'read',120,60000);const tag=url.searchParams.get('tag'),solved=url.searchParams.get('solved');
-  if(tag!==null&&!topicTags.some(item=>item.id===tag))throw httpError(400,'invalid_tags');
+  if(tag!==null&&!directory.catalog().tags.some(item=>item.id===tag))throw httpError(400,'invalid_tags');
   if(solved!==null&&!['true','false'].includes(solved))throw httpError(400,'invalid_solved_filter');
   const effectiveAnswer='EXISTS (SELECT 1 FROM topic_answers ta JOIN posts ap ON ap.id=ta.post_id AND ap.topic_id=ta.topic_id WHERE ta.topic_id=t.id AND ap.hidden=0)';
   const conditions=['t.hidden=0'],params=[];if(tag!==null){conditions.push('EXISTS (SELECT 1 FROM topic_tags tt WHERE tt.topic_id=t.id AND tt.tag_id=?)');params.push(tag);}if(solved!==null)conditions.push((solved==='false'?'NOT ':'')+effectiveAnswer);
@@ -182,15 +194,17 @@ const server=http.createServer(async(req,res)=>{
   }
   if(url.pathname.startsWith('/api/'))return await api(req,res,url);
   if(!['GET','HEAD'].includes(req.method))throw httpError(405,'method_not_allowed');
+  if(await seo.handle(req,res,url))return;
   if(url.pathname==='/robots.txt'||url.pathname==='/sitemap.xml'){
    const xml=url.pathname==='/sitemap.xml';
    res.writeHead(200,{'Content-Type':xml?'application/xml; charset=utf-8':'text/plain; charset=utf-8','Cache-Control':'no-store, max-age=0'});
    return res.end(req.method==='HEAD'?undefined:xml?sitemapForHost(hostname):robotsForHost(hostname));
   }
   let pathname=decodeURIComponent(url.pathname);if(pathname.includes('\0')||pathname.includes('\\')||pathname.split('/').some(s=>s.startsWith('.')))throw httpError(404,'not_found');
+  if(/^\/u\//.test(pathname)||/^\/search\/?$/.test(pathname))res.setHeader('X-Robots-Tag','noindex, follow');
   if(/^\/denkikakaku\/?$/.test(pathname))pathname='/denki.html';
   if(/^\/admin\/?$/.test(pathname))pathname='/admin.html';
-  if(pathname==='/'||/^\/moving-checklist\/?$/.test(pathname)||/^\/t\/[a-zA-Z0-9_-]+$/.test(pathname)||/^\/account(?:\/[a-z-]+)?\/?$/.test(pathname))pathname='/index.html';
+  if(pathname==='/'||/^\/moving-checklist\/?$/.test(pathname)||/^\/u\/[a-z][a-z0-9_]{2,31}\/?$/.test(pathname)||/^\/search\/?$/.test(pathname)||/^\/account(?:\/[a-z-]+)?\/?$/.test(pathname))pathname='/index.html';
   const filename=path.resolve(dist,'.'+pathname);if(!filename.startsWith(dist+path.sep)||!mime[path.extname(filename)])throw httpError(404,'not_found');
   let bytes;try{if(!(await stat(filename)).isFile())throw 0;bytes=await readFile(filename);}catch{throw httpError(404,'not_found');}
   res.writeHead(200,{'Content-Type':mime[path.extname(filename)],'Cache-Control':'no-store, max-age=0'});res.end(req.method==='HEAD'?undefined:bytes);

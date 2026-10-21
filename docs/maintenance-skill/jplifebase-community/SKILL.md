@@ -28,9 +28,9 @@ description: 维护 Japan Life Base 论坛主站 www.jp-lifebase.com，用于社
 - 改账号、发帖回复、联系／举报、运营管理或数据库：读 [社区服务与数据](references/community.md)。
 - 本次任务含上线、线上故障、备份恢复：读 [发布与运维](references/deployment.md)。
 
-只完成本次请求需要的变更；邮箱验证码、找回密码、账号头像和管理画面已实现，保留独立账户页及既有会话／数据。M3已实现回复Markdown/图片、版本编辑/冲突/历史、结构选区引用、灯箱与逐楼点击翻译。原文语言默认und；发布图片编辑时保留。手机回复支持独立卡片与全屏写作，展开/收起保留同一草稿和上传状态，桌面保留宽布局；回复草稿仅本页内存，主题仍为浏览器单草稿；回复邮件通知、私信尚未实现。M4增加稳定handle、通知/订阅/已查看、反应/收藏、最佳答案与已解决筛选。精确编辑时间和作者/管理员历史分页见源码docs/M4_COMPLETION.md及社区参考，不把M3当作M2全量完成。
+只完成本次请求需要的变更；邮箱验证码、找回密码、账号头像和管理画面已实现，保留独立账户页及既有会话／数据。M3有回复Markdown/图片、版本编辑/冲突/历史、结构引用、灯箱和逐楼翻译；原文语言默认und，发布图片编辑时保留。M4有站内通知/订阅、反应/收藏/答案。M5有全库原文搜索、公开资料隐私、动态分类标签、定义明确的指标和/t/id原文SEO，详见参考及docs/M5_COMPLETION.md。手机全屏写作保留同一草稿和上传状态；回复草稿仅页内，主题仍单浏览器单草稿。M2完整讨论分页/跨设备段落进度和M6私信尚未完成，搜索分页不代表讨论分页已完成。
 
-升级M0改动与后续依赖见源码 `docs/CODEBASE_AUDIT.md`、`docs/IMPLEMENTATION_PROGRESS.md`。迁移使用 `schema.mjs` / `migrations.mjs`；版本1、2、3、4均冻结，未来新增迁移，不编辑旧步骤。发布改用源码清单，health可核实release与schema，详见发布参考。
+升级M0改动与后续依赖见源码 `docs/CODEBASE_AUDIT.md`、`docs/IMPLEMENTATION_PROGRESS.md`。迁移使用 `schema.mjs` / `migrations.mjs`；版本1、2、3、4、5均冻结，未来新增迁移，不编辑旧步骤。发布改用源码清单，health可核实release与schema，详见发布参考。
 
 ## 验证和交付
 

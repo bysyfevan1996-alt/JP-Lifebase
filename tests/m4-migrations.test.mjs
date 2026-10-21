@@ -21,9 +21,9 @@ test('M4 appends migration4 without rewriting legacy users, sessions, revisions,
   db.prepare('INSERT INTO topic_attachments(id,user_id,topic_id,post_id,upload_id,payload_hash,bytes,width,height,created_at,expires_at,position) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run('a','legacy','t','p','upload','digest',Buffer.from([1,2,3]),1,1,123,456,0);
   const tables=['users','sessions','topics','posts','content_revisions','topic_attachments'],before=Object.fromEntries(tables.map(table=>[table,db.prepare('SELECT * FROM '+table).all()]));
   const ledger=db.prepare('SELECT * FROM schema_migrations ORDER BY version').all();
-  assert.equal(SCHEMA_VERSION,4);assert.deepEqual(applySchema(db),{version:4,applied:[4]});
+  assert.equal(SCHEMA_VERSION,5);assert.deepEqual(applySchema(db),{version:5,applied:[4,5]});
   for(const table of tables)assert.deepEqual(db.prepare('SELECT * FROM '+table).all(),before[table],table);
-  assert.deepEqual(db.prepare('SELECT * FROM schema_migrations WHERE version<=3 ORDER BY version').all(),ledger);assert.deepEqual(applySchema(db),{version:4,applied:[]});
+  assert.deepEqual(db.prepare('SELECT * FROM schema_migrations WHERE version<=3 ORDER BY version').all(),ledger);assert.deepEqual(applySchema(db),{version:5,applied:[]});
   assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(),[]);
   assert.equal(db.prepare('SELECT count(*) AS n FROM community_notifications').get().n,0);assert.equal(db.prepare('SELECT count(*) AS n FROM community_events').get().n,0);assert.equal(db.prepare('SELECT count(*) AS n FROM user_handles').get().n,0);
  }finally{db.close();}

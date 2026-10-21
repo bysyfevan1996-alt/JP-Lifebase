@@ -3,6 +3,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFile} from 'node:fs/promises';
 import {createTopicPosting} from '../topic-posting.mjs';
 import {setReleaseOrder} from '../release-notes.mjs';
+import {changeTopicFlags} from '../topic-state.mjs';
 const args=process.argv.slice(2),get=name=>args[args.indexOf(name)+1];
 if(!args.includes('--db')||!args.includes('--actor')||!args.includes('--file')||!args.includes('--request-id'))throw Error('Usage: --db <absolute.sqlite> --actor <existing-admin-email> --file <public-json> --request-id <uuid> [--publish]');
 const input=JSON.parse(await readFile(get('--file'),'utf8'));
@@ -19,5 +20,5 @@ try{
  const order=args.includes('--release-order')?Number(get('--release-order')):null;
  if(order!==null&&(!Number.isSafeInteger(order)||order<0||order>10000))throw Error('Invalid release order');
  if(!args.includes('--publish'))console.log(JSON.stringify({validated:true,title:input.title,category:'site',publish:false}));
- else{const result=posting.create({},actor,payload);if(order!==null)setReleaseOrder(db,{topicId:result.id,order,operatorId:actor.id});console.log(JSON.stringify({published:true,...result,releaseOrder:order,url:'https://www.jp-lifebase.com/#topic='+result.id}));}
+ else{const result=posting.create({},actor,payload);if(order!==null)setReleaseOrder(db,{topicId:result.id,order,operatorId:actor.id});if(args.includes('--pin'))changeTopicFlags(db,{topicId:result.id,operator:actor,pinned:true});console.log(JSON.stringify({published:true,...result,releaseOrder:order,pinned:args.includes('--pin'),url:'https://www.jp-lifebase.com/t/'+result.id}));}
 }finally{db.close();}

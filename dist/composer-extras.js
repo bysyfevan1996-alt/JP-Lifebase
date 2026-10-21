@@ -1,7 +1,8 @@
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021223719402';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021223719402';
+import {tagLabel} from './community-directory.js?v=20261021225303391';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021225303391';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021225303391';
 
-export function createComposerExtras({root,t,api,getContext,onChange,onAuth,onProblem,onState}){
+export function createComposerExtras({root,t,api,getContext,getLanguage=()=>document.documentElement?.lang||'en',onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);
  let tags=[],rows=[],epoch=0,identity=null,renewing=null,lastRenew=0,releasing=false;
  const mutable=()=>{const c=getContext();return c.authenticated&&c.owner&&!c.frozen&&!c.conflict&&!releasing;};
@@ -13,11 +14,11 @@ export function createComposerExtras({root,t,api,getContext,onChange,onAuth,onPr
  function renderTags(){
   const active=document.activeElement,activeTag=active?.dataset?.extraTag,activeChip=active?.dataset?.extraChip;
   $('tag-chips').replaceChildren();
-  for(const id of tags){const tag=topicTags.find(item=>item.id===id),b=button(t(tag.labelKey)+' ×',()=>{if(!mutable())return;tags=tags.filter(x=>x!==id);onChange();refresh();});b.dataset.extraChip=id;b.setAttribute('aria-label',t('composeTagRemove',{name:t(tag.labelKey)}));b.disabled=!mutable();$('tag-chips').append(b);}
+  for(const id of tags){const tag=topicTags.find(item=>item.id===id),b=button(tagLabel(id,getLanguage(),t)+' ×',()=>{if(!mutable())return;tags=tags.filter(x=>x!==id);onChange();refresh();});b.dataset.extraChip=id;b.setAttribute('aria-label',t('composeTagRemove',{name:tagLabel(id,getLanguage(),t)}));b.disabled=!mutable();$('tag-chips').append(b);}
   const query=$('tag-search').value.trim().toLocaleLowerCase(),category=getContext().category;
-  const options=topicTags.filter(tag=>(t(tag.labelKey)+' '+tag.id).toLocaleLowerCase().includes(query)).sort((a,b)=>Number(b.categories.includes(category))-Number(a.categories.includes(category)));
+  const options=topicTags.filter(tag=>tag.active!==false&&(tagLabel(tag.id,getLanguage(),t)+' '+tag.id).toLocaleLowerCase().includes(query)).sort((a,b)=>Number(b.categories.includes(category))-Number(a.categories.includes(category)));
   $('tag-options').replaceChildren();
-  for(const tag of options){const chosen=tags.includes(tag.id),b=button(t(tag.labelKey),()=>{if(!mutable())return;if(tags.includes(tag.id))tags=tags.filter(id=>id!==tag.id);else if(tags.length<5)tags=normalizeTopicTags([...tags,tag.id]);else{onProblem('composeTagLimit');return;}onChange();refresh();});b.dataset.extraTag=tag.id;b.setAttribute('aria-pressed',String(chosen));b.disabled=!mutable()||!chosen&&tags.length>=5;$('tag-options').append(b);}
+  for(const tag of options){const chosen=tags.includes(tag.id),b=button(tagLabel(tag.id,getLanguage(),t),()=>{if(!mutable())return;if(tags.includes(tag.id))tags=tags.filter(id=>id!==tag.id);else if(tags.length<5)tags=normalizeTopicTags([...tags,tag.id],{allowUnknown:true});else{onProblem('composeTagLimit');return;}onChange();refresh();});b.dataset.extraTag=tag.id;b.setAttribute('aria-pressed',String(chosen));b.disabled=!mutable()||!chosen&&tags.length>=5;$('tag-options').append(b);}
   if(!options.length){const p=document.createElement('p');p.textContent=t('composeTagNone');$('tag-options').append(p);}
   $('tags').disabled=!mutable();$('tag-search').disabled=!mutable();$('tag-search').placeholder=t('composeTagSearch');
   const restore=activeTag?root.querySelector('[data-extra-tag="'+activeTag+'"]'):activeChip?root.querySelector('[data-extra-chip="'+activeChip+'"]'):null;
@@ -46,7 +47,7 @@ export function createComposerExtras({root,t,api,getContext,onChange,onAuth,onPr
  function refresh(){renderTags();renderImages();}
  function dispose(row){row.controller?.abort();if(row.preview)URL.revokeObjectURL(row.preview);}
  function reset(){epoch++;for(const row of rows)dispose(row);rows=[];tags=[];renewing=null;lastRenew=0;identity=null;releasing=false;refresh();}
- function setDraft(value,nextIdentity){reset();identity=nextIdentity;try{tags=normalizeTopicTags(value.tagIds);}catch{tags=[];}
+ function setDraft(value,nextIdentity){reset();identity=nextIdentity;try{tags=normalizeTopicTags(value.tagIds,{allowUnknown:true});}catch{tags=[];}
   rows=(value.attachmentIds||[]).map(id=>({key:crypto.randomUUID(),id,status:'checking'}));refresh();
   if(rows.length&&getContext().owner)queueMicrotask(()=>{if(identity===nextIdentity)renew(true);});
  }

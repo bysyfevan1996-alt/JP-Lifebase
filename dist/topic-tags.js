@@ -17,13 +17,13 @@ export const topicTags = [
   { id: 'community', labelKey: 'tagCommunity', categories: ['daily'] }
 ];
 
-export function normalizeTopicTags(value) {
+export function normalizeTopicTags(value,{allowUnknown=false}={}) {
   if (value === undefined) return [];
   if (!Array.isArray(value) || value.length > 5) throw new TypeError('invalid_topic_tags');
   const known = new Set(topicTags.map(tag => tag.id));
   const ids = [];
   for (const id of value) {
-    if (typeof id !== 'string' || !known.has(id) || ids.includes(id)) throw new TypeError('invalid_topic_tags');
+    if (typeof id !== 'string' || !(allowUnknown?/^[a-z][a-z0-9-]{0,39}$/.test(id):known.has(id)) || ids.includes(id)) throw new TypeError('invalid_topic_tags');
     ids.push(id);
   }
   return ids.sort();

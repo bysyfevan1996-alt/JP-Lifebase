@@ -1,7 +1,7 @@
-import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021223719402';
-import {readingControls} from './reading-controls.js?v=20261021223719402';
-import {icon} from './icons.js?v=20261021223719402';
-import {createReadingHeader} from './reading-header.js?v=20261021223719402';
+import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021225303391';
+import {readingControls} from './reading-controls.js?v=20261021225303391';
+import {icon} from './icons.js?v=20261021225303391';
+import {createReadingHeader} from './reading-header.js?v=20261021225303391';
 
 // Page-local return points. No browser history or persistent read/unread state.
 export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow,replyInput=null}){

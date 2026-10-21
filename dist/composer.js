@@ -1,8 +1,10 @@
-import {formatMarkdown} from './m3-format.js?v=20261021223719402';
-import {languageSelect} from './m3-editor.js?v=20261021223719402';
-import {renderMarkdown} from './markdown.js?v=20261021223719402';
-import {createDraftStore} from './compose-drafts.js?v=20261021223719402';
-import {createComposerExtras} from './composer-extras.js?v=20261021223719402';
+import {topicTags} from './topic-tags.js?v=20261021225303391';
+import {categoryLabel,directoryReady} from './community-directory.js?v=20261021225303391';
+import {formatMarkdown} from './m3-format.js?v=20261021225303391';
+import {languageSelect} from './m3-editor.js?v=20261021225303391';
+import {renderMarkdown} from './markdown.js?v=20261021225303391';
+import {createDraftStore} from './compose-drafts.js?v=20261021225303391';
+import {createComposerExtras} from './composer-extras.js?v=20261021225303391';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const drawings = {
@@ -35,7 +37,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
         <div class="window-actions">${button('help','composeHelp','help')}${button('maximize','composeMaximize','maximize')}${button('minimize','composeMinimize','minus')}${button('close','composeClose','close')}</div></header>
       <form id="write-form" novalidate>
         <div class="metadata-row"><div class="category-field"><button type="button" id="write-category" class="metadata-button" aria-controls="write-category-menu" aria-expanded="false"><span class="category-dot"></span><span id="write-category-label"></span>${svg('chevron')}</button>
-          <div id="write-category-menu" class="popover" hidden>${Object.entries(categories).filter(([id])=>id!=='site').map(([id,c])=>`<button type="button" class="category-option" data-write-category="${escape(id)}"><span class="category-dot" style="background:${escape(c.color)}"></span><span data-write-copy="${escape(id)}"></span></button>`).join('')}</div></div>
+          <div id="write-category-menu" class="popover" hidden>${Object.entries(categories).filter(([id,c])=>id!=='site'&&c.active!==false).map(([id,c])=>`<button type="button" class="category-option" data-write-category="${escape(id)}"><span class="category-dot" style="background:${escape(c.color)}"></span><span data-write-copy="${escape(id)}"></span></button>`).join('')}</div></div>
           <div class="tags-field"><div id="write-tag-chips" class="tag-chips"></div><button type="button" id="write-tags" class="metadata-button" aria-controls="write-tags-menu" aria-expanded="false" data-write-copy="composeTagsOptional"></button><div id="write-tags-menu" class="popover tags-popover" hidden><label for="write-tag-search" class="sr-only" data-write-copy="composeTagSearch"></label><input id="write-tag-search" type="search" autocomplete="off"><p class="tag-limit" data-write-copy="composeTagLimit"></p><div id="write-tag-options"></div></div></div></div>
         <div class="title-row"><label class="sr-only" for="write-title" data-write-copy="title"></label><input id="write-title" name="title" maxlength="140" autocomplete="off"><span id="write-title-count">0 / 140</span></div>
         <div id="write-conflict" class="compose-notice" role="status" hidden><p data-write-copy="composeConflict"></p><button type="button" id="write-load-other" data-write-copy="composeLoadOther"></button><button type="button" id="write-keep-current" data-write-copy="composeKeepCurrent"></button></div>
@@ -64,7 +66,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
   let errorKey=null;
   let discarding=false;
   let extras=null;
-  extras=createComposerExtras({root,t,api,getContext:()=>({owner,authenticated,frozen:posting||Boolean(pending)||discarding,conflict:Boolean(conflict),identity:draft.clientRequestId,category:draft.category}),onChange:changed,onState:syncControls,onProblem:error,onAuth:()=>{saveNow();suspend();onAuth();}});
+  extras=createComposerExtras({root,t,api,getLanguage,getContext:()=>({owner,authenticated,frozen:posting||Boolean(pending)||discarding,conflict:Boolean(conflict),identity:draft.clientRequestId,category:draft.category}),onChange:changed,onState:syncControls,onProblem:error,onAuth:()=>{saveNow();suspend();onAuth();}});
 
   function blank() {return {title:'',body:'',category:'',language:'und',clientRequestId:newId(),tagIds:[],attachmentIds:[]};}
   const languageField=document.createElement('label');languageField.className='m3-compose-language';const languageText=document.createElement('span');const language=languageSelect(t);languageField.append(languageText,language);$('form').insertBefore(languageField,root.querySelector('.title-row'));language.onchange=()=>{draft.language=language.value;changed();};
@@ -98,14 +100,25 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
     $('save-state').textContent=t(saveMessage);$('save-state').title=t('composeDraftLocal');
     $('draft-bar').hidden=!(authenticated&&!routeHidden&&sheet.hidden&&hasContent());
     $('conflict').hidden=!conflict;$('storage-error').hidden=!saveFailed;
-    $('category-label').textContent=draft.category?t(draft.category):t('composeSelectCategory');
+    $('category-label').textContent=draft.category?categoryLabel(draft.category,getLanguage(),t):t('composeSelectCategory');
     const dot=$('category').querySelector('.category-dot');dot.style.background=categories[draft.category]?.color||'#aaa';
     for(const b of root.querySelectorAll('[data-write-category]'))b.setAttribute('aria-pressed',String(b.dataset.writeCategory===draft.category));
     extras?.refresh();
     $('image-hint').textContent=t('composeImageHint')+(extras?.hasVolatileFiles()?' '+t('composeImagesLost'):'');
   }
+  function refreshDirectory(){
+    const menu=$('category-menu');menu.replaceChildren();
+    for(const [id,c]of Object.entries(categories).filter(([id,c])=>id!=='site'&&c.active!==false)){
+      const b=document.createElement('button');b.type='button';b.className='category-option';b.dataset.writeCategory=id;
+      const dot=document.createElement('span');dot.className='category-dot';dot.style.background=c.color;
+      const name=document.createElement('span');name.textContent=categoryLabel(id,getLanguage(),t);b.append(dot,name);
+      b.disabled=posting||Boolean(pending)||discarding;
+      b.onclick=()=>{if(posting||pending||discarding)return;draft.category=id;closeMenus();changed();$('category').focus();};menu.append(b);
+    }
+    labels();
+  }
   function labels(){
-    for(const el of root.querySelectorAll('[data-write-copy]'))el.textContent=t(el.dataset.writeCopy);
+    for(const el of root.querySelectorAll('[data-write-copy]'))el.textContent=categories[el.dataset.writeCopy]?categoryLabel(el.dataset.writeCopy,getLanguage(),t):t(el.dataset.writeCopy);
     for(const el of root.querySelectorAll('[data-write-label]')){el.title=t(el.dataset.writeLabel);el.setAttribute('aria-label',t(el.dataset.writeLabel));}
     title.placeholder=t('composeTitlePlaceholder');body.placeholder=t('composeBodyPlaceholder');
     $('help').setAttribute('aria-expanded',String(!$('tip').hidden));
@@ -156,7 +169,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
     const user=getUser();if(!user){onAuth();return;}
     setUser(user);routeHidden=false;
     const restoring=Boolean(currentRecord)&&sheet.hidden;
-    if(!hasContent()&&!currentRecord){draft.language='und';const category=getCategory();if(categories[category]&&category!=='site')draft.category=category;}
+    if(!hasContent()&&!currentRecord){draft.language='und';const category=getCategory();if(categories[category]&&categories[category].active!==false&&category!=='site')draft.category=category;}
     sheet.hidden=false;$('shade').hidden=false;syncBackground(true);labels();
     extras.renew();
     if(pending)error('composePending');
@@ -213,6 +226,8 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
     if(!pending){
       if(extras.hasBlockingWork())return error('composeImagesBusy');
       if(!draft.category)return error('composeRequiredCategory',$('category'));
+      if(!directoryReady())return error('m5DirectoryUnavailable');
+      if(categories[draft.category]?.active===false||extraValues().tagIds.some(id=>topicTags.find(tag=>tag.id===id)?.active===false))return error('m5DirectoryChanged');
       if(title.value.trim().length<3||title.value.length>140)return error('composeInvalidTitle',title);
       if(body.value.trim().length<5||body.value.length>12000)return error('composeInvalidBody',body);
       pending={title:title.value.trim(),body:body.value,category:draft.category,language:draft.language,bodyFormat:'markdown',clientRequestId:draft.clientRequestId,...extraValues()};
@@ -243,7 +258,7 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
       if(failure.network||!failure.status||failure.status>=500){error('composePending');saveNow();}
       else if([404,410].includes(failure.status)||failure.code==='request_conflict'){
         pending=null;blocked=true;error(failure.code==='request_conflict'?'composeRequestConflict':'composeUnavailable');saveNow();
-      }else{pending=null;draft.clientRequestId=newId();extras.setDraft(draft,draft.clientRequestId);error(failure.code==='account_muted'?'accountMuted':failure.code==='account_banned'?'accountBanned':failure.status===429?'rateLimited':'composePublishError');saveNow();}
+      }else{pending=null;draft.clientRequestId=newId();extras.setDraft(draft,draft.clientRequestId);error(['inactive_category','inactive_tag','category_inactive','tag_inactive','invalid_category','invalid_tags'].includes(failure.code)?'m5DirectoryChanged':failure.code==='account_muted'?'accountMuted':failure.code==='account_banned'?'accountBanned':failure.status===429?'rateLimited':'composePublishError');saveNow();}
       syncControls();
     }
   }
@@ -298,5 +313,5 @@ export function createComposer({api,t,getUser,getCategory,getLanguage,categories
   window.addEventListener('pagehide',()=>{if(dirty)saveNow();});
   new ResizeObserver(syncTip).observe(root);
   labels();setMode(false);
-  return {open,suspend,setUser,setRoute,logout,beforeLogout,refreshLanguage:labels};
+  return {open,suspend,setUser,setRoute,logout,beforeLogout,refreshLanguage:refreshDirectory,refreshDirectory};
 }

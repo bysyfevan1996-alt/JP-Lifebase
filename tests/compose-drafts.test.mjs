@@ -90,7 +90,7 @@ test('draft validation accepts limits, rejects invalid fields, and does not touc
   const {storage,store}=fixture();
   assert.equal(store.write('user',draft({title:'a'.repeat(140),body:'b'.repeat(12000),language:'l'.repeat(35),category:''}),null).status,'ok');
   const invalidDrafts=[null,[],draft({title:null}),draft({title:'a'.repeat(141)}),draft({body:1}),draft({body:'b'.repeat(12001)}),
-    draft({category:'other'}),draft({language:''}),draft({language:'l'.repeat(36)}),draft({clientRequestId:'no'}),
+    draft({category:'-other'}),draft({language:''}),draft({language:'l'.repeat(36)}),draft({clientRequestId:'no'}),
     draft({pendingSubmission:null}),draft({pendingSubmission:{...draft(),bodyFormat:'html'}}),
     draft({pendingSubmission:{...draft(),bodyFormat:'markdown',clientRequestId:'no'}})];
   for(const input of invalidDrafts){
@@ -185,9 +185,9 @@ test('legacy drafts without optional references remain valid and malformed refer
   assert.equal(legacy.status,'ok');assert.equal(store.read('user').status,'ok');
   assert(!Object.hasOwn(legacy.record.draft,'tagIds'));assert(!Object.hasOwn(legacy.record.draft.pendingSubmission,'attachmentIds'));
   const invalid=[
-    {tagIds:null},{tagIds:'tax'},{tagIds:['unknown']},{tagIds:['tax','tax']},{tagIds:Array(1)},{tagIds:['rent','moving','electricity','gas','visa','residence']},
+    {tagIds:null},{tagIds:'tax'},{tagIds:['bad_tag']},{tagIds:['tax','tax']},{tagIds:Array(1)},{tagIds:['rent','moving','electricity','gas','visa','residence']},
     {attachmentIds:null},{attachmentIds:'bad'},{attachmentIds:['bad']},{attachmentIds:Array(1)},{attachmentIds:[WRITER_A,WRITER_A]},{attachmentIds:[WRITER_A,WRITER_B,REQUEST,'dddddddd-dddd-4ddd-8ddd-dddddddddddd','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','ffffffff-ffff-4fff-8fff-ffffffffffff']},
-    {pendingSubmission:{...draft(),bodyFormat:'markdown',tagIds:['bad']}},{pendingSubmission:{...draft(),bodyFormat:'markdown',attachmentIds:['bad']}},
+    {pendingSubmission:{...draft(),bodyFormat:'markdown',tagIds:['bad_tag']}},{pendingSubmission:{...draft(),bodyFormat:'markdown',attachmentIds:['bad']}},
   ];
   for(const extra of invalid){storage.calls=[];assert.deepEqual(store.write('user',draft(extra),legacy.record.revision),{status:'invalid'});assert.deepEqual(storage.calls,[]);}
 });

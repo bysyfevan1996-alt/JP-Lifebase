@@ -16,6 +16,8 @@ NODE = '/opt/whyfshenlab/node/bin/node'
 RUNUSER = '/usr/sbin/runuser'
 REQUIRED = {'server.mjs','schema.mjs','migrations.mjs','migration-v2.mjs','migration-v3.mjs','community-content.mjs','content-translation.mjs','content-translation-text.mjs','dist/markdown-core.js','community-policy.mjs','audit-cursor.mjs','release.mjs','topic-state.mjs','sitemap.mjs','auth.mjs','mailer.mjs','avatar.mjs','community-admin.mjs','topic-posting.mjs','topic-attachments.mjs','topic-image.mjs','translation.mjs','package.json','denki/data.mjs','denki/engine.mjs','denki/store.mjs','denki/model.mjs','dist/index.html','dist/denki.html','dist/responsive.css','dist/admin.html','dist/admin.js','dist/composer.js','dist/preferences.js','dist/language-ui.js','ops/verify-migration.mjs','ops/backup.mjs','ops/jplifebase.service','ops/jplifebase-backup.service','ops/jplifebase-backup.timer'}
 REQUIRED.update({'migration-v4.mjs','community-interactions.mjs','interaction-mentions.mjs','dist/m4-ui.js','dist/m4-i18n.js','dist/m4.css','dist/content-time.js','dist/reply-writing.js','dist/reply-writing.css','dist/reply-viewport.js'})
+REQUIRED.update({'migration-v5.mjs','community-directory.mjs','community-profiles.mjs','community-insights.mjs','community-search.mjs','community-seo.mjs','dist/m5-ui.js','dist/m5-i18n.js','dist/m5.css','dist/m5-admin.js'})
+REQUIRED.update({'search-text.mjs','dist/community-directory.js'})
 
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()

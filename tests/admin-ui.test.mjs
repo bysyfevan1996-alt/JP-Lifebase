@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {runInNewContext} from 'node:vm';
 import {dictionaries} from '../dist/admin-i18n.js';
+import {m5Dictionaries} from '../dist/m5-i18n.js';
+import {createM5Admin} from '../dist/m5-admin.js';
 
 class Element{
  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.attributes={};this.listeners={};this.hidden=false;this.disabled=false;this.textContent='';this.classList={toggle(){},add(){},remove(){}};}
@@ -22,7 +24,7 @@ const source=(await readFile(new URL('../dist/admin.js',import.meta.url),'utf8')
 function fixture(){
  const selectors=['#admin-language','#view-status','#admin-content','#admin-layout','#admin-gate','#translation-notice','#view-heading','#admin-identity','.admin-sidebar nav'];
  const nodes=new Map(selectors.map(selector=>[selector,new Element()])),requests=[];
- const context={dictionaries,createLanguagePreferences:()=>({preference:'zh-CN',explicit:false,setUser:async()=>{},choose(){}}),readLanguagePreference:()=> 'zh-CN',ensureLanguageOption(){},resolveLocale:()=>({language:'zh-CN',source:'zh-CN',automatic:false}),Intl,URL,URLSearchParams,AbortController,setTimeout,clearTimeout,Node:Element,location:{hash:''},history:{replaceState(){}},navigator:{languages:[]},window:{confirm:()=>true,addEventListener(){}},document:{createElement:tag=>new Element(tag),createDocumentFragment:()=>new Element('fragment'),querySelector:selector=>nodes.get(selector),querySelectorAll:()=>[],documentElement:{lang:'zh-CN'}},fetch:async(path,options)=>{requests.push({path,options});return {ok:true,status:200,json:async()=>path.includes('/api/admin/users')&&options?.method!=='POST'?{users:[]}:{}};}};
+ const context={dictionaries,m5Dictionaries,createM5Admin,createLanguagePreferences:()=>({preference:'zh-CN',explicit:false,setUser:async()=>{},choose(){}}),readLanguagePreference:()=> 'zh-CN',ensureLanguageOption(){},resolveLocale:()=>({language:'zh-CN',source:'zh-CN',automatic:false}),Intl,URL,URLSearchParams,AbortController,setTimeout,clearTimeout,Node:Element,location:{hash:''},history:{replaceState(){}},navigator:{languages:[]},window:{confirm:()=>true,addEventListener(){}},document:{createElement:tag=>new Element(tag),createDocumentFragment:()=>new Element('fragment'),querySelector:selector=>nodes.get(selector),querySelectorAll:()=>[],documentElement:{lang:'zh-CN'}},fetch:async(path,options)=>{requests.push({path,options});return {ok:true,status:200,json:async()=>path.includes('/api/admin/users')&&options?.method!=='POST'?{users:[]}:{}};}};
  runInNewContext(source,context);const ui=context.controller;ui.state.user={id:'operator',role:'admin',name:'Operator'};ui.state.dictionary=dictionaries['zh-CN'];return{ui,nodes,requests,context};
 }
 test('user restrictions protect administrators and self, require confirmation, and send only the chosen flag',async()=>{

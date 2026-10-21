@@ -17,7 +17,7 @@ export function migrateTopicPosting(db){
  CREATE INDEX IF NOT EXISTS topic_tags_filter ON topic_tags(tag_id,topic_id);`);
 }
 
-export function createTopicPosting({db,text,language,httpError,limit,attachments,interactions,migrate=true}){
+export function createTopicPosting({db,text,language,httpError,limit,attachments,interactions,directory,migrate=true}){
  if(migrate)migrateTopicPosting(db);
  const q=sql=>db.prepare(sql);
  function normalize(input,user){
@@ -31,13 +31,15 @@ export function createTopicPosting({db,text,language,httpError,limit,attachments
    content=input.body;
   }
   const lang=language(input.language===undefined?'und':input.language);
-  if(lang==='original'||!categories.has(input.category)||input.category==='site'&&user.role!=='admin')throw httpError(400,'invalid_category');
+  if(lang==='original')throw httpError(400,'invalid_category');
+  if(directory)directory.validateCategory(input.category,user,{historical:true});
+  else if(!categories.has(input.category)||input.category==='site'&&user.role!=='admin')throw httpError(400,'invalid_category');
   let clientRequestId=null;
   if(input.clientRequestId!==undefined){
    if(typeof input.clientRequestId!=='string'||!uuid.test(input.clientRequestId))throw httpError(400,'invalid_client_request_id');
    clientRequestId=input.clientRequestId.toLowerCase();
   }
-  let tagIds;try{tagIds=normalizeTopicTags(input.tagIds);}catch{throw httpError(400,'invalid_tags');}
+  let tagIds;try{tagIds=directory?directory.normalizeTags(input.tagIds,{historical:true}):normalizeTopicTags(input.tagIds);}catch{throw httpError(400,'invalid_tags');}
   const attachmentIds=[];
   if(input.attachmentIds!==undefined){
    if(!Array.isArray(input.attachmentIds)||input.attachmentIds.length>5)throw httpError(400,'invalid_attachment');
@@ -64,6 +66,7 @@ export function createTopicPosting({db,text,language,httpError,limit,attachments
      return {id:existing.id,replayed:true};
     }
    }
+   directory?.validateEligibility(value.category,value.tagIds,user);
    if(value.attachmentIds.length){if(!attachments)throw httpError(400,'invalid_attachment');attachments.validateForPost(user.id,value.attachmentIds);}
    limit(req,'topic',5,10*60000);
    const id=randomUUID(),date=new Date().toISOString();

@@ -1,5 +1,11 @@
 # VPS deployment
 
+## M5 search, catalog and profiles
+
+Append migration5 only; migrations1–4 stay frozen. SQLite FTS5 trigram capability must exist on the actual runtime. Search indexes original topics and replies through synchronous SQL triggers; every result still joins current visibility. Profile defaults are private. Catalog deactivation keeps historical IDs, content and publish receipts; dynamic validation runs after successful request replay lookup. Operator catalog changes are audited in the same transaction. Admin insights explicitly define their UTC range and exclude samples/hidden content where stated; do not invent page-view counts.
+
+Build an immutable inventory containing all M5 modules and frontend assets, not a manual old file list. Rehearse a private old-database backup and restoration including FTS shadow tables. Schema4 releases cannot automatically run against schema5; use a reviewed compatible release or forward repair, never overwrite new data. Guide publication uses a fixed request ID and the existing administrator, with `--pin` for audited idempotent pinning. Final production checks and exact guide URL are recorded in `../docs/M5_COMPLETION.md`.
+
 ## M4 schema and events
 
 M4 uses additive migration4; migrations1–3 stay frozen. `community-interactions.mjs` and `interaction-mentions.mjs` provide durable events/recipient notifications, topic subscriptions/seen event sequence, stable public handles, bookmarks, reactions and answers. Notification creation runs inside content creation/edit transactions; do not move it after commit, run hooks on creation receipts, or retroactively notify old posts. Hide filtering is dynamic on every public/private read. Notification events contain references, not copied bodies. Content history remains author/admin-only. The immutable inventory must include all M4 modules, content-time and phone writer assets. Unknown/schema3 code cannot be automatically restored on schema4; prefer a compatible release or forward repair, never overwrite newer data. Exact release and validation are in `../docs/M4_COMPLETION.md`.

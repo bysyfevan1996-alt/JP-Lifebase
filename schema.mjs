@@ -66,6 +66,7 @@ const checksum=createHash('sha256').update([coreSchema,legacyAuth.toString(),leg
 import {migrationV2} from './migration-v2.mjs';
 import {migrationV3} from './migration-v3.mjs';
 import {migrationV4} from './migration-v4.mjs';
-export const migrations=Object.freeze([{version:1,name:'existing-community-baseline',checksum,up:baseline},migrationV2,migrationV3,migrationV4]);
-export const SCHEMA_VERSION=4;
+import {migrationV5} from './migration-v5.mjs';
+export const migrations=Object.freeze([{version:1,name:'existing-community-baseline',checksum,up:baseline},migrationV2,migrationV3,migrationV4,migrationV5]);
+export const SCHEMA_VERSION=5;
 export function applySchema(db){return runMigrations(db,migrations);}

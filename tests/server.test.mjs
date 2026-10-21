@@ -35,7 +35,7 @@ test('host-specific sitemaps and robots expose only canonical public documents',
    const response=await hosted('/sitemap.xml',host);
    assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/^application\/xml/);
    const xml=await response.text();assert.match(xml,/xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9"/);
-   assert.deepEqual([...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1]),[loc]);
+   assert.deepEqual([...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1]),canonical==='jp-lifebase.com'?[loc]:['https://www.jp-lifebase.com/sitemap-community.xml']);
    assert(!xml.includes('<lastmod>'));assert(!xml.includes('#topic='));
    const robots=await hosted('/robots.txt',host);
    assert.equal(robots.status,200);const text=await robots.text();
@@ -54,7 +54,7 @@ test('accounts, persistent posts, private messages, contacts and origin boundari
  const data=await mkdtemp(path.join(testTemp,'jpl-test-'));let app=await launch(data);
  try{
   const health=(await app.request('/api/health')).body;
-  assert.equal(health.version,'0.4.0');assert.equal(health.releaseId,'development');assert.equal(health.schemaVersion,4);assert.match(health.sourceSha256,/^[a-f0-9]{64}$/);assert.equal(typeof health.datasetVersion,'string');
+  assert.equal(health.version,'0.5.0');assert.equal(health.releaseId,'development');assert.equal(health.schemaVersion,5);assert.match(health.sourceSha256,/^[a-f0-9]{64}$/);assert.equal(typeof health.datasetVersion,'string');
   assert.equal((await app.request('/api/topics')).body.topics.length,0);
   assert.equal((await app.request('/api/topics','POST',{title:'Example',body:'Public topic',category:'daily'})).status,401);
   const a=await app.register({name:'OwnerTest',email:'owner@example.test',password:'example-password-123'});assert.equal(a.status,201);assert.equal(a.body.user.role,'member');assert(a.cookie);

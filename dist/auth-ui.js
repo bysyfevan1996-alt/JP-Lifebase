@@ -1,10 +1,13 @@
-import {topicTags} from './topic-tags.js?v=20261021223719402';
+import {topicTags} from './topic-tags.js?v=20261021225303391';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const routes=new Set(['/account','/account/login','/account/register','/account/verify','/account/forgot-password','/account/reset-password']);
 const intents=new Set(['compose','reply','topics','messages']);
 export const isAccountRoute=path=>routes.has(path.replace(/\/$/,''));
 export function safeReturn(value){
  if(value==='/'||value==='/admin')return value;
+ if(typeof value==='string'&&/^\/t\/[A-Za-z0-9_-]{1,100}(?:\?post=[A-Za-z0-9_-]{1,100})?$/.test(value))return value;
+ if(typeof value==='string'&&/^\/u\/[a-z][a-z0-9_]{2,31}$/.test(value))return value;
+ if(typeof value==='string'&&/^\/search(?:\?[^#]*)?$/.test(value)&&value.length<=2000)return value;
  if(typeof value==='string'&&/^\/#topic=[A-Za-z0-9%_-]{1,240}$/.test(value))return value;
  if(typeof value==='string'){const match=value.match(/^\/\?tag=([a-z]+)$/);if(match&&topicTags.some(tag=>tag.id===match[1]))return value;}
  return '/';
@@ -12,7 +15,7 @@ export function safeReturn(value){
 
 // The server owns the challenge, grant, expiration and resend time. This module
 // retains only display state and an optional processed avatar in memory.
-export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage,getIdentity=()=>null}){
+export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage,getIdentity=()=>null,onAccountRender=()=>{}}){
  let pendingLanguageRefresh=false,repainting=false,refreshView=null,generation=0,timer=null,flow=null,busy=false,writePending=false,avatarBusy=false,avatarData=null,avatarChanged=false,avatarVersion=0,previewVersion=0;
  const $=selector=>host.querySelector(selector);
  const post=(path,body={})=>api(path,{method:'POST',body:JSON.stringify(body)});
@@ -154,7 +157,7 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
  function account(notice){refreshView=()=>account(notice);
   const user=getUser();if(!user){login();return;}
   frame('account','',`<div class="auth-account-summary">${avatar(user)}<div><strong>${escape(user.name)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div></div><dl class="auth-details"><div><dt>${copy('name')}</dt><dd>${escape(user.name)}</dd></div><div><dt>${copy('email')}</dt><dd>${escape(user.email)}</dd></div><div id="auth-handle-row" hidden><dt>${copy('m4AccountHandle')}</dt><dd id="auth-handle"></dd></div></dl>${!user.emailVerified?`<p class="auth-help">${copy('authLegacyHelp')}</p><button class="auth-secondary" id="auth-legacy">${copy('authVerifyNow')}</button>`:''}<h2 class="auth-subheading">${copy('authAvatar')}</h2>${avatarPicker(user,true)}${errorBox()}${user.emailVerified?`<a class="auth-secondary" href="${escape(routeURL('/account/forgot-password'))}" data-account-route="/account/forgot-password">${copy('authResetTitle')}</a>`:''}<button class="auth-link auth-logout" id="auth-logout">${copy('logout')}</button>`,{notice});
-  refreshIdentity();
+  refreshIdentity();onAccountRender(host);
   bindAvatar(()=>({...getUser(),avatarUrl:avatarChanged?null:getUser().avatarUrl}),true);
   if($('#auth-legacy'))$('#auth-legacy').onclick=legacy;
   $('#auth-logout').onclick=()=>run(async version=>{if(!await beforeLogout())return;await post('/api/logout');onUser(null);onLogout();avatarData=null;avatarChanged=false;if(version===generation)go('/account/login');});

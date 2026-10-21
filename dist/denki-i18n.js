@@ -1,4 +1,4 @@
-import {commonCopy} from './m1-i18n.js?v=20261021223719402';
+import {commonCopy} from './m1-i18n.js?v=20261021225303391';
 export const dictionaries = {
   en: {
     selectPrompt:'Please select',

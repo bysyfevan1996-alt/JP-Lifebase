@@ -70,7 +70,7 @@ export function createCommunityAdmin({db,body,json,userRequired,httpError,policy
   if(req.method==='GET'&&route==='/api/admin/audit'){
    const cursor=decodeAuditCursor(url.searchParams.get('before'));
    const action=url.searchParams.get('action')||'';
-   if(!['','moderate','author_hide','operator_hide','operator_restore','restrict_user','review_report'].includes(action))throw httpError(400,'invalid_action');
+   if(!['','moderate','author_hide','operator_hide','operator_restore','restrict_user','review_report','update_category','update_tag'].includes(action))throw httpError(400,'invalid_action');
    const rows=q(`SELECT id,user_id,topic_id,action,details,created_at FROM admin_actions
     WHERE (?='' OR action=?) AND (? IS NULL OR created_at<? OR (created_at=? AND id<?))
     ORDER BY created_at DESC,id DESC LIMIT 51`).all(action,action,cursor?.createdAt??null,cursor?.createdAt??null,cursor?.createdAt??null,cursor?.id??null);

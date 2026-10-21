@@ -31,14 +31,14 @@ test('M1 appends migration 2 preserving the exact v1 ledger and existing user/re
  const db=baseline();try{
   const ledger=db.prepare('SELECT * FROM schema_migrations').get(),user=db.prepare('SELECT * FROM users').get(),report=db.prepare('SELECT * FROM reports').get();
   assert.equal(migrations[0].checksum,'dbf6ec323e5550109b9722617341c9222155bf2ed5cd800f71504a7a0cb76940');
-  assert.deepEqual(applySchema(db),{version:4,applied:[2,3,4]});
+  assert.deepEqual(applySchema(db),{version:5,applied:[2,3,4,5]});
   assert.deepEqual(db.prepare('SELECT * FROM schema_migrations WHERE version=1').get(),ledger);
   const after=db.prepare('SELECT * FROM users').get();for(const [key,value]of Object.entries(user))assert.deepEqual(after[key],value);
   assert.equal(after.banned,0);assert.equal(after.muted,0);
   const reviewed=db.prepare('SELECT * FROM reports').get();for(const [key,value]of Object.entries(report))assert.deepEqual(reviewed[key],value);
   assert.equal(reviewed.status,'open');assert.equal(reviewed.reviewed_by,null);assert.equal(reviewed.reviewed_at,null);
   const all=db.prepare('SELECT * FROM schema_migrations').all();
-  assert.deepEqual(applySchema(db),{version:4,applied:[]});migrationV2.up(db);
+  assert.deepEqual(applySchema(db),{version:5,applied:[]});migrationV2.up(db);
   assert.deepEqual(db.prepare('SELECT * FROM schema_migrations').all(),all);
   assert.equal(db.prepare('PRAGMA foreign_key_check').all().length,0);
  }finally{db.close();}

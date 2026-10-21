@@ -5,6 +5,7 @@ import {dictionaries as site} from '../dist/i18n.js';
 import {dictionaries as admin} from '../dist/admin-i18n.js';
 import {dictionaries as denki} from '../dist/denki-i18n.js';
 import {m3Dictionaries as m3} from '../dist/m3-i18n.js';
+import {m5Dictionaries as m5} from '../dist/m5-i18n.js';
 import {m4Dictionaries as m4} from '../dist/m4-i18n.js';
 import {composerDictionaries as composer} from '../dist/composer-i18n.js';
 
@@ -23,14 +24,15 @@ export function checkDictionary(name,dictionaries){
  return errors;
 }
 export async function auditDictionaries(){
- const groups={site,admin,denki,composer,m3,m4},errors=Object.entries(groups).flatMap(([name,copy])=>checkDictionary(name,copy));
- const editor=Object.fromEntries(manualLanguages.map(language=>[language,{...site[language],...composer[language],...m3[language],...m4[language]}]));
- const sources=[['site',editor,['app.js','language-ui.js','reading-nav.js','m4-ui.js']],['auth',editor,['auth-ui.js']],['admin',admin,['admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js','m3-ui.js','m3-editor.js','m3-media.js','reply-writing.js']]];
+ const groups={site,admin,denki,composer,m3,m4,m5},errors=Object.entries(groups).flatMap(([name,copy])=>checkDictionary(name,copy));
+ const editor=Object.fromEntries(manualLanguages.map(language=>[language,{...site[language],...composer[language],...m3[language],...m4[language],...m5[language]}]));
+ const adminAll=Object.fromEntries(manualLanguages.map(language=>[language,{...admin[language],...m5[language]}]));
+ const sources=[['site',editor,['app.js','language-ui.js','reading-nav.js','m4-ui.js','m5-ui.js']],['auth',editor,['auth-ui.js']],['admin',adminAll,['admin.js','m5-admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js','m3-ui.js','m3-editor.js','m3-media.js','reply-writing.js']]];
  for(const [group,copy,files]of sources)for(const file of files){
   const source=await readFile(new URL('../dist/'+file,import.meta.url),'utf8');
   for(const key of staticTranslationKeys(source))for(const language of manualLanguages)if(typeof copy[language][key]!=='string')errors.push(`${group}/${language}/${file}: unknown key ${key}`);
  }
- for(const [name,copy,file]of [['site',editor,'index.html'],['admin',admin,'admin.html'],['denki',denki,'denki.html']]){
+ for(const [name,copy,file]of [['site',editor,'index.html'],['admin',adminAll,'admin.html'],['denki',denki,'denki.html']]){
   const html=await readFile(new URL('../dist/'+file,import.meta.url),'utf8');for(const [,key]of html.matchAll(/data-(?:i18n(?:-aria)?|label)="([^"]+)"/g))for(const language of manualLanguages)if(typeof copy[language][key]!=='string')errors.push(`${name}/${language}/${file}: unknown key ${key}`);
  }
  return [...new Set(errors)];

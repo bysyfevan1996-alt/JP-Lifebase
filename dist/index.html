@@ -7,14 +7,15 @@
   <meta name="description" content="Japan Life Base，在日本生活的讨论社区。">
   <title>Japan Life Base</title>
   <link rel="canonical" href="https://www.jp-lifebase.com/">
-  <link rel="stylesheet" href="/styles.css?v=20261021223719402">
-  <link rel="stylesheet" href="/responsive.css?v=20261021223719402">
-  <link rel="stylesheet" href="/composer.css?v=20261021223719402">
-  <link rel="stylesheet" href="/m3.css?v=20261021223719402">
-  <link rel="stylesheet" href="/reading-nav.css?v=20261021223719402">
-  <link rel="stylesheet" href="/reply-writing.css?v=20261021223719402">
-  <link rel="stylesheet" href="/m4.css?v=20261021223719402">
-  <script type="module" src="/app.js?v=20261021223719402"></script>
+  <link rel="stylesheet" href="/styles.css?v=20261021225303391">
+  <link rel="stylesheet" href="/responsive.css?v=20261021225303391">
+  <link rel="stylesheet" href="/composer.css?v=20261021225303391">
+  <link rel="stylesheet" href="/m3.css?v=20261021225303391">
+  <link rel="stylesheet" href="/reading-nav.css?v=20261021225303391">
+  <link rel="stylesheet" href="/reply-writing.css?v=20261021225303391">
+  <link rel="stylesheet" href="/m4.css?v=20261021225303391">
+  <link rel="stylesheet" href="/m5.css?v=20261021225303391">
+  <script type="module" src="/app.js?v=20261021225303391"></script>
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">跳到讨论内容</a>
@@ -32,7 +33,7 @@
       <button class="side-link personal-link" id="my-messages"><span data-i18n="m4Notifications">通知</span><span class="m4-badge" id="notification-count" hidden></span></button>
       <button class="side-link personal-link" id="my-bookmarks" data-i18n="m4Bookmarks">收藏</button>
       <a class="side-link personal-link" href="#about" data-info="about" data-i18n="about">关于本站</a>
-      <a class="side-link personal-link" href="#guide" data-info="guide" data-i18n="guide">使用指南</a>
+      <a class="side-link personal-link" id="guide-link" href="/t/32122823-b43c-46b6-95ba-6625763f03c7" data-guide data-i18n="guide">使用指南</a>
       <button class="side-promo" id="side-promo"><span class="promo-symbol" aria-hidden="true">↗</span><span class="promo-eyebrow" data-i18n="community">社区</span><strong data-i18n="shareExperience">分享生活经验</strong><span class="promo-link"><span data-i18n="joinDiscussion">浏览讨论</span><span aria-hidden="true">→</span></span></button>
       <section class="nav-section sidebar-tools"><button class="section-toggle" aria-expanded="true" aria-controls="tool-links"><span data-icon="chevron-down"></span><span data-i18n="tools">小工具</span></button><nav id="tool-links" aria-label="小工具" data-i18n-aria="tools"><a href="/denkikakaku" class="side-link"><span data-icon="zap"></span><span data-i18n="electricityTool">电费比较</span></a><a href="/moving-checklist" class="side-link"><span data-icon="check-square"></span><span data-i18n="movingTool">搬家清单</span><span class="tool-status" data-i18n="preparing">准备中</span></a></nav></section>
       <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="content-links"><span data-icon="chevron-down"></span><span data-i18n="content">内容</span></button><div id="content-links"><button class="side-link active" data-view="all"><span data-icon="messages"></span><span data-i18n="allTopics">全部讨论</span></button><button class="side-link" data-filter-shortcut="popular"><span data-icon="flame"></span><span data-i18n="popular">热门</span></button><button class="side-link" data-filter-shortcut="unanswered"><span data-icon="message"></span><span data-i18n="unanswered">待回复</span></button></div></section>
@@ -56,6 +57,7 @@
     </section>
     <section id="detail-view" hidden aria-label="话题详情" data-i18n-aria="topicDetail"><div class="detail-top-actions"><button class="back-button" id="back-to-list"><span data-icon="arrow-left"></span><span data-i18n="back">返回讨论</span></button><button type="button" class="icon-button" id="topic-search-toggle" aria-label="社区搜索" data-i18n-aria="communitySearch" aria-expanded="false" aria-controls="assistant-panel" data-icon="search"></button></div><div id="topic-detail"></div></section>
     <section id="tool-view" hidden></section>
+    <section id="m5-view" hidden></section>
     <section id="account-view" hidden aria-label="账号" data-i18n-aria="account"></section>
     <footer class="panel-footer"><span>© Japan Life Base</span><button class="plain-button" id="contact-button" data-i18n="contact">联系我们</button></footer>
   </div></main>

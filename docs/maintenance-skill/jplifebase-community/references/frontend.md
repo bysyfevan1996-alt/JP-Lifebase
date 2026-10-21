@@ -123,3 +123,15 @@ m4-ui.js负责站内通知、私有收藏、handle/@、话题订阅、新回复�
 全屏writer里@选择保留同一textarea并派发input；引用、上传、pending回执和语言切换不能丢失。界面不得把handle当邮箱或可改昵称，昵称和公开标识都用文本节点。跟踪的已查看是话题级事件计数，不是M2精确阅读位置。手机主要按钮约40–44px、反应紧凑灰阶，桌面主面板保持宽布局。
 
 账号唯一标识在个人/account详情中显示，首页侧栏不显示；身份缓存复用M4请求，不新增重复轮询。填充时检查identity.id等于当前user.id与当前账号路由，离页/跨账号隐藏旧值，不重绘头像表单。
+
+## M5 页面与动态目录
+
+m5-ui/css/i18n负责/search高级检索、/u/handle公开资料、账号内独立资料设置和精确来源弹窗；m5-admin负责目录与指标。所有静态文案五语人工维护，新增模块纳入check-i18n。/t/id兼容旧hash；safeReturn只允许严格本地主题/资料/搜索路径，不扩大成任意URL。搜索结果不再经selectTopics把回复命中误过滤；路由/账号/语言变化abort或校验代数，M5清理不丢回复内存草稿。
+
+community-directory.js维护动态目录并更新categories/topicTags；所有历史ID保留，active只约束新选择。compose-drafts接受语法合法的旧ID，不能因后台新增/停用而删本地草稿；composer刷新目录不重建正文/上传/回执。新增分类名称从translations/name取文本，不调用缺失的t(id)；找不到的历史标签可安全显示原ID。后台ID已有项只读，不提供删除旧关联。
+
+版本化模块必须使用同一依赖URL以共用动态topicTags；测试若直接import无query模块会形成另一ESM实例，需按实际导入specifier取相同实例，不硬编码缓存版本。运营指标定义用m5手工五语，日期标UTC；资料字段保持纯文本，HTTPS链接拒绝凭据和其他协议，保存/语言重绘/身份轮询保持未保存输入。
+
+M4通知与收藏已合入.reading-nav：宽屏右卡底部、窄桌面同横栏、手机仅显示这一行控件并保留独立底部阅读双按钮；提示用title及可访问隐藏文本，不占说明行。窄屏nowrap且局部横向可滚，不能挤出页面。attachTopic之后重新mountReading测量吸顶标题高度，避免新增控件覆盖正文；返回、焦点和全屏草稿继续保留。
+
+左栏“使用指南”指向置顶正式帖子`/t/32122823-b43c-46b6-95ba-6625763f03c7`，#guide-link使用站内navigatePage保留草稿，不能恢复data-info=guide旧短弹窗。正文源稿docs/USER_GUIDE.md/json；后续功能变化编辑原指南，避免反复创建同名帖。站务分类中无releaseOrder的置顶指南优先，再保持版本公告的releaseOrder升序；不改原公告真实时间。

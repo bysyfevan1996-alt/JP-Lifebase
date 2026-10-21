@@ -5,6 +5,12 @@ import {applySchema} from '../schema.mjs';
 import {setReleaseOrder} from '../release-notes.mjs';
 import {selectTopics} from '../dist/select-topics.js';
 
+test('pinned community guide precedes release chronology without changing the order of version notes',()=>{
+ const topics=[{id:'v14',category:'site',releaseOrder:140,pinned:false,minutes:0},{id:'v11',category:'site',releaseOrder:110,pinned:true,minutes:2},{id:'guide',category:'site',releaseOrder:null,pinned:true,minutes:1},{id:'v10',category:'site',releaseOrder:100,pinned:false,minutes:3},{id:'ordinary',category:'site',releaseOrder:null,pinned:false,minutes:0}];
+ assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(item=>item.id),['guide','v10','v11','v14','ordinary']);
+ assert.equal(topics[0].id,'v14');
+});
+
 test('release chronology is operator-only, audited, idempotent and preserves actual dates',()=>{
  const db=new DatabaseSync(':memory:');db.exec('PRAGMA foreign_keys=ON');applySchema(db);
  try{
