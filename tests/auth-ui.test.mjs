@@ -33,6 +33,22 @@ class Surface {
 }
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
+test('account handle stays on its own account screen and rejects stale identity without repainting the form',async()=>{
+ const saved=Object.fromEntries(['document','location','requestAnimationFrame'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ const host=new Surface();let ui,user={id:'alice',name:'Alice',email:'alice@example.test',emailVerified:true},identity={id:'alice',handle:'u_alice'};
+ try{
+  globalThis.location={pathname:'/account',search:''};globalThis.document={title:'',activeElement:null};globalThis.requestAnimationFrame=fn=>fn();
+  ui=createAuthUI({host,api:async()=>{throw Error('No extra identity request is needed');},t:key=>key,getUser:()=>user,getIdentity:()=>identity,onUser(){},avatar:()=>'',navigate(){},onContinue(){},onLogout(){},getLanguage:()=>'en'});
+  await ui.render();const row=host.querySelector('#auth-handle-row'),value=host.querySelector('#auth-handle'),input=host.querySelector('#auth-avatar-file');
+  assert.equal(row.hidden,false);assert.equal(value.textContent,'@u_alice');
+  user={...user,id:'bob'};ui.refreshIdentity();assert.equal(row.hidden,true);assert.equal(value.textContent,'');assert.equal(host.querySelector('#auth-avatar-file'),input);
+  identity={id:'bob',handle:'u_bob'};ui.refreshIdentity();assert.equal(value.textContent,'@u_bob');
+  identity={id:'bob',handle:'<img onerror=alert(1)>'};ui.refreshIdentity();assert.equal(row.hidden,true);assert.equal(value.textContent,'');
+  identity={id:'bob',handle:'u_bob'};location.pathname='/';ui.refreshIdentity();assert.equal(row.hidden,true);assert.equal(value.textContent,'');
+  ui.leave();ui.refreshIdentity();assert.equal(host.nodes.length,0);
+ }finally{ui?.leave();for(const [key,descriptor]of Object.entries(saved))if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+});
+
 test('language repaint preserves login inputs and route without refreshing the page',async()=>{
  const saved=Object.fromEntries(['document','location','requestAnimationFrame'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  const host=new Surface();let ui,language='en';

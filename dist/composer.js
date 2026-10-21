@@ -1,8 +1,8 @@
-import {formatMarkdown} from './m3-format.js?v=20261021153644704';
-import {languageSelect} from './m3-editor.js?v=20261021153644704';
-import {renderMarkdown} from './markdown.js?v=20261021153644704';
-import {createDraftStore} from './compose-drafts.js?v=20261021153644704';
-import {createComposerExtras} from './composer-extras.js?v=20261021153644704';
+import {formatMarkdown} from './m3-format.js?v=20261021223719402';
+import {languageSelect} from './m3-editor.js?v=20261021223719402';
+import {renderMarkdown} from './markdown.js?v=20261021223719402';
+import {createDraftStore} from './compose-drafts.js?v=20261021223719402';
+import {createComposerExtras} from './composer-extras.js?v=20261021223719402';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const drawings = {

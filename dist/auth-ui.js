@@ -1,4 +1,4 @@
-import {topicTags} from './topic-tags.js?v=20261021153644704';
+import {topicTags} from './topic-tags.js?v=20261021223719402';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const routes=new Set(['/account','/account/login','/account/register','/account/verify','/account/forgot-password','/account/reset-password']);
 const intents=new Set(['compose','reply','topics','messages']);
@@ -12,7 +12,7 @@ export function safeReturn(value){
 
 // The server owns the challenge, grant, expiration and resend time. This module
 // retains only display state and an optional processed avatar in memory.
-export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage}){
+export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage,getIdentity=()=>null}){
  let pendingLanguageRefresh=false,repainting=false,refreshView=null,generation=0,timer=null,flow=null,busy=false,writePending=false,avatarBusy=false,avatarData=null,avatarChanged=false,avatarVersion=0,previewVersion=0;
  const $=selector=>host.querySelector(selector);
  const post=(path,body={})=>api(path,{method:'POST',body:JSON.stringify(body)});
@@ -146,9 +146,15 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
   frame('authLegacyTitle','authLegacyPassword',`<p class="auth-verified auth-pending">${escape(user.email)} <span>${copy('authUnverified')}</span></p><p class="auth-help">${copy('authLegacyHelp')}</p><form id="auth-form">${password('password','password',true)}${errorBox()}${primary('authSendCode')}</form>`);
   $('#auth-form').onsubmit=e=>{e.preventDefault();const password=new FormData(e.currentTarget).get('password');run(async version=>{const result=await post('/api/auth/email/start',{password,language:getLanguage()});if(await reconcileStaleFlow(version))return;flow=result;go('/account/verify');},'password');};
  }
+ function refreshIdentity(){
+  const row=$('#auth-handle-row'),value=$('#auth-handle');if(!row||!value)return;
+  const user=getUser(),identity=getIdentity(),valid=location.pathname.replace(/\/$/,'')==='/account'&&!!user&&identity?.id===user.id&&/^[a-z][a-z0-9_]{2,31}$/.test(identity?.handle||'');
+  row.hidden=!valid;value.textContent=valid?'@'+identity.handle:'';
+ }
  function account(notice){refreshView=()=>account(notice);
   const user=getUser();if(!user){login();return;}
-  frame('account','',`<div class="auth-account-summary">${avatar(user)}<div><strong>${escape(user.name)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div></div><dl class="auth-details"><div><dt>${copy('name')}</dt><dd>${escape(user.name)}</dd></div><div><dt>${copy('email')}</dt><dd>${escape(user.email)}</dd></div></dl>${!user.emailVerified?`<p class="auth-help">${copy('authLegacyHelp')}</p><button class="auth-secondary" id="auth-legacy">${copy('authVerifyNow')}</button>`:''}<h2 class="auth-subheading">${copy('authAvatar')}</h2>${avatarPicker(user,true)}${errorBox()}${user.emailVerified?`<a class="auth-secondary" href="${escape(routeURL('/account/forgot-password'))}" data-account-route="/account/forgot-password">${copy('authResetTitle')}</a>`:''}<button class="auth-link auth-logout" id="auth-logout">${copy('logout')}</button>`,{notice});
+  frame('account','',`<div class="auth-account-summary">${avatar(user)}<div><strong>${escape(user.name)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div></div><dl class="auth-details"><div><dt>${copy('name')}</dt><dd>${escape(user.name)}</dd></div><div><dt>${copy('email')}</dt><dd>${escape(user.email)}</dd></div><div id="auth-handle-row" hidden><dt>${copy('m4AccountHandle')}</dt><dd id="auth-handle"></dd></div></dl>${!user.emailVerified?`<p class="auth-help">${copy('authLegacyHelp')}</p><button class="auth-secondary" id="auth-legacy">${copy('authVerifyNow')}</button>`:''}<h2 class="auth-subheading">${copy('authAvatar')}</h2>${avatarPicker(user,true)}${errorBox()}${user.emailVerified?`<a class="auth-secondary" href="${escape(routeURL('/account/forgot-password'))}" data-account-route="/account/forgot-password">${copy('authResetTitle')}</a>`:''}<button class="auth-link auth-logout" id="auth-logout">${copy('logout')}</button>`,{notice});
+  refreshIdentity();
   bindAvatar(()=>({...getUser(),avatarUrl:avatarChanged?null:getUser().avatarUrl}),true);
   if($('#auth-legacy'))$('#auth-legacy').onclick=legacy;
   $('#auth-logout').onclick=()=>run(async version=>{if(!await beforeLogout())return;await post('/api/logout');onUser(null);onLogout();avatarData=null;avatarChanged=false;if(version===generation)go('/account/login');});
@@ -187,7 +193,7 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
   for(const field of fields){const el=field.id?host.querySelector('#'+field.id):null;if(!el||field.type==='file')continue;el.value=field.value;el.checked=field.checked;if(field.active){el.focus({preventScroll:true});if(typeof el.setSelectionRange==='function'&&field.start!==null)el.setSelectionRange(field.start,field.end);}}
   if(avatarData)previewAvatar(getUser()||{name:$('#auth-name')?.value||'?'});
  }
- return {render,refreshLanguage,leave(){refreshView=null;generation++;avatarVersion++;clearInterval(timer);timer=null;busy=false;avatarBusy=false;avatarData=null;avatarChanged=false;host.replaceChildren();},open(mode,{target='/',intent=''}={}){const p=new URLSearchParams();target=safeReturn(target);if(target!=='/')p.set('return',target);if(intents.has(intent))p.set('intent',intent);navigate(`/account/${mode==='register'?'register':'login'}${p.size?'?'+p:''}`);}};
+ return {render,refreshLanguage,refreshIdentity,leave(){refreshView=null;generation++;avatarVersion++;clearInterval(timer);timer=null;busy=false;avatarBusy=false;avatarData=null;avatarChanged=false;host.replaceChildren();},open(mode,{target='/',intent=''}={}){const p=new URLSearchParams();target=safeReturn(target);if(target!=='/')p.set('return',target);if(intents.has(intent))p.set('intent',intent);navigate(`/account/${mode==='register'?'register':'login'}${p.size?'?'+p:''}`);}};
 }
 
 // Decode on this device without creating blob image URLs, preserving the site's

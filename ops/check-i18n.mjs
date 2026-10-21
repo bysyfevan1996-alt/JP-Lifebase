@@ -25,7 +25,7 @@ export function checkDictionary(name,dictionaries){
 export async function auditDictionaries(){
  const groups={site,admin,denki,composer,m3,m4},errors=Object.entries(groups).flatMap(([name,copy])=>checkDictionary(name,copy));
  const editor=Object.fromEntries(manualLanguages.map(language=>[language,{...site[language],...composer[language],...m3[language],...m4[language]}]));
- const sources=[['site',editor,['app.js','language-ui.js','reading-nav.js','m4-ui.js']],['auth',site,['auth-ui.js']],['admin',admin,['admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js','m3-ui.js','m3-editor.js','m3-media.js','reply-writing.js']]];
+ const sources=[['site',editor,['app.js','language-ui.js','reading-nav.js','m4-ui.js']],['auth',editor,['auth-ui.js']],['admin',admin,['admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js','m3-ui.js','m3-editor.js','m3-media.js','reply-writing.js']]];
  for(const [group,copy,files]of sources)for(const file of files){
   const source=await readFile(new URL('../dist/'+file,import.meta.url),'utf8');
   for(const key of staticTranslationKeys(source))for(const language of manualLanguages)if(typeof copy[language][key]!=='string')errors.push(`${group}/${language}/${file}: unknown key ${key}`);

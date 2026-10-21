@@ -1,5 +1,5 @@
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021153644704';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021153644704';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021223719402';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021223719402';
 
 export function createComposerExtras({root,t,api,getContext,onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);

@@ -1,20 +1,20 @@
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021153644704';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021153644704';
-import {categories,avatarColors} from './topics.js?v=20261021153644704';
-import {selectTopics} from './select-topics.js?v=20261021153644704';
-import {icon} from './icons.js?v=20261021153644704';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261021153644704';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021153644704';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021153644704';
-import {createContentUI} from './m3-ui.js?v=20261021153644704';
-import {m3Dictionaries} from './m3-i18n.js?v=20261021153644704';
-import {createCommunityInteractionsUI} from './m4-ui.js?v=20261021153644704';
-import {m4Dictionaries} from './m4-i18n.js?v=20261021153644704';
-import {createComposer} from './composer.js?v=20261021153644704';
-import {composerDictionaries} from './composer-i18n.js?v=20261021153644704';
-import {renderMarkdown} from './markdown.js?v=20261021153644704';
-import {createReadingNavigation} from './reading-nav.js?v=20261021153644704';
-import {topicTags} from './topic-tags.js?v=20261021153644704';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021223719402';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021223719402';
+import {categories,avatarColors} from './topics.js?v=20261021223719402';
+import {selectTopics} from './select-topics.js?v=20261021223719402';
+import {icon} from './icons.js?v=20261021223719402';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261021223719402';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021223719402';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021223719402';
+import {createContentUI} from './m3-ui.js?v=20261021223719402';
+import {m3Dictionaries} from './m3-i18n.js?v=20261021223719402';
+import {createCommunityInteractionsUI} from './m4-ui.js?v=20261021223719402';
+import {m4Dictionaries} from './m4-i18n.js?v=20261021223719402';
+import {createComposer} from './composer.js?v=20261021223719402';
+import {composerDictionaries} from './composer-i18n.js?v=20261021223719402';
+import {renderMarkdown} from './markdown.js?v=20261021223719402';
+import {createReadingNavigation} from './reading-nav.js?v=20261021223719402';
+import {topicTags} from './topic-tags.js?v=20261021223719402';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 for(const [language,copy] of Object.entries(m3Dictionaries))Object.assign(dictionaries[language],copy);
@@ -69,13 +69,14 @@ function applyUser(user){if((state.user?.id||null)!==(user?.id||null)){disposeCo
 function clearPrivateData(){disposeContent();detailRequest++;privateRequest++;savedReplyDraft=null;replyDrafts.clear();composer?.logout();authAfter=null;quote=null;interactionsUI?.refreshIdentity();if(dialog.open)dialog.close();$('#dialog-body').replaceChildren();}
 function navigatePage(url){composer?.suspend();if(dialog.open)dialog.close();history.pushState(null,'',url);closeFilter();closeDrawer();renderRoute();window.scrollTo({top:0});}
 function continueAuth(target,intent){const callback=authAfter;authAfter=null;const destination=safeReturn(target);if(destination==='/admin'){location.assign(destination);return;}navigatePage(destination);if(callback)callback();else if(intent==='compose')openComposer();else if(['topics','messages','bookmarks'].includes(intent))openPersonal(intent);}
-const authUI=createAuthUI({host:$('#account-view'),api,t,getUser:()=>state.user,onUser:user=>{applyUser(user);loadTopics();},avatar,navigate:navigatePage,onContinue:continueAuth,onLogout:clearPrivateData,beforeLogout:()=>composer?.beforeLogout()??true,getLanguage:()=>state.language});
+let accountIdentity=null;
+const authUI=createAuthUI({host:$('#account-view'),api,t,getUser:()=>state.user,getIdentity:()=>accountIdentity,onUser:user=>{applyUser(user);loadTopics();},avatar,navigate:navigatePage,onContinue:continueAuth,onLogout:clearPrivateData,beforeLogout:()=>composer?.beforeLogout()??true,getLanguage:()=>state.language});
 function syncSidebar(){const hidden=document.body.classList.contains('composer-open')||(drawerQuery.matches?!document.body.classList.contains('drawer-open'):document.body.classList.contains('nav-collapsed'));$('#sidebar').inert=hidden;$('#sidebar').setAttribute('aria-hidden',String(hidden));}
 function closeDrawer(){document.body.classList.remove('drawer-open');syncSidebar();$('#drawer-shade').hidden=true;$('#menu-toggle').setAttribute('aria-expanded',String(!drawerQuery.matches&&!document.body.classList.contains('nav-collapsed')));}
 function closeFilter(){$('#filter-popover').hidden=true;$('#filter-toggle').setAttribute('aria-expanded','false');}
 function bindCategories(parent){parent.querySelectorAll('[data-category]').forEach(b=>b.addEventListener('click',()=>setCategory(b.dataset.category)));}
 function updateTranslation(translation=state.translation){state.translation=translation;const unavailable=state.uiUnavailable||translation.unavailable,automatic=state.uiAutomatic||translation.automatic;$('#translation-notice').hidden=!(unavailable||automatic||state.original);$('#translation-label').textContent=unavailable?t('translationUnavailable')+(state.uiUnavailable?' '+t('interfaceEnglish'):''):automatic?t('machineNote'):t('showOriginal');$('#original-toggle').textContent=state.original?t('showTranslation'):t('showOriginal');$('#original-toggle').hidden=!(translation.automatic||translation.unavailable||state.original);}
-function renderAccounts(){const adminEntry=document.getElementById('admin-entry');if(adminEntry)adminEntry.hidden=state.user?.role!=='admin';const box=$('#account-actions');box.innerHTML=state.user?`<button class="pill" id="my-account" aria-label="${escape(t('account')+': '+state.user.name)}">${avatar(state.user)}<span class="account-name">${escape(state.user.name)}</span></button>`:`<button class="pill" data-auth="register">${escape(t('register'))}</button><button class="pill" data-auth="login">${escape(t('login'))}</button>`;box.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>openAuth(b.dataset.auth)));if(state.user)$('#my-account').onclick=()=>{const p=new URLSearchParams();const target=isAccountRoute(location.pathname)?safeReturn(new URLSearchParams(location.search).get('return')):safeReturn(location.pathname+location.search+location.hash);if(target!=='/')p.set('return',target);navigatePage('/account'+(p.size?'?'+p:''));};interactionsUI?.refreshIdentity();}
+function renderAccounts(){const adminEntry=document.getElementById('admin-entry');if(adminEntry)adminEntry.hidden=state.user?.role!=='admin';const box=$('#account-actions');box.innerHTML=state.user?`<button class="pill" id="my-account" aria-label="${escape(t('account')+': '+state.user.name)}">${avatar(state.user)}</button>`:`<button class="pill" data-auth="register">${escape(t('register'))}</button><button class="pill" data-auth="login">${escape(t('login'))}</button>`;box.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>openAuth(b.dataset.auth)));if(state.user)$('#my-account').onclick=()=>{const p=new URLSearchParams();const target=isAccountRoute(location.pathname)?safeReturn(new URLSearchParams(location.search).get('return')):safeReturn(location.pathname+location.search+location.hash);if(target!=='/')p.set('return',target);navigatePage('/account'+(p.size?'?'+p:''));};interactionsUI?.refreshIdentity();}
 function applyLanguage(){composer?.refreshLanguage();document.documentElement.lang=state.uiUnavailable?'en':state.language;document.title='Japan Life Base';document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));$('#search-input').placeholder=t('search');$('#search-input').ariaLabel=t('search');$('#menu-toggle').ariaLabel=t('menu');$('#filter-toggle').ariaLabel=t('searchSettings');$('#banner-close').ariaLabel=t('close');$('#assistant-close').ariaLabel=t('close');$('#dialog-close').ariaLabel=t('close');$('#chat-input').placeholder=t('search');$('#chat-input').ariaLabel=t('search');$('#language-select').querySelector('[value="system"]').textContent=t('system');const label=new Intl.DisplayNames([state.uiUnavailable?'en':state.language],{type:'language'});$('#locale-label').textContent=label.of(state.language)||state.language;$('#category-links').innerHTML=Object.entries(categories).map(([id,c])=>`<button class="side-link" data-category="${id}"><span class="category-marker" style="--cat:${c.color}"></span>${escape(t(id))}</button>`).join('');$('#category-select').innerHTML=`<option value="all">${escape(t('allCategories'))}</option>`+Object.keys(categories).map(id=>`<option value="${id}">${escape(t(id))}</option>`).join('');bindCategories($('#category-links'));ensureLanguageOption($('#language-select'),state.preference,state.language);$('#language-select').value=state.preference;renderAccounts();updateTranslation();svgInit();}
 async function setLanguage(preference){
  const ticket=++languageRequest,route=location.pathname+location.search+location.hash,scroll=window.scrollY;
@@ -171,8 +172,8 @@ function openAuth(mode,after,intent=''){saveReplyState();composer?.suspend();con
 function openComposer(){closeFilter();closeDrawer();toggleAssistant(false);composer.open();}
 composer=createComposer({api,t,getUser:()=>state.user,getCategory:()=>state.category,getLanguage:()=>state.language,categories,onClose:syncSidebar,onAuth:()=>{state.user=null;composer.setUser(null);renderAccounts();openAuth('login',openComposer,'compose');},onPublished:topic=>{openTopic(topic.id);loadTopics();toast(t('published'));},toast});
 interactionsUI=createCommunityInteractionsUI({api,t,getUser:()=>state.user,onAuth:intent=>openAuth('login',null,intent),onOpenTopic:openTopic,toast,onChange:value=>{
- const count=$('#notification-count'),handle=$('#my-handle');if(Object.hasOwn(value,'unreadCount')){count.hidden=!value.unreadCount;count.textContent=value.unreadCount>99?'99+':String(value.unreadCount||0);count.setAttribute('aria-label',t('m4Unread')+': '+String(value.unreadCount||0));}
- if(Object.hasOwn(value,'identity')){handle.hidden=!value.identity?.handle;handle.textContent=value.identity?.handle?'@'+value.identity.handle:'';handle.title=t('m4AccountHandle');}
+ const count=$('#notification-count');if(Object.hasOwn(value,'unreadCount')){count.hidden=!value.unreadCount;count.textContent=value.unreadCount>99?'99+':String(value.unreadCount||0);count.setAttribute('aria-label',t('m4Unread')+': '+String(value.unreadCount||0));}
+ if(Object.hasOwn(value,'identity')){accountIdentity=value.identity;authUI.refreshIdentity();}
  if(value.topicId){const topic=state.topics.find(item=>item.id===value.topicId);if(topic)Object.assign(topic,{solved:value.solved,answerPostId:value.answerPostId});renderList();}
 }});
 async function openPersonal(kind){if(kind==='messages'||kind==='bookmarks'){closeDrawer();closeFilter();saveReplyState();if(kind==='messages')interactionsUI.openNotifications();else interactionsUI.openBookmarks();return;}requireAuth(async()=>{

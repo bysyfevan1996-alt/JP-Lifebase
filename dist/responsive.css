@@ -107,3 +107,14 @@
  .topbar .account-actions .account-name { max-width:28px; }
 }
 
+
+/* Signed-in account entry: avatar only on desktop and mobile. */
+.topbar .account-actions #my-account {
+ display:inline-grid;place-items:center;flex:none;
+ width:40px;min-width:40px;max-width:40px!important;height:40px;min-height:40px;
+ padding:0!important;gap:0;border:0;border-radius:50%;background:transparent;
+}
+.topbar .account-actions #my-account:hover { background:#00000008; }
+.topbar .account-actions #my-account .avatar {
+ width:32px;height:32px;border-radius:50%;margin:0;
+}
