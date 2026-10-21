@@ -44,6 +44,8 @@
 
 公告保留真实发布时间，站务顺序100/110/120/130/140。发布后只读比对脚本曾误将旧V1.1排序审计一并过滤，修正为仅过滤本次两条后24原表比对通过；正式数据没有修正或回滚。私有迁移证据在VPS `/var/lib/jplifebase/upgrade-validation/20261021T161423Z-m4/verification.json`，没有下载生产数据库。运行源文件已与发布清单核对，提交记录和CI见专属仓库历史。
 
+发布后最新备份再验证：32张表，两次迁移均applied=[]，账本前缀保留，完整备份恢复通过。报告在同级`20261021T161423Z-m4-postcheck/verification.json`。源码提交[371d380](https://github.com/bysyfevan1996-alt/JP-Lifebase/commit/371d38091fb4acc169e415eb623c4b774b0ea639)已推送main；[GitHub应用检查](https://github.com/bysyfevan1996-alt/JP-Lifebase/actions/runs/39633853936)完成且成功。提交前219个运行文件逐字节匹配上线清单；已提交文件中无生产库、环境、构建产物或凭据模式。维护skill已同步到项目副本和用户安装目录，并通过格式验证。
+
 ## 本地模型计量
 
 以下是本次任务（含中断前）的本地调用记录，模型均为 `qwen3-codex:8b`，保留原生思考。以一个模块或测试补丁为独立核验单位；没有可用输出时分母为0，比例不适用。token仅用服务返回值，包含生成的推理，不是OpenAI计费额度。
