@@ -1,5 +1,5 @@
-import {renderMarkdown} from './markdown.js?v=20261021232645283';
-import {formatMarkdown} from './m3-format.js?v=20261021232645283';
+import {renderMarkdown} from './markdown.js?v=20261021234459592';
+import {formatMarkdown} from './m3-format.js?v=20261021234459592';
 
 export const contentLanguages=['und','zh-CN','zh-TW','ja','en','ko'];
 export function languageSelect(t,value='und'){

@@ -1,23 +1,23 @@
-import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261021232645283';
-import {m5Dictionaries} from './m5-i18n.js?v=20261021232645283';
-import {createM5UI,searchURL} from './m5-ui.js?v=20261021232645283';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021232645283';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021232645283';
-import {categories,avatarColors} from './topics.js?v=20261021232645283';
-import {selectTopics} from './select-topics.js?v=20261021232645283';
-import {icon} from './icons.js?v=20261021232645283';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261021232645283';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021232645283';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021232645283';
-import {createContentUI} from './m3-ui.js?v=20261021232645283';
-import {m3Dictionaries} from './m3-i18n.js?v=20261021232645283';
-import {createCommunityInteractionsUI} from './m4-ui.js?v=20261021232645283';
-import {m4Dictionaries} from './m4-i18n.js?v=20261021232645283';
-import {createComposer} from './composer.js?v=20261021232645283';
-import {composerDictionaries} from './composer-i18n.js?v=20261021232645283';
-import {renderMarkdown} from './markdown.js?v=20261021232645283';
-import {createReadingNavigation} from './reading-nav.js?v=20261021232645283';
-import {topicTags} from './topic-tags.js?v=20261021232645283';
+import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261021234459592';
+import {m5Dictionaries} from './m5-i18n.js?v=20261021234459592';
+import {createM5UI,searchURL} from './m5-ui.js?v=20261021234459592';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021234459592';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021234459592';
+import {categories,avatarColors} from './topics.js?v=20261021234459592';
+import {selectTopics} from './select-topics.js?v=20261021234459592';
+import {icon} from './icons.js?v=20261021234459592';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261021234459592';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021234459592';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021234459592';
+import {createContentUI} from './m3-ui.js?v=20261021234459592';
+import {m3Dictionaries} from './m3-i18n.js?v=20261021234459592';
+import {createCommunityInteractionsUI} from './m4-ui.js?v=20261021234459592';
+import {m4Dictionaries} from './m4-i18n.js?v=20261021234459592';
+import {createComposer} from './composer.js?v=20261021234459592';
+import {composerDictionaries} from './composer-i18n.js?v=20261021234459592';
+import {renderMarkdown} from './markdown.js?v=20261021234459592';
+import {createReadingNavigation} from './reading-nav.js?v=20261021234459592';
+import {topicTags} from './topic-tags.js?v=20261021234459592';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 for(const [language,copy] of Object.entries(m3Dictionaries))Object.assign(dictionaries[language],copy);
@@ -116,7 +116,7 @@ function renderRoute(){
  let robots=document.querySelector('meta[name="robots"]');if(account||profile||search){if(!robots){robots=document.createElement('meta');robots.name='robots';document.head.append(robots);}robots.content='noindex, follow';}else if(robots)robots.remove();
 
  if(readingState.topicId!==id)readingState={topicId:id,window:'first',bookmark:null};
- $('#assistant-launcher').hidden=account||!!id||!!profile||search;if(id||account||profile||search)toggleAssistant(false);composer?.setRoute(account||!!profile||search);
+ $('#community-actions').hidden=account||tool||!!id||!!profile||search;if(id||account||tool||profile||search)toggleAssistant(false);composer?.setRoute(account||!!profile||search);
  $('#account-view').hidden=!account;$('#tool-view').hidden=!tool;$('#list-view').hidden=tool||account||!!profile||search;$('#detail-view').hidden=!id;$('#m5-view').hidden=!profile&&!search;
  if(account){state.topicId=null;detailRequest++;if(initialReady)authUI.render();else $('#account-view').innerHTML=`<div class="empty-state" role="status">${escape(t('loading'))}</div>`;return;}authUI.leave();
  if(profile||search){state.topicId=null;detailRequest++;if(profile)m5UI?.renderProfile(profile[1]);else m5UI?.renderSearch();return;}
@@ -213,7 +213,7 @@ async function openPersonal(kind){if(kind==='messages'||kind==='bookmarks'){clos
 },kind);}
 function openContact(){openDialog(t('contactTitle'),`<form id="contact-form"><label class="form-field">${escape(t('name'))}<input name="name" autocomplete="name" required maxlength="60" value="${escape(state.user?.name||'')}"></label><label class="form-field">${escape(t('email'))}<input name="email" type="email" autocomplete="email" required maxlength="254"></label><label class="form-field">${escape(t('message'))}<textarea name="message" required minlength="5" maxlength="5000"></textarea></label><p class="form-note">${escape(t('contactNote'))}</p><p class="form-error" id="contact-error" hidden></p><button class="dark-button" type="submit">${escape(t('send'))}</button></form>`);$('#contact-form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,button=form.querySelector('button');button.disabled=true;try{await api('/api/contact',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(form)))});dialog.close();toast(t('contactSent'));}catch(error){showError('#contact-error',errorText(error));button.disabled=false;}};}
 function reset(){const hadTag=Boolean(state.tag)||state.solved!=='all';state.solved='all';state.category='all';state.tag=null;state.query='';state.unanswered=false;state.limit=12;$('#search-input').value='';if(hadTag){if(location.pathname==='/'&&!location.hash)history.replaceState(null,'','/');loadTopics();}else renderList();}
-function toggleAssistant(open){$('#topic-search-toggle').setAttribute('aria-expanded',String(open));$('#assistant-panel').hidden=!open;$('#assistant-launcher').setAttribute('aria-expanded',String(open));if(open)$('#chat-input').focus();}
+function toggleAssistant(open){$('#topic-search-toggle').setAttribute('aria-expanded',String(open));$('#assistant-panel').hidden=!open;$('#assistant-launcher').setAttribute('aria-expanded',String(open));$('#quick-new-topic').hidden=open;if(open)$('#chat-input').focus();}
 $('#menu-toggle').onclick=()=>{if(drawerQuery.matches){const open=document.body.classList.toggle('drawer-open');$('#drawer-shade').hidden=!open;$('#menu-toggle').setAttribute('aria-expanded',String(open));syncSidebar();}else{const collapsed=document.body.classList.toggle('nav-collapsed');$('#menu-toggle').setAttribute('aria-expanded',String(!collapsed));syncSidebar();}};
 $('#drawer-shade').onclick=closeDrawer;document.querySelectorAll('.section-toggle').forEach(button=>button.onclick=()=>{const open=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!open));document.getElementById(button.getAttribute('aria-controls')).hidden=open;});
 $('#guide-link').onclick=event=>{event.preventDefault();navigatePage($('#guide-link').getAttribute('href'));};
@@ -226,6 +226,7 @@ $('#filter-toggle').onclick=()=>{const open=$('#filter-popover').hidden;$('#filt
 $('#banner-topic').onclick=()=>openTopic('electricity');$('#side-promo').onclick=()=>{reset();navigateHome();};$('#new-topic').onclick=()=>requireAuth(openComposer,'compose');$('#my-topics').onclick=()=>openPersonal('topics');$('#my-messages').onclick=()=>openPersonal('messages');$('#my-bookmarks').onclick=()=>openPersonal('bookmarks');$('#solved-filter').onchange=e=>{state.solved=e.target.value;state.limit=12;loadTopics();};$('#back-to-list').onclick=()=>{navigateHome();window.scrollTo({top:state.scrollY});};$('#contact-button').onclick=openContact;
 $('#dialog-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
 $('#topic-search-toggle').onclick=()=>toggleAssistant($('#assistant-panel').hidden);$('#assistant-launcher').onclick=()=>toggleAssistant($('#assistant-panel').hidden);$('#assistant-close').onclick=()=>toggleAssistant(false);$('#chat-form').onsubmit=e=>{e.preventDefault();const q=$('#chat-input').value.trim();if(!q)return;toggleAssistant(false);navigatePage(searchURL({q}));};
+$('#quick-new-topic').onclick=$('#new-topic').onclick;
 $('#language-select').onchange=e=>preferences.choose(e.target.value);$('#original-toggle').onclick=async()=>{state.original=!state.original;await loadTopics();if(state.topicId)await loadDetail(state.topicId);};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const drawer=document.body.classList.contains('drawer-open');closeDrawer();if(drawer)$('#menu-toggle').focus();closeFilter();toggleAssistant(false);}});document.addEventListener('click',e=>{if(!$('#filter-popover').hidden&&!$('#filter-popover').contains(e.target)&&!$('#filter-toggle').contains(e.target))closeFilter();});document.addEventListener('error',e=>{if(e.target instanceof HTMLImageElement&&e.target.hasAttribute('data-avatar-image'))e.target.remove();},true);drawerQuery.addEventListener('change',()=>{document.body.classList.remove('nav-collapsed');closeDrawer();closeFilter();});window.addEventListener('popstate',()=>{composer?.suspend();renderRoute();});bindCategories($('#channel-links'));
 for(const language of navigator.languages||[]){const resolved=resolveLocale(language,[]).language;if(![...$('#language-select').options].some(option=>option.value===resolved)){const option=document.createElement('option');option.value=resolved;option.textContent=new Intl.DisplayNames([resolved],{type:'language'}).of(resolved);$('#language-select').append(option);}}

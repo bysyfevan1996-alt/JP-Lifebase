@@ -1,6 +1,6 @@
-import {tagLabel} from './community-directory.js?v=20261021232645283';
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021232645283';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021232645283';
+import {tagLabel} from './community-directory.js?v=20261021234459592';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021234459592';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021234459592';
 
 export function createComposerExtras({root,t,api,getContext,getLanguage=()=>document.documentElement?.lang||'en',onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);

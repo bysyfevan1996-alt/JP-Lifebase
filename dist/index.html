@@ -7,15 +7,16 @@
   <meta name="description" content="Japan Life Base，在日本生活的讨论社区。">
   <title>Japan Life Base</title>
   <link rel="canonical" href="https://www.jp-lifebase.com/">
-  <link rel="stylesheet" href="/styles.css?v=20261021232645283">
-  <link rel="stylesheet" href="/responsive.css?v=20261021232645283">
-  <link rel="stylesheet" href="/composer.css?v=20261021232645283">
-  <link rel="stylesheet" href="/m3.css?v=20261021232645283">
-  <link rel="stylesheet" href="/reading-nav.css?v=20261021232645283">
-  <link rel="stylesheet" href="/reply-writing.css?v=20261021232645283">
-  <link rel="stylesheet" href="/m4.css?v=20261021232645283">
-  <link rel="stylesheet" href="/m5.css?v=20261021232645283">
-  <script type="module" src="/app.js?v=20261021232645283"></script>
+  <link rel="stylesheet" href="/styles.css?v=20261021234459592">
+  <link rel="stylesheet" href="/responsive.css?v=20261021234459592">
+  <link rel="stylesheet" href="/composer.css?v=20261021234459592">
+  <link rel="stylesheet" href="/m3.css?v=20261021234459592">
+  <link rel="stylesheet" href="/reading-nav.css?v=20261021234459592">
+  <link rel="stylesheet" href="/reply-writing.css?v=20261021234459592">
+  <link rel="stylesheet" href="/m4.css?v=20261021234459592">
+  <link rel="stylesheet" href="/m5.css?v=20261021234459592">
+  <link rel="stylesheet" href="/quick-topic.css?v=20261021234459592">
+  <script type="module" src="/app.js?v=20261021234459592"></script>
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">跳到讨论内容</a>
@@ -61,7 +62,10 @@
     <section id="account-view" hidden aria-label="账号" data-i18n-aria="account"></section>
     <footer class="panel-footer"><span>© Japan Life Base</span><button class="plain-button" id="contact-button" data-i18n="contact">联系我们</button></footer>
   </div></main>
-  <button class="assistant-launcher" id="assistant-launcher" aria-expanded="false" aria-controls="assistant-panel"><span data-icon="search" aria-hidden="true"></span><span data-i18n="communitySearch">社区搜索</span></button>
+  <div class="community-actions" id="community-actions" hidden>
+    <button type="button" class="quick-topic-launcher" id="quick-new-topic" aria-label="新建话题" data-i18n-aria="newTopic"><span data-icon="plus" aria-hidden="true"></span></button>
+    <button class="assistant-launcher" id="assistant-launcher" aria-expanded="false" aria-controls="assistant-panel"><span data-icon="search" aria-hidden="true"></span><span data-i18n="communitySearch">社区搜索</span></button>
+  </div>
   <section class="assistant-panel" id="assistant-panel" hidden aria-label="社区搜索" data-i18n-aria="communitySearch"><header><div><strong data-i18n="communitySearch">社区搜索</strong><span data-i18n="searchOnly">搜索社区已发布的讨论</span></div><button class="icon-button" id="assistant-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button></header><div class="chat-messages" id="chat-messages" aria-live="polite"></div><form id="chat-form"><input id="chat-input" aria-label="搜索讨论" data-i18n-aria="search" maxlength="200"><button class="icon-button" aria-label="搜索讨论" data-i18n-aria="search" data-icon="search"></button></form><p class="chat-note" data-i18n="searchOnly">搜索社区已发布的讨论</p></section>
   <dialog id="site-dialog"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="icon-button" id="dialog-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button></div><div id="dialog-body"></div></dialog>
   <div class="toast" id="toast" role="status" hidden></div>

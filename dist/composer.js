@@ -1,10 +1,10 @@
-import {topicTags} from './topic-tags.js?v=20261021232645283';
-import {categoryLabel,directoryReady} from './community-directory.js?v=20261021232645283';
-import {formatMarkdown} from './m3-format.js?v=20261021232645283';
-import {languageSelect} from './m3-editor.js?v=20261021232645283';
-import {renderMarkdown} from './markdown.js?v=20261021232645283';
-import {createDraftStore} from './compose-drafts.js?v=20261021232645283';
-import {createComposerExtras} from './composer-extras.js?v=20261021232645283';
+import {topicTags} from './topic-tags.js?v=20261021234459592';
+import {categoryLabel,directoryReady} from './community-directory.js?v=20261021234459592';
+import {formatMarkdown} from './m3-format.js?v=20261021234459592';
+import {languageSelect} from './m3-editor.js?v=20261021234459592';
+import {renderMarkdown} from './markdown.js?v=20261021234459592';
+import {createDraftStore} from './compose-drafts.js?v=20261021234459592';
+import {createComposerExtras} from './composer-extras.js?v=20261021234459592';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const drawings = {
