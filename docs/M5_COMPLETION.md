@@ -35,7 +35,9 @@ VPS Node24.21.0 / SQLite3.53.4 支持FTS5 trigram。合成旧库schema4的32原�
 
 [正式使用指南](https://www.jp-lifebase.com/t/32122823-b43c-46b6-95ba-6625763f03c7)已发布到site且pinned=true，固定请求UUID `3a1c9db3-1d20-45af-81da-278352ebe70e`。指南源稿docs/USER_GUIDE.md/json，后续更新应编辑同一帖子。#guide-link移除旧data-info短弹窗，站内navigatePage打开真实链接保留草稿。置顶非版本指南优先，V1.0–V1.4仍按releaseOrder升序且保留真实时间。没有额外创建M5版本公告或生产测试账号/帖子。
 
-私有演练记录在VPS `/var/lib/jplifebase/upgrade-validation/20261021T225022Z-m5/verification.json` 和 `20261021T225400Z-m5-guide/verification.json`，未下载正式库。最终暂存运行文件逐字节对照发布清单，生产配置/凭据/数据库/产物不入Git；Git/CI结果在提交后追加。
+私有演练记录在VPS `/var/lib/jplifebase/upgrade-validation/20261021T225022Z-m5/verification.json` 和 `20261021T225400Z-m5-guide/verification.json`，未下载正式库。发布后最新41表备份又在同级`20261021T225400Z-m5-guide-postcheck/verification.json`验证：两次迁移均[]、账本前缀保留、完整恢复通过。
+
+最终暂存231个运行文件逐字节对照上线清单，已提交331文件中无私人数据路径或凭据模式，未包含其他任务电费updater。源码已推送main，[提交b571fe7](https://github.com/bysyfevan1996-alt/JP-Lifebase/commit/b571fe740833ac45b1307aecb1898fcf94c98484)对应的[GitHub应用检查](https://github.com/bysyfevan1996-alt/JP-Lifebase/actions/runs/39690191750)已完成且成功。社区skill已同步到项目副本和用户安装目录，通过格式校验；本段最终证据单独文档提交，不改变已发布运行文件。
 
 搜索性能使用10000篇合成文档、本机内存SQLite和真实localhostHTTP，原始样本保存artifacts/m5/search-performance.json；它不是正式站延迟。短词受SQLite trigram最少3字符限制，因此有字面回退，见[SQLite官方文档](https://www.sqlite.org/fts5.html#the_trigram_tokenizer)。原文路径、canonical和实际404依据[Google JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)，只有真实维护的多语言内容才适用[语言版本标记](https://developers.google.com/search/docs/specialty/international/localized-versions)。
 
