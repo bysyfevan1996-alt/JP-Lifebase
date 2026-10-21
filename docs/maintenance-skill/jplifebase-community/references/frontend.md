@@ -2,6 +2,8 @@
 
 相对路径均以 `D:/2.Work/7.JapanLifeBase/sites/community-home` 为根；基线 2026-10-21（M1）。
 
+帖子阅读时，`.detail-top-actions` 的“返回讨论”和搜索同排吸顶在站点顶栏下方，两端至少44px触控高度；缩小标题固定在这排下方。`reading-header.js` 的 inset/缩小起点和 CSS scroll-margin 同时计入该排高度，防止跳到正文、回复或恢复阅读位置时被遮挡。保留原按钮ID与返回列表滚动位置行为；右侧灰色大导航卡继续对齐正文上沿，不移到返回栏。
+
 ## 代码位置与布局
 
 | 内容 | 文件 |

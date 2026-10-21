@@ -1,9 +1,15 @@
-import {readingHeaderProgress} from './reading-header-state.js?v=20261021225303391';
+import {readingHeaderProgress} from './reading-header-state.js?v=20261021232645283';
 
 // Keep a stable space in the document while the visible sticky header shrinks.
 export function createReadingHeader(root){
  const header=root.querySelector('.reading-topic-header'),surface=root.querySelector('.reading-header-surface');
- const topInset=()=>document.querySelector('.topbar')?.getBoundingClientRect().bottom||0;
+ const topInset=()=>{
+  const topbar=document.querySelector('.topbar');
+  const detailView=root.closest?.('#detail-view');
+  const actions=detailView?.querySelector('.detail-top-actions');
+  const actionsHeight=actions?actions.getBoundingClientRect().height:0;
+  return (topbar?.getBoundingClientRect().bottom||0)+actionsHeight;
+ };
  if(!header||!surface)return {update(){},inset:()=>topInset()+12,destroy(){}};
  let width=-1,disposed=false;
  function update(){

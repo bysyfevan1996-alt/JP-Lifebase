@@ -20,11 +20,11 @@ test('sticky title reserves expanded height, shrinks on both layouts, remeasures
  const names=['window','document','ResizeObserver'];
  const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
  const style=()=>{const values=new Map();return {setProperty:(key,value)=>values.set(key,value),removeProperty:key=>values.delete(key),getPropertyValue:key=>values.get(key)}};
- let width=1024,expanded=160,topInset=64,observer,disconnected=false;
+ let width=1024,expanded=160,topInset=64,actionsHeight=0,observer,disconnected=false;
  const classes=new Set();
  const header={dataset:{},style:style(),classList:{toggle(key,on){if(on)classes.add(key);else classes.delete(key)}}};
  const surface={getBoundingClientRect:()=>({height:expanded-80*Number(header.style.getPropertyValue('--reading-progress')||0)})};
- const root={style:style(),querySelector:selector=>({'.reading-topic-header':header,'.reading-header-surface':surface})[selector],getBoundingClientRect:()=>({top:120-globalThis.window.scrollY,width})};
+ const root={style:style(),querySelector:selector=>({'.reading-topic-header':header,'.reading-header-surface':surface})[selector],closest:selector=>{assert.equal(selector,'#detail-view');return {querySelector:selector=>{assert.equal(selector,'.detail-top-actions');return {getBoundingClientRect:()=>({height:actionsHeight})}}}},getBoundingClientRect:()=>({top:120-globalThis.window.scrollY,width})};
  globalThis.window={scrollY:0};
  globalThis.document={querySelector:()=>({getBoundingClientRect:()=>({bottom:topInset})})};
  globalThis.ResizeObserver=class{constructor(callback){observer=callback}observe(){}disconnect(){disconnected=true}};
@@ -40,9 +40,12 @@ test('sticky title reserves expanded height, shrinks on both layouts, remeasures
   assert.equal(controller.inset(),216);
   globalThis.window.scrollY=300;controller.update();
   assert.ok('compact' in header.dataset);assert.equal(controller.inset(),156);
+  actionsHeight=44;controller.update();
+  assert.equal(controller.inset(),200,'jump targets clear the back row and compact desktop title');
   width=390;expanded=200;topInset=112;observer();
   assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'200px');
-  assert.equal(controller.inset(),244);
+  assert.equal(controller.inset(),288,'phone jumps also clear the back row and title');
+  actionsHeight=0;
   globalThis.window.scrollY=0;controller.update();
   assert.equal(header.style.getPropertyValue('--reading-progress'),'0');
   assert.ok(!('compact' in header.dataset));assert.equal(classes.has('is-stuck'),false);

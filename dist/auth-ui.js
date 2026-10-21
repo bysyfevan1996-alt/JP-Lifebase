@@ -1,4 +1,4 @@
-import {topicTags} from './topic-tags.js?v=20261021225303391';
+import {topicTags} from './topic-tags.js?v=20261021232645283';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const routes=new Set(['/account','/account/login','/account/register','/account/verify','/account/forgot-password','/account/reset-password']);
 const intents=new Set(['compose','reply','topics','messages']);

@@ -1,6 +1,6 @@
-import {categoryLabel} from './community-directory.js?v=20261021225303391';
-import {renderMarkdown} from './markdown.js?v=20261021225303391';
-import {formatContentTime} from './content-time.js?v=20261021225303391';
+import {categoryLabel} from './community-directory.js?v=20261021232645283';
+import {renderMarkdown} from './markdown.js?v=20261021232645283';
+import {formatContentTime} from './content-time.js?v=20261021232645283';
 
 const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const button=(text,work,className='m4-button')=>{const node=element('button',text,className);node.type='button';node.onclick=work;return node;};

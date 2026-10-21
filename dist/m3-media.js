@@ -1,4 +1,4 @@
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021225303391';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021232645283';
 
 export function createReplyMedia({host,t,api,getOwner,getDisabled=()=>false,onChange=()=>{},ids=[],saved=[]}){
  const events=new AbortController();let disposed=false,rows=saved.length?saved.slice(0,5).map(row=>({id:row.id,key:row.key||crypto.randomUUID(),uploadId:row.uploadId||crypto.randomUUID(),file:row.file||null,status:row.id?'checking':row.status==='failed'?'failed':'uploading'})):ids.map(id=>({id,status:'checking',key:crypto.randomUUID()}));
