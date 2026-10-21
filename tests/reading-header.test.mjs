@@ -1,0 +1,52 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readingHeaderProgress} from '../dist/reading-header-state.js';
+import {createReadingHeader} from '../dist/reading-header.js';
+
+test('title shrink progress starts below the site header and clamps invalid scroll values',()=>{
+ assert.equal(readingHeaderProgress(),0);
+ assert.equal(readingHeaderProgress({scrollY:80,headerTop:120,topInset:64}),.25);
+ assert.equal(readingHeaderProgress({scrollY:152,headerTop:120,topInset:64}),1);
+ assert.equal(readingHeaderProgress({scrollY:56,headerTop:120,topInset:64}),0);
+ assert.equal(readingHeaderProgress({scrollY:0,headerTop:120,topInset:64}),0);
+ assert.equal(readingHeaderProgress({scrollY:-100}),0);
+ assert.equal(readingHeaderProgress({scrollY:Infinity,headerTop:10}),0);
+ assert.equal(readingHeaderProgress({scrollY:'80',headerTop:120,topInset:64}),0);
+ assert.equal(readingHeaderProgress({scrollY:48,headerTop:NaN,topInset:Infinity}),.5);
+ assert.equal(readingHeaderProgress({scrollY:48,headerTop:-100,topInset:-20}),.5);
+});
+
+test('sticky title reserves expanded height, shrinks on both layouts, remeasures on width changes and disposes',()=>{
+ const names=['window','document','ResizeObserver'];
+ const previous=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
+ const style=()=>{const values=new Map();return {setProperty:(key,value)=>values.set(key,value),removeProperty:key=>values.delete(key),getPropertyValue:key=>values.get(key)}};
+ let width=1024,expanded=160,topInset=64,observer,disconnected=false;
+ const classes=new Set();
+ const header={dataset:{},style:style(),classList:{toggle(key,on){if(on)classes.add(key);else classes.delete(key)}}};
+ const surface={getBoundingClientRect:()=>({height:expanded-80*Number(header.style.getPropertyValue('--reading-progress')||0)})};
+ const root={style:style(),querySelector:selector=>({'.reading-topic-header':header,'.reading-header-surface':surface})[selector],getBoundingClientRect:()=>({top:120-globalThis.window.scrollY,width})};
+ globalThis.window={scrollY:0};
+ globalThis.document={querySelector:()=>({getBoundingClientRect:()=>({bottom:topInset})})};
+ globalThis.ResizeObserver=class{constructor(callback){observer=callback}observe(){}disconnect(){disconnected=true}};
+ let controller;
+ try{
+  controller=createReadingHeader(root);
+  assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'160px');
+  assert.equal(header.style.getPropertyValue('--reading-progress'),'0');
+  assert.equal(controller.inset(),236);
+  globalThis.window.scrollY=80;controller.update();
+  assert.equal(header.style.getPropertyValue('--reading-progress'),'0.25');
+  assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'160px');
+  assert.equal(controller.inset(),216);
+  globalThis.window.scrollY=300;controller.update();
+  assert.ok('compact' in header.dataset);assert.equal(controller.inset(),156);
+  width=390;expanded=200;topInset=112;observer();
+  assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'200px');
+  assert.equal(controller.inset(),244);
+  globalThis.window.scrollY=0;controller.update();
+  assert.equal(header.style.getPropertyValue('--reading-progress'),'0');
+  assert.ok(!('compact' in header.dataset));assert.equal(classes.has('is-stuck'),false);
+  controller.destroy();controller=null;assert.equal(disconnected,true);
+  assert.equal(root.style.getPropertyValue('--reading-live-height'),undefined);
+ }finally{controller?.destroy();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key]}}
+});

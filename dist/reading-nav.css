@@ -1,215 +1,102 @@
-#detail-view {
-  container-type: inline-size;
-  container-name: reading;
+/* Reading navigation has its own layouts; the forum shell stays fluid. */
+#detail-view { container:reading / inline-size; }
+#topic-detail { display:grid;grid-template-columns:minmax(0,1fr);gap:24px;min-width:0;position:relative; }
+.topic-reading-main { grid-row:2;min-width:0; }
+.detail-top-actions { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px; }
+.detail-top-actions .back-button { margin-bottom:0; }
+.reading-topic-header { --reading-progress:0;grid-row:1;grid-column:1 / -1;position:sticky;top:var(--header);z-index:12;align-self:start;min-width:0;height:var(--reading-expanded-height,auto);pointer-events:none; }
+.reading-header-surface { padding:12px 0 calc(14px - var(--reading-progress) * 6px);background:#fff;border-bottom:1px solid #ededed;pointer-events:auto; }
+.reading-topic-header[data-ready] .reading-header-surface { position:absolute;inset:0 0 auto; }
+.reading-topic-header.is-stuck .reading-header-surface { box-shadow:0 6px 10px -9px #0003; }
+.reading-heading-group { min-width:0; }
+.reading-topic-header .detail-heading { display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere;font-size:calc(26px - var(--reading-progress) * 8px);line-height:1.5;letter-spacing:-.025em;font-weight:650;margin:0; }
+.reading-topic-header[data-compact] .detail-heading { -webkit-line-clamp:2; }
+.reading-topic-header .detail-summary { gap:8px 12px;align-items:center;flex-wrap:wrap;max-height:calc(80px * (1 - var(--reading-progress)));opacity:calc(1 - var(--reading-progress) * 1.6);overflow:hidden;margin:calc(10px * (1 - var(--reading-progress))) 0 0; }
+.reading-topic-header[data-compact] .detail-summary { visibility:hidden; }
+.reading-count-button { display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:3px 9px;border:1px solid #e7e7e7;border-radius:6px;color:#666;background:#f7f7f7;font-size:12px;line-height:1.5; }
+.reading-count-button svg { width:13px;height:13px; }
+.reading-count-button:hover { border-color:#ccc;background:#eee; }
+.reading-nav { display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin-top:12px;padding-top:10px;border-top:1px solid #eee; }
+.reading-nav-title { display:none; }
+.reading-nav-footer { display:contents; }
+.reading-action { display:inline-flex;align-items:center;justify-content:flex-start;gap:9px;min-height:40px;min-width:0;border:1px solid transparent;border-radius:8px;padding:9px 11px;background:transparent;font-size:13px;font-weight:450;line-height:1.5;color:#696969;text-align:left; }
+.reading-action-icon { display:inline-flex;align-items:center;flex:none;color:#939393; }
+.reading-action-icon svg { width:16px;height:16px;stroke-width:1.6; }
+.reading-action-label { min-width:0;overflow-wrap:anywhere; }
+.reading-count { display:inline-flex;align-items:center;justify-content:center;min-width:22px;padding:0 6px;margin-left:2px;border-radius:5px;background:#eaeaea;color:#7c7c7c;font-size:11px;line-height:21px;font-weight:550;font-variant-numeric:tabular-nums; }
+.reading-action:not(:disabled):hover { background:#eee;color:#333; }
+.reading-action:not(:disabled):hover .reading-action-icon { color:#666; }
+.reading-action[aria-current=location] { background:#ececec;color:#444;font-weight:600; }
+.reading-action[aria-current=location] .reading-action-icon { color:#777; }
+.reading-primary { background:#333;border-color:#333;color:#fff;font-weight:550; }
+.reading-primary .reading-action-icon { color:#ddd; }
+.reading-action.reading-primary:hover { background:#484848;border-color:#484848;color:#fff; }
+.reading-action.reading-primary:hover .reading-action-icon { color:#fff; }
+.reading-return { border-color:#ddd;background:#fff; }
+.reading-return:disabled { color:#aaa;border-color:#e8e8e8;background:#f7f7f7;cursor:default; }
+.reading-return:disabled .reading-action-icon { color:#b8b8b8; }
+.reading-return.is-ready { color:#444;background:#f0f0f0;border-color:#ccc;font-weight:550; }
+.reading-return.is-ready .reading-action-icon { color:#777; }
+.reading-action:focus-visible,.reading-count-button:focus-visible { outline:2px solid #888;outline-offset:3px; }
+.reading-mobile { display:none; }
+@media(min-width:1440px){
+ @container reading (min-width:940px){
+  #topic-detail { grid-template-columns:minmax(0,1fr) 188px;gap:36px; }
+  .topic-reading-main { grid-row:2;grid-column:1; }
+  .reading-header-surface { padding-right:224px; }
+  .reading-nav { position:absolute;top:12px;right:0;width:188px;display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:0;padding:12px;border:1px solid #e6e6e6;border-radius:14px;background:#fafafa;box-shadow:0 3px 16px #00000004; }
+  .reading-nav-title { display:block;font-size:11px;font-weight:550;line-height:1.5;letter-spacing:.03em;color:#999;padding:2px 11px 11px; }
+  .reading-nav .reading-action { width:100%;min-height:43px; }
+  .reading-nav .reading-count { margin-left:auto; }
+  .reading-nav-footer { display:flex;flex-direction:column;gap:8px;border-top:1px solid #e6e6e6;margin-top:8px;padding-top:12px; }
+  .reading-nav-footer .reading-action { justify-content:center;font-size:12px;padding-inline:8px; }
+ }
 }
-
-#topic-detail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  min-width: 0;
+.replies-heading { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-top:1px solid #e9e9e9;margin-top:36px;padding-top:28px;padding-bottom:14px; }
+.replies-heading h2 { font-size:18px;line-height:1.5;font-weight:650;letter-spacing:-.01em; }
+.replies-heading .reading-action { font-size:12px;min-height:36px;border:1px solid #e5e5e5;background:#fafafa;color:#777;padding:6px 10px; }
+.replies-heading .reading-action-icon svg { width:14px;height:14px; }
+.no-replies { padding:30px 20px;border:1px dashed #e2e2e2;border-radius:10px;background:#fbfbfb;text-align:center;color:#909090;font-size:14px; }
+.no-replies p { margin-bottom:12px; }
+.no-replies .reading-action { justify-content:center;border:1px solid #e1e1e1;color:#666;background:#fff;font-size:13px; }
+.reply-window-note { font-size:12px;line-height:1.7;color:#909090;margin:0 0 12px; }
+.reply-posts .post { padding-block:24px; }
+#topic-reply-editor { margin-top:28px;padding:20px;border:1px solid #e6e6e6;border-radius:12px;background:#fafafa; }
+#topic-reply-editor>label { font-size:14px;font-weight:600;color:#666; }
+#topic-reply-editor textarea { margin-top:12px;border-color:#e2e2e2;background:#fff;border-radius:8px;line-height:1.8; }
+#topic-reply-editor textarea:focus { border-color:#aaa;outline-color:#aaa; }
+#topic-reply-editor .editor-actions { margin-top:12px; }
+body.topic-reading #assistant-launcher { display:none; }
+#topic-search-toggle { min-width:40px;min-height:40px;color:#939393;border:1px solid transparent;border-radius:8px; }
+#topic-search-toggle:hover { border-color:#e6e6e6;background:#f8f8f8; }
+#topic-original,#topic-replies,#topic-reply-editor { scroll-margin-top:calc(var(--header) + var(--reading-live-height,90px) + 12px); }
+@media(max-width:760px){
+ #topic-detail { gap:16px; }
+ .reading-nav { display:none; }
+ .reading-header-surface { padding:10px 0 calc(12px - var(--reading-progress) * 4px); }
+ .reading-topic-header .detail-heading { font-size:calc(22px - var(--reading-progress) * 6px);line-height:1.5;letter-spacing:-.02em;-webkit-line-clamp:4; }
+ .reading-topic-header[data-compact] .detail-heading { -webkit-line-clamp:2; }
+ .reading-topic-header .detail-summary { gap:8px 10px; }
+ .detail-top-actions { margin-bottom:10px; }
+ .reading-count-button { min-height:32px; }
+ .reading-mobile { position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;padding:7px;border:1px solid #e4e4e4;border-radius:16px;background:#fffffff5;box-shadow:0 4px 22px #00000018,0 1px 3px #00000006; }
+ .reading-mobile .reading-action { justify-content:center;min-height:46px;padding:10px 7px;border-radius:10px;font-size:14px;line-height:1.35;gap:7px; }
+ .reading-mobile [data-reading-mobile-left] { color:#626262;background:#f0f0f0; }
+ .reading-mobile .reading-count { font-size:11px;line-height:20px;min-width:20px;padding-inline:5px;margin:0;background:#e5e5e5;color:#7f7f7f; }
+ .reading-mobile .reading-primary { background:#333; }
+ .reading-mobile .is-return { border-color:#d1d1d1;background:#ececec; }
+ .reading-mobile .reading-action-icon svg { width:17px;height:17px; }
+ body.topic-reading { padding-bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+ body.topic-reading .panel-footer { padding-bottom:24px; }
+ body.topic-reading .toast { bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+ body.topic-reading .assistant-panel { bottom:calc(94px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - var(--header) - 130px); }
+ body.reading-keyboard-open .reading-mobile { visibility:hidden;pointer-events:none; }
+ .replies-heading { margin-top:28px;padding-top:24px;gap:10px; }
+ .replies-heading h2 { font-size:17px; }
+ #topic-reply-editor { padding:16px;margin-top:24px;border-radius:10px; }
+ #topic-reply-editor textarea { font-size:16px; }
 }
-
-.topic-reading-main {
-  grid-row: 2;
-  min-width: 0;
-}
-
-.reading-nav {
-  grid-row: 1;
-  grid-column: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  position: sticky;
-  top: calc(var(--header) + 8px);
-  align-self: start;
-  background: #fff;
-  border-bottom: 1px solid #e7e7e7;
-  padding: 8px 0;
-  z-index: 10;
-  min-width: 0;
-}
-
-.reading-nav-title {
-  display: none; /* Hidden by default */
-}
-
-.reading-mobile {
-  display: none; /* Hidden by default */
-}
-
-.reading-nav button,
-.reading-mobile button {
-  min-height: 44px;
-  padding: 8px 10px;
-  font-size: 13px;
-  line-height: 1.5;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
-
-.reading-nav .reading-primary,
-.reading-mobile .reading-primary {
-  background: #343434;
-  color: #fff;
-}
-
-.reading-nav button:focus-visible,
-.reading-mobile button:focus-visible,
-.reading-count-button:focus-visible {
-  outline: 2px solid #297fe5;
-  outline-offset: 2px;
-}
-
-@media (min-width: 1440px) {
-  @container reading (min-width: 940px) {
-    #topic-detail {
-      grid-template-columns: minmax(0, 1fr) 152px;
-      gap: 32px;
-    }
-    .topic-reading-main {
-      grid-row: 1;
-      grid-column: 1;
-    }
-    .reading-nav {
-      grid-row: 1;
-      grid-column: 2;
-      flex-direction: column;
-      top: calc(var(--header) + 24px);
-      border-left: 1px solid #e7e7e7;
-      border-bottom: 0;
-      padding: 0 0 0 12px;
-    }
-    .reading-nav-title {
-      display: block;
-      font-size: 11px;
-      color: #888;
-      padding: 8px 10px;
-    }
-    .reading-nav button {
-      width: 100%;
-      text-align: left;
-    }
-  }
-}
-
-.reading-count-button {
-  border: 0;
-  background: none;
-  color: #555;
-  text-decoration: underline;
-}
-
-.replies-heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-top: 1px solid #eee;
-  padding-top: 24px;
-  margin-top: 24px;
-}
-
-.replies-heading h2 {
-  font-size: 17px;
-}
-
-.no-replies {
-  padding: 24px 0;
-  color: #777;
-}
-
-body.topic-reading #assistant-launcher {
-  display: none;
-}
-
-#topic-search-toggle {
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  background: none;
-}
-
-#topic-original,
-#topic-replies,
-#topic-reply-editor {
-  scroll-margin-top: calc(var(--header) + 84px);
-}
-
-@media (max-width: 760px) {
-  .reading-nav {
-    display: none;
-  }
-  .topic-reading-main {
-    grid-row: 1;
-  }
-  .reading-mobile {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 10px;
-    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid #e7e7e7;
-    background: #fff;
-  }
-  .reading-mobile button {
-    min-height: 44px;
-    font-size: 14px;
-    background: #f3f3f3;
-  }
-  .reading-mobile button.reading-primary {
-    background: #343434;
-    color: #fff;
-  }
-  body.topic-reading {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-  }
-  body.topic-reading .panel-footer {
-    padding-bottom: 24px;
-  }
-  body.topic-reading .toast {
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-  }
-  body.topic-reading .assistant-panel {
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-    max-height: calc(100dvh - var(--header) - 120px);
-  }
-  #topic-original,
-  #topic-replies,
-  #topic-reply-editor {
-    scroll-margin-top: calc(var(--header) + 16px);
-  }
-}
-
-/* Hide mobile/nav under specific states */
-body.reading-keyboard-open .reading-nav,
-body.reading-keyboard-open .reading-mobile,
-body.composer-open .reading-nav,
-body.composer-open .reading-mobile,
-body.drawer-open .reading-nav,
-body.drawer-open .reading-mobile,
-body:has(#site-dialog[open]) .reading-nav,
-body:has(#site-dialog[open]) .reading-mobile {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.detail-top-actions { display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0; }
-.replies-heading button,.no-replies button { min-height:44px;max-width:100%;padding:8px 12px;border:1px solid #dedede;border-radius:6px;background:#fff;font-size:13px;line-height:1.5;white-space:normal;overflow-wrap:anywhere; }
-.no-replies p { margin-bottom:8px; }
-.reply-window-note { font-size:12px;line-height:1.7;color:#777;margin:12px 0; }
-.reading-nav button:hover,.reading-mobile button:hover { background:#f1f3f1; }
-.reading-nav button[aria-current=location] { background:#edf0ed;font-weight:600; }
-.reading-nav .reading-primary:hover,.reading-mobile .reading-primary:hover { background:#4a4a4a; }
-@media(max-width:760px){ .reading-mobile button { padding:8px;line-height:1.35; } }
-
+body.composer-open .reading-nav,body.composer-open .reading-mobile,
+body.drawer-open .reading-nav,body.drawer-open .reading-mobile,
+body:has(#site-dialog[open]) .reading-nav,body:has(#site-dialog[open]) .reading-mobile { visibility:hidden;pointer-events:none; }
+@media(prefers-reduced-motion:no-preference){.reading-action { transition:background-color .15s,border-color .15s,color .15s; }}

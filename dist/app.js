@@ -1,16 +1,16 @@
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021110501783';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021110501783';
-import {categories,avatarColors} from './topics.js?v=20261021110501783';
-import {selectTopics} from './select-topics.js?v=20261021110501783';
-import {icon} from './icons.js?v=20261021110501783';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261021110501783';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021110501783';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021110501783';
-import {createComposer} from './composer.js?v=20261021110501783';
-import {composerDictionaries} from './composer-i18n.js?v=20261021110501783';
-import {renderMarkdown} from './markdown.js?v=20261021110501783';
-import {createReadingNavigation} from './reading-nav.js?v=20261021110501783';
-import {topicTags} from './topic-tags.js?v=20261021110501783';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021114642341';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261021114642341';
+import {categories,avatarColors} from './topics.js?v=20261021114642341';
+import {selectTopics} from './select-topics.js?v=20261021114642341';
+import {icon} from './icons.js?v=20261021114642341';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261021114642341';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261021114642341';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261021114642341';
+import {createComposer} from './composer.js?v=20261021114642341';
+import {composerDictionaries} from './composer-i18n.js?v=20261021114642341';
+import {renderMarkdown} from './markdown.js?v=20261021114642341';
+import {createReadingNavigation} from './reading-nav.js?v=20261021114642341';
+import {topicTags} from './topic-tags.js?v=20261021114642341';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 const $=s=>document.querySelector(s);
@@ -113,8 +113,20 @@ async function loadDetail(id,mode=readingState.window,jump=null){
 function renderDetail(result){
  const topic=result.topic,root=$('#topic-detail'),mobile=$('#reading-mobile');
  document.title=topic.title+' · Japan Life Base';root.className='topic-reading-layout';root.dataset.topicId=topic.id;root.dataset.replyCount=String(topic.replies||0);
- const navButton=(action,key,primary=false,hidden=false)=>'<button type="button" data-reading-action="'+action+'"'+(primary?' class="reading-primary"':'')+(hidden?' hidden':'')+'>'+escape(t(key,{count:topic.replies||0}))+'</button>';
- root.innerHTML='<div class="topic-reading-main"><h1 class="detail-heading">'+escape(topic.title)+'</h1><div class="detail-summary">'+categoryTag(topic.category)+topicTagMarkup(topic.tagIds)+'<button type="button" class="reading-count-button" data-reading-action="replies">'+escape(t('repliesCount',{count:topic.replies||0}))+'</button>'+(topic.seed?'<span class="sample-tag">'+escape(t('sample'))+'</span>':'')+'</div>'+(topic.seed?'<p class="form-note seed-notice">'+escape(t('sampleNotice'))+'</p>':'')+'<div class="posts"><div class="original-post"></div><section id="topic-replies" class="topic-replies" aria-labelledby="replies-title"><div class="replies-heading"><h2 id="replies-title" tabindex="-1">'+escape(t('readingRepliesHeading',{count:topic.replies||0}))+'</h2>'+navButton('latest','readingLatest',false,!topic.replies)+'</div><p class="reply-window-note" hidden></p><div class="reply-posts"></div><div class="no-replies"'+(topic.replies?' hidden':'')+'><p>'+escape(t('readingNoReplies'))+'</p>'+navButton('write','readingFirstReply')+'</div></section></div><section id="topic-reply-editor" class="reply-editor"><label for="reply-text">'+escape(t('reply'))+'</label><blockquote id="reply-quote" class="quote" hidden></blockquote><button class="plain-button" id="cancel-quote" hidden>'+escape(t('cancelQuote'))+'</button><textarea id="reply-text" placeholder="'+escape(t('replyPlaceholder'))+'" maxlength="5000"></textarea><div class="editor-actions"><button class="dark-button" id="send-reply">'+escape(t('sendReply'))+'</button></div><p class="form-error" id="reply-error" hidden></p></section></div><nav class="reading-nav" aria-label="'+escape(t('topicReadingNav'))+'"><span class="reading-nav-title">'+escape(t('topicReadingNav'))+'</span>'+navButton('original','readingOriginal')+navButton('replies','readingReplies')+navButton('latest','readingLatest',false,!topic.replies)+navButton('write','readingWrite',true)+navButton('return','readingReturn',false,true)+'</nav>';
+ const navButton=(action,key,primary=false,hidden=false)=>{
+  const symbol={original:'book',replies:'message',latest:'chevron-down',write:'reply',return:'arrow-left'}[action]||'message';
+  return '<button type="button" data-reading-action="'+action+'" class="reading-action'+(primary?' reading-primary':'')+(action==='return'?' reading-return':'')+'"'+(hidden?' hidden':'')+(action==='return'?' disabled':'')+' aria-label="'+escape(t(key,{count:topic.replies||0}))+'"><span class="reading-action-icon">'+icon(symbol)+'</span><span class="reading-action-label">'+escape(t(action==='replies'?'readingRepliesLabel':key))+'</span>'+(action==='replies'?'<span class="reading-count">'+Number(topic.replies||0)+'</span>':'')+'</button>';
+ };
+ root.innerHTML=[
+  '<header class="reading-topic-header"><div class="reading-header-surface"><div class="reading-heading-group">',
+  '<h1 class="detail-heading">'+escape(topic.title)+'</h1>',
+  '<div class="detail-summary">'+categoryTag(topic.category)+topicTagMarkup(topic.tagIds)+'<button type="button" class="reading-count-button" data-reading-action="replies">'+icon('message')+escape(t('repliesCount',{count:topic.replies||0}))+'</button>'+(topic.seed?'<span class="sample-tag">'+escape(t('sample'))+'</span>':'')+'</div></div>',
+  '<nav class="reading-nav" aria-label="'+escape(t('topicReadingNav'))+'"><span class="reading-nav-title">'+escape(t('topicReadingNav'))+'</span>'+navButton('original','readingOriginal')+navButton('replies','readingReplies')+navButton('latest','readingLatest',false,!topic.replies)+'<div class="reading-nav-footer">'+navButton('return','readingReturn')+navButton('write','readingWrite',true)+'</div></nav>',
+  '</div></header><div class="topic-reading-main">',
+  topic.seed?'<p class="form-note seed-notice">'+escape(t('sampleNotice'))+'</p>':'',
+  '<div class="posts"><div class="original-post"></div><section id="topic-replies" class="topic-replies" aria-labelledby="replies-title"><div class="replies-heading"><h2 id="replies-title" tabindex="-1">'+escape(t('readingRepliesHeading',{count:topic.replies||0}))+'</h2>'+navButton('latest','readingLatest',false,!topic.replies)+'</div><p class="reply-window-note" hidden></p><div class="reply-posts"></div><div class="no-replies"'+(topic.replies?' hidden':'')+'><p>'+escape(t('readingNoReplies'))+'</p>'+navButton('write','readingFirstReply')+'</div></section></div>',
+  '<section id="topic-reply-editor" class="reply-editor"><label for="reply-text">'+escape(t('reply'))+'</label><blockquote id="reply-quote" class="quote" hidden></blockquote><button class="plain-button" id="cancel-quote" hidden>'+escape(t('cancelQuote'))+'</button><textarea id="reply-text" placeholder="'+escape(t('replyPlaceholder'))+'" maxlength="5000"></textarea><div class="editor-actions"><button class="dark-button" id="send-reply">'+escape(t('sendReply'))+'</button></div><p class="form-error" id="reply-error" hidden></p></section></div>',
+ ].join('');
  (result.posts||[]).forEach((post,index)=>{
   const el=document.createElement('article');el.className='post';el.tabIndex=-1;el.dataset.postId=post.id;
   if(index===0)el.id='topic-original';
@@ -127,7 +139,7 @@ function renderDetail(result){
  });
  if(result.replyWindow?.hasEarlier||result.replyWindow?.hasLater){const note=root.querySelector('.reply-window-note');note.hidden=false;note.textContent=t(result.replyWindow.hasEarlier?'readingLatestWindow':'readingMoreReplies',{count:result.replyWindow.loaded});}
  if(savedReplyDraft?.topicId===topic.id){$('#reply-text').value=savedReplyDraft.body;quote=savedReplyDraft.quote;if(quote){$('#reply-quote').textContent=quote;$('#reply-quote').hidden=false;$('#cancel-quote').hidden=false;}}
- mobile.innerHTML='<button type="button" data-reading-mobile-left data-reading-action="replies">'+escape(t('readingReplies',{count:topic.replies||0}))+'</button>'+navButton('write','readingWrite',true);
+ mobile.innerHTML='<button type="button" class="reading-action" data-reading-mobile-left data-reading-action="replies"><span class="reading-action-icon">'+icon('message')+'</span><span class="reading-action-label">'+escape(t('readingRepliesLabel'))+'</span><span class="reading-count">'+Number(topic.replies||0)+'</span></button>'+navButton('write','readingWrite',true);
  mobile.hidden=false;document.body.classList.add('topic-reading');
  readingNavigation=createReadingNavigation({root,mobile,t,bookmark:readingState.bookmark,onBookmark:point=>{readingState.bookmark=point?{...point,window:readingState.window}:null;},onWindow:action=>{
   const mode=action==='return'?readingState.bookmark?.window:action==='latest'?'latest':action==='replies'?'first':null;

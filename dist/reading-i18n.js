@@ -1,13 +1,15 @@
 // Maintained interface translations; user-written posts are not translated here.
 export const readingCopy={
  en:{
+  readingRepliesLabel:"View replies",
+  readingReturnHint:"Jump to replies or write a reply to save a return position.",
   topicReadingNav:'Topic navigation',
   readingOriginal:'Original post',
   readingReplies:'View replies · {count}',
   readingLatest:'Latest reply',
   readingLatestLoaded:'Last loaded reply',
   readingWrite:'Write a reply',
-  readingReturn:'Back to where you were',
+  readingReturn:'Back to reading',
   readingNoReplies:'No replies yet',
   readingRepliesHeading:'Replies · {count}',
   readingFirstReply:'Write the first reply',
@@ -15,13 +17,15 @@ export const readingCopy={
   readingLatestWindow:'Showing the last {count} replies.'
  },
  ja:{
+  readingRepliesLabel:"返信を見る",
+  readingReturnHint:"返信の表示や入力に移動すると、読んでいた場所に戻れます。",
   topicReadingNav:'話題内の移動',
   readingOriginal:'本文',
   readingReplies:'返信を見る · {count}',
   readingLatest:'最新の返信',
   readingLatestLoaded:'読み込み済みの最後の返信',
   readingWrite:'返信を書く',
-  readingReturn:'先ほど読んでいた場所へ',
+  readingReturn:'読んでいた場所へ',
   readingNoReplies:'返信はまだありません',
   readingRepliesHeading:'返信 · {count}',
   readingFirstReply:'最初の返信を書く',
@@ -29,6 +33,8 @@ export const readingCopy={
   readingLatestWindow:'最新の{count}件の返信を表示しています。'
  },
  'zh-CN':{
+  readingRepliesLabel:"查看回复",
+  readingReturnHint:"使用查看回复或写回复后，可返回刚才阅读的位置。",
   topicReadingNav:'话题导航',
   readingOriginal:'正文',
   readingReplies:'查看回复 · {count}',
@@ -43,6 +49,8 @@ export const readingCopy={
   readingLatestWindow:'当前显示最后 {count} 条回复。'
  },
  'zh-TW':{
+  readingRepliesLabel:"查看回覆",
+  readingReturnHint:"使用查看回覆或寫回覆後，可返回剛才閱讀的位置。",
   topicReadingNav:'話題導覽',
   readingOriginal:'正文',
   readingReplies:'查看回覆 · {count}',
@@ -57,6 +65,8 @@ export const readingCopy={
   readingLatestWindow:'目前顯示最後 {count} 則回覆。'
  },
  ko:{
+  readingRepliesLabel:"답글 보기",
+  readingReturnHint:"답글 보기나 작성으로 이동하면 읽던 위치로 돌아갈 수 있습니다.",
   topicReadingNav:'게시글 탐색',
   readingOriginal:'본문',
   readingReplies:'답글 보기 · {count}',

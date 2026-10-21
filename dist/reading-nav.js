@@ -1,18 +1,18 @@
-import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021110501783';
+import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261021114642341';
+import {readingControls} from './reading-controls.js?v=20261021114642341';
+import {icon} from './icons.js?v=20261021114642341';
+import {createReadingHeader} from './reading-header.js?v=20261021114642341';
 
 // Page-local return points. No browser history or persistent read/unread state.
 export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow}){
  const controller=new AbortController(),options={signal:controller.signal};
  const original=root.querySelector('#topic-original'),replies=root.querySelector('#topic-replies');
  const desktop=root.querySelector('.reading-nav'),input=root.querySelector('#reply-text');
+ const header=createReadingHeader(root);
  let frame=0,disposed=false,returnPoint=bookmark,restoring=false,jumped=false;
- const anchors=[...root.querySelectorAll('.detail-heading,.post-header,.post-body,.post-body > *,.topic-image-gallery a,.post .quote')].filter(element=>!element.classList.contains('post-body')||!element.children.length);
+ const anchors=[...root.querySelectorAll('.post-header,.post-body,.post-body > *,.topic-image-gallery a,.post .quote')].filter(element=>!element.classList.contains('post-body')||!element.children.length);
  anchors.forEach((element,index)=>element.dataset.readingKey=String(index));
- const inset=()=>{
-  const header=document.querySelector('.topbar')?.getBoundingClientRect().bottom||0;
-  const compact=desktop&&getComputedStyle(desktop).position==='sticky'&&desktop.getBoundingClientRect().width>210;
-  return header+12+(compact?desktop.getBoundingClientRect().height+12:0);
- };
+ const inset=()=>header.inset();
  const items=()=>anchors.map(element=>{const rect=element.getBoundingClientRect();return {key:element.dataset.readingKey,top:rect.top+window.scrollY,bottom:rect.bottom+window.scrollY};});
  function remember(){
   if(window.scrollY+inset()<replies.getBoundingClientRect().top+window.scrollY){
@@ -21,26 +21,38 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
  }
  function update(){
   frame=0;if(disposed)return;
+  header.update();
   const rect=replies.getBoundingClientRect();
   if(rect.top>=window.innerHeight)jumped=false;
   const atBottom=window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-3;
   const inReplies=rect.top<=inset()+32||((jumped||atBottom)&&rect.top<window.innerHeight-72&&rect.bottom>inset());
-  const back=desktop.querySelector('[data-reading-action="return"]');back.hidden=!returnPoint;
+  const controls=readingControls({inReplies,hasBookmark:!!returnPoint,count:Number(root.dataset.replyCount)});
+  const back=desktop.querySelector('[data-reading-action="return"]');back.hidden=false;back.disabled=controls.desktopReturnDisabled;back.classList.toggle('is-ready',!back.disabled);
+  back.title=t(back.disabled?'readingReturnHint':'readingReturn');
   const left=mobile.querySelector('[data-reading-mobile-left]');
-  left.dataset.readingAction=inReplies?(returnPoint?'return':'original'):'replies';
-  left.textContent=inReplies?t(returnPoint?'readingReturn':'readingOriginal'):t('readingReplies',{count:root.dataset.replyCount});
+  left.dataset.readingAction=controls.mobileAction;
+  left.classList.toggle('is-return',controls.mobileAction==='return');
+  const iconNode=left.querySelector('.reading-action-icon'),symbol=inReplies?'arrow-left':'message';
+  if(iconNode.dataset.icon!==symbol){iconNode.innerHTML=icon(symbol);iconNode.dataset.icon=symbol;}
+  left.querySelector('.reading-action-label').textContent=t(inReplies?controls.mobileKey:'readingRepliesLabel');
+  const countBadge=left.querySelector('.reading-count');countBadge.hidden=inReplies;countBadge.textContent=String(controls.count);
+  left.setAttribute('aria-label',t(controls.mobileKey,{count:controls.count}));
   desktop.querySelectorAll('[data-reading-action]').forEach(button=>{
    const active=inReplies?button.dataset.readingAction==='replies':button.dataset.readingAction==='original';
    if(active)button.setAttribute('aria-current','location');else button.removeAttribute('aria-current');
   });
-  document.body.classList.toggle('reading-keyboard-open',document.activeElement===input);
+  document.body.classList.toggle('reading-keyboard-open',matchMedia('(max-width:760px)').matches&&document.activeElement===input);
  }
  function schedule(){if(!frame&&!disposed)frame=requestAnimationFrame(update);}
  function scrollToElement(element,focus=false){
   if(!element)return;
   if(focus)element.focus({preventScroll:true});
-  window.scrollTo({top:Math.max(0,element.getBoundingClientRect().top+window.scrollY-inset()),behavior:'instant'});
-  schedule();
+  for(let attempt=0;attempt<4;attempt++){
+   const target=Math.max(0,element.getBoundingClientRect().top+window.scrollY-inset());
+   if(attempt&&Math.abs(target-window.scrollY)<.5)break;
+   window.scrollTo({top:target,behavior:'instant'});header.update();
+  }
+  update();
  }
  function navigate(action,{rememberPosition=true}={}){
   if(disposed)return;
@@ -48,14 +60,22 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
   if(onWindow?.(action,returnPoint))return;
   if(action==='return'&&returnPoint){
    const point=returnPoint;restoring=true;jumped=false;
-   window.scrollTo({top:restoreReadingPosition(point,items(),inset()),behavior:'instant'});
+   const restore=()=>{
+    window.scrollTo({top:point.y,behavior:'instant'});header.update();
+    for(let attempt=0;attempt<4;attempt++){
+     const target=restoreReadingPosition(point,items(),inset());
+     if(Math.abs(target-window.scrollY)<.5)break;
+     window.scrollTo({top:target,behavior:'instant'});header.update();
+    }
+   };
+   restore();
    returnPoint=null;onBookmark(null);
    // Re-anchor after a late image above the saved paragraph finishes loading.
-   const correct=()=>{if(restoring&&!disposed)window.scrollTo({top:restoreReadingPosition(point,items(),inset()),behavior:'instant'});};
+   const correct=()=>{if(restoring&&!disposed)restore();};
    for(const image of root.querySelectorAll('img'))if(!image.complete)image.addEventListener('load',correct,{...options,once:true});
    const stop=()=>restoring=false;
    for(const event of ['wheel','touchstart','keydown','pointerdown'])window.addEventListener(event,stop,{...options,once:true,passive:true});
-   schedule();return;
+   update();return;
   }
   restoring=false;
   if(action==='original'){jumped=false;scrollToElement(original||root.querySelector('.detail-heading'));}
@@ -72,5 +92,5 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
  root.addEventListener('focusin',schedule,options);root.addEventListener('focusout',schedule,options);
  root.addEventListener('load',schedule,{...options,capture:true});
  update();
- return {navigate,getBookmark:()=>returnPoint,destroy(){disposed=true;controller.abort();if(frame)cancelAnimationFrame(frame);document.body.classList.remove('reading-keyboard-open');}};
+ return {navigate,getBookmark:()=>returnPoint,destroy(){disposed=true;controller.abort();header.destroy();if(frame)cancelAnimationFrame(frame);document.body.classList.remove('reading-keyboard-open');}};
 }
