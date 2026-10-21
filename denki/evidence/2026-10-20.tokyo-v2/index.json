@@ -1,0 +1,405 @@
+{
+  "version": "2026-10-20.tokyo-v2",
+  "records": [
+    {
+      "id": "tepco-rate-202404",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2024/pdf/240206j0101.pdf",
+      "filename": "tepco-rate-202404.pdf",
+      "sha256": "dde9ff7837a56d4f36846b6c050247848dab7e4cb68ed79ad1da74cd8e8bf8be",
+      "bytes": 613880,
+      "retrievedAt": "2026-10-20T02:26:33.073Z"
+    },
+    {
+      "id": "tepco-terms-202504",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20250401kyoukyu003-j.pdf",
+      "filename": "tepco-terms-202504.pdf",
+      "sha256": "32c40e89da82dd83a621a18cfc6b233fdeb8a7d621ebcdb5ca28f4c9518c8e85",
+      "bytes": 3418237,
+      "retrievedAt": "2026-10-20T02:26:33.364Z"
+    },
+    {
+      "id": "tepco-round-202504",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20250401kyoukyu001-j.pdf",
+      "filename": "tepco-round-202504.pdf",
+      "sha256": "e7c7d6204b7a0a2bb1c44e79d4dcc5262535b80a69195cfe1135c735233938f3",
+      "bytes": 3411613,
+      "retrievedAt": "2026-10-20T02:26:33.487Z"
+    },
+    {
+      "id": "tepco-levy-202504",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20250401kyoukyu009-j.pdf",
+      "filename": "tepco-levy-202504.pdf",
+      "sha256": "3008a37a1aca97ffc4db0eb340e36dd7646b82aff43b6a78e5d0d786842228b6",
+      "bytes": 3416219,
+      "retrievedAt": "2026-10-20T02:26:33.611Z"
+    },
+    {
+      "id": "tepco-fuel-202509",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2025/pdf/250730j0101.pdf",
+      "filename": "tepco-fuel-202509.pdf",
+      "sha256": "51ba21b40cc7611ef734a3de5eaa832b073f4de830107fd0189537f0a61a0e3c",
+      "bytes": 198192,
+      "retrievedAt": "2026-10-20T02:26:33.727Z"
+    },
+    {
+      "id": "tepco-fuel-202601",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2025/pdf/251127j0201.pdf",
+      "filename": "tepco-fuel-202601.pdf",
+      "sha256": "61229a4cc9bdce70d531757fd9ed1ea90b55d10af75a806724b68b9f57f3796c",
+      "bytes": 186109,
+      "retrievedAt": "2026-10-20T02:26:33.836Z"
+    },
+    {
+      "id": "mitsu-rate-202404",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/tanka-ichiran20240304.pdf",
+      "filename": "mitsu-rate-202404.pdf",
+      "sha256": "ccb4dec5428a9d2276e54547cfd084e8fec9603d27673ce2ed15b9967fb92133",
+      "bytes": 858350,
+      "retrievedAt": "2026-10-20T02:26:33.932Z"
+    },
+    {
+      "id": "mitsu-terms-211",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/agreement.pdf",
+      "filename": "mitsu-terms-211.pdf",
+      "sha256": "e485ec00d56bf1b8d5b385a827e7e1686297c1bb9b6c6abf369d4396b961913c",
+      "bytes": 692285,
+      "retrievedAt": "2026-10-20T02:26:33.959Z"
+    },
+    {
+      "id": "mitsu-fuel-202601",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20251203.pdf",
+      "filename": "mitsu-fuel-202601.pdf",
+      "sha256": "80b408756265b0d2f8062430533fbc00f583832ce28477bd414348e63b8e6924",
+      "bytes": 469050,
+      "retrievedAt": "2026-10-20T02:26:33.977Z"
+    },
+    {
+      "id": "gas-rate-202503",
+      "url": "https://home.tokyo-gas.co.jp/information/qvk8cc0000000f5b-att/info_power_20241001_02.pdf",
+      "filename": "gas-rate-202503.pdf",
+      "sha256": "c47f4f0b65ce4caf218f5fa077470cddfcdfb55331249b46c10c3133a68a5c3d",
+      "bytes": 569722,
+      "retrievedAt": "2026-10-20T02:26:34.116Z"
+    },
+    {
+      "id": "gas-terms-202506",
+      "url": "https://home.tokyo-gas.co.jp/information/power-202505-01/pdf/info2505_yakkan.pdf",
+      "filename": "gas-terms-202506.pdf",
+      "sha256": "f36965f9275739db0af85ab17a382d0e19c3756323686ae625e119e7d1fb420c",
+      "bytes": 803124,
+      "retrievedAt": "2026-10-20T02:26:34.170Z"
+    },
+    {
+      "id": "gas-fuel-202509",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2509.pdf",
+      "filename": "gas-fuel-202509.pdf",
+      "sha256": "9b3dedbb553380ad8cbfd78e285a7c4939e20adc4ffbf8cb4c8096b584fe714a",
+      "bytes": 274137,
+      "retrievedAt": "2026-10-20T02:26:34.274Z"
+    },
+    {
+      "id": "gas-fuel-202601",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2601.pdf",
+      "filename": "gas-fuel-202601.pdf",
+      "sha256": "0759d2e928fc7aebab4032bd07f376b1cda32baa6608f7727f090b6c3bec54f7",
+      "bytes": 104292,
+      "retrievedAt": "2026-10-20T02:26:34.329Z"
+    },
+    {
+      "id": "eneos-terms-202503",
+      "url": "https://www.eneos-power.co.jp/denki/contract/pdf/ene_clause_all_kanto_20250303.pdf",
+      "filename": "eneos-terms-202503.pdf",
+      "sha256": "8d3f646dbabb95aae0b7b0b7ff5209fbe7dec4bf22db0bbd60108fb512fb8cb2",
+      "bytes": 910149,
+      "retrievedAt": "2026-10-20T02:26:34.534Z"
+    },
+    {
+      "id": "eneos-fuel-202509",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2509.pdf",
+      "filename": "eneos-fuel-202509.pdf",
+      "sha256": "78067c8d90152072162e7edff357c010772b79e629a03ca95285c1629482ed22",
+      "bytes": 598948,
+      "retrievedAt": "2026-10-20T02:26:34.675Z"
+    },
+    {
+      "id": "eneos-fuel-202601",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2601.pdf",
+      "filename": "eneos-fuel-202601.pdf",
+      "sha256": "7117de4af8719438eb3ba472b21a1bcf03ea21fc52c044de6bf431eb65e605ab",
+      "bytes": 588251,
+      "retrievedAt": "2026-10-20T02:26:34.711Z"
+    },
+    {
+      "id": "octopus-terms-202505",
+      "url": "https://a.storyblok.com/f/122730/x/a9f2a9f355/_greenoctopus-2025-05-tokyo.pdf",
+      "filename": "octopus-terms-202505.pdf",
+      "sha256": "89a3145c462990674066f28f471a33aa984bc95a5608c17cec64d793a87ef53b",
+      "bytes": 198129,
+      "retrievedAt": "2026-10-20T02:26:34.823Z"
+    },
+    {
+      "id": "mitsu-vessel-terms-202511",
+      "url": "https://service.mitsuurokogas.jp/juyojiko-202511.pdf",
+      "filename": "mitsu-vessel-terms-202511.pdf",
+      "sha256": "5967fae77478dd618d1579995ecd37195ae6272904719f8df0181791b50edc54",
+      "bytes": 793401,
+      "retrievedAt": "2026-10-20T02:26:34.977Z"
+    },
+    {
+      "id": "mitsu-vessel-contract-201",
+      "url": "https://service.mitsuurokogas.jp/yakkan.pdf",
+      "filename": "mitsu-vessel-contract-201.pdf",
+      "sha256": "7ee792367656b3bc4a83c5670d5b03d4e126c9e4b930c1cec873c4dee57d95aa",
+      "bytes": 621047,
+      "retrievedAt": "2026-10-20T02:26:35.017Z"
+    },
+    {
+      "id": "mitsu-fuel-202605",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260403.pdf",
+      "filename": "mitsu-fuel-202605.pdf",
+      "sha256": "397fd50a934f407174e3eaf5e01bb8dd6a5d042dff9743a7bfaa3b5350790ce5",
+      "bytes": 457734,
+      "retrievedAt": "2026-10-20T02:26:35.064Z"
+    },
+    {
+      "id": "mitsu-fuel-202606",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260508.pdf",
+      "filename": "mitsu-fuel-202606.pdf",
+      "sha256": "114c2e21202f099af8cae16c50aab6f5c4e08fa06198f70281bcf497af1ac339",
+      "bytes": 460353,
+      "retrievedAt": "2026-10-20T02:26:35.120Z"
+    },
+    {
+      "id": "mitsu-fuel-202607",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260603.pdf",
+      "filename": "mitsu-fuel-202607.pdf",
+      "sha256": "239f3f46757d715230090b81100474a1c9b37a40a66c93d6ac6e8caf79d40c01",
+      "bytes": 462980,
+      "retrievedAt": "2026-10-20T02:26:35.161Z"
+    },
+    {
+      "id": "mitsu-fuel-202608",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260703.pdf",
+      "filename": "mitsu-fuel-202608.pdf",
+      "sha256": "8646c33525d099d6339e656644e31fdd96bcc82e8076b01324e55febac26a325",
+      "bytes": 477526,
+      "retrievedAt": "2026-10-20T02:26:35.211Z"
+    },
+    {
+      "id": "mitsu-fuel-202609",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260805.pdf",
+      "filename": "mitsu-fuel-202609.pdf",
+      "sha256": "57f741cb403c8f9e3086c85ec004ea5504c33e1a3c2eb7a50be1bf88583c8562",
+      "bytes": 480197,
+      "retrievedAt": "2026-10-20T02:26:35.238Z"
+    },
+    {
+      "id": "mitsu-fuel-202610",
+      "url": "https://mitsuurokogreenenergy.jp/pdf/news/20260903.pdf",
+      "filename": "mitsu-fuel-202610.pdf",
+      "sha256": "828189dc17ef512c7e8b028a457c596019fc3badc95b4245cef1fb5d9e5700ef",
+      "bytes": 483071,
+      "retrievedAt": "2026-10-20T02:26:35.268Z"
+    },
+    {
+      "id": "tepco-terms-202604",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20260401kyoukyu003-j.pdf",
+      "filename": "tepco-terms-202604.pdf",
+      "sha256": "74767e23bfe67330a3bf13a71c83da177003bcb47e6f4aaa16c2f16ae6684bd7",
+      "bytes": 442117,
+      "retrievedAt": "2026-10-20T02:26:35.339Z"
+    },
+    {
+      "id": "tepco-round-202604",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20260401kyoukyu001-j.pdf",
+      "filename": "tepco-round-202604.pdf",
+      "sha256": "bcdb3d5f55b3f14e4029a20ddedd00271ac164e42f3cb4b9b78ab0d2e3178bcb",
+      "bytes": 333740,
+      "retrievedAt": "2026-10-20T02:26:35.438Z"
+    },
+    {
+      "id": "tepco-levy-202604",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20260401kyoukyu009-j.pdf",
+      "filename": "tepco-levy-202604.pdf",
+      "sha256": "f1bb4fc32d0658171d6092f32dd12236160a89bd3a8591568d041266479acdd7",
+      "bytes": 429257,
+      "retrievedAt": "2026-10-20T02:26:35.651Z"
+    },
+    {
+      "id": "tepco-support-202607",
+      "url": "https://www.tepco.co.jp/ep/company2/agreement/pdf/20260701kyoukyu010-j.pdf",
+      "filename": "tepco-support-202607.pdf",
+      "sha256": "226bbac5638aa4dc8e231a663705fd744dd05fb277ef1b0a5381d2a59fd6fc32",
+      "bytes": 247298,
+      "retrievedAt": "2026-10-20T02:26:35.741Z"
+    },
+    {
+      "id": "gas-rate-202610",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/d1c6tj00000018fm-att/denki_basic.pdf",
+      "filename": "gas-rate-202610.pdf",
+      "sha256": "b2a274e66338f83089e82640505fbd5f86f780ace2f7a4b7d81f535e1a4fdb1e",
+      "bytes": 455802,
+      "retrievedAt": "2026-10-20T02:26:35.792Z"
+    },
+    {
+      "id": "gas-terms-202610",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/d1c6tj00000018fm-att/jukyuu_yakkan.pdf",
+      "filename": "gas-terms-202610.pdf",
+      "sha256": "f9b75ba514949d96b98fb38ec6ec96237bbef8e336a126fc390707c9b6ef59fc",
+      "bytes": 2391704,
+      "retrievedAt": "2026-10-20T02:26:35.872Z"
+    },
+    {
+      "id": "eneos-terms-202509",
+      "url": "https://www.eneos-power.co.jp/denki/contract/pdf/ene_clause_all_kanto_20250901.pdf",
+      "filename": "eneos-terms-202509.pdf",
+      "sha256": "4c9b380df969e091bbb07b3ee2e4513a33c348ddd541da3cb58f01581dcc2fef",
+      "bytes": 951623,
+      "retrievedAt": "2026-10-20T02:26:35.929Z"
+    },
+    {
+      "id": "tepco-fuel-202605",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260327j0101.pdf",
+      "filename": "tepco-fuel-202605.pdf",
+      "sha256": "50365fecfbcf977a6c36f74383a4ba85dd5540046c7adb56dc46365449d09652",
+      "bytes": 205122,
+      "retrievedAt": "2026-10-20T02:26:36.009Z"
+    },
+    {
+      "id": "gas-fuel-202605",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2605.pdf",
+      "filename": "gas-fuel-202605.pdf",
+      "sha256": "ed38bfdf1952f392a3a1457585cebad09cbe1fce6c551a7746ca98f526545036",
+      "bytes": 79118,
+      "retrievedAt": "2026-10-20T02:26:36.056Z"
+    },
+    {
+      "id": "eneos-fuel-202605",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2605.pdf",
+      "filename": "eneos-fuel-202605.pdf",
+      "sha256": "40417d6833da7447ae4fadfb12dc6765dbf17c0e7816ad343665e4db310f9acf",
+      "bytes": 582177,
+      "retrievedAt": "2026-10-20T02:26:36.088Z"
+    },
+    {
+      "id": "tepco-fuel-202606",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260428j0101.pdf",
+      "filename": "tepco-fuel-202606.pdf",
+      "sha256": "b66c4470f396b976099b37d2b74a88e990c501359173da1188a53cfef7b140a8",
+      "bytes": 198352,
+      "retrievedAt": "2026-10-20T02:26:36.539Z"
+    },
+    {
+      "id": "gas-fuel-202606",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2606.pdf",
+      "filename": "gas-fuel-202606.pdf",
+      "sha256": "ac029b1bdb88bc1e1a0a21ef19b24be7e1d29ef2804848bbe076646a95b3cbd2",
+      "bytes": 79149,
+      "retrievedAt": "2026-10-20T02:26:36.588Z"
+    },
+    {
+      "id": "eneos-fuel-202606",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2606.pdf",
+      "filename": "eneos-fuel-202606.pdf",
+      "sha256": "7c015d128185dda2a8a8da95eb7fbffc247597e5b91f5271e935eb68a7e5af3a",
+      "bytes": 582091,
+      "retrievedAt": "2026-10-20T02:26:36.616Z"
+    },
+    {
+      "id": "tepco-fuel-202607",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260528j0101.pdf",
+      "filename": "tepco-fuel-202607.pdf",
+      "sha256": "54614afe7c233c8112c9f04666775be96005459b481a0a467867fe0bd0fc383b",
+      "bytes": 197082,
+      "retrievedAt": "2026-10-20T02:26:36.695Z"
+    },
+    {
+      "id": "gas-fuel-202607",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2607.pdf",
+      "filename": "gas-fuel-202607.pdf",
+      "sha256": "70b17d10a3fc9d0d8af448dca8d30c4ce88fe2fce4a16f01d369c4245b198b52",
+      "bytes": 76998,
+      "retrievedAt": "2026-10-20T02:26:36.752Z"
+    },
+    {
+      "id": "eneos-fuel-202607",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2607.pdf",
+      "filename": "eneos-fuel-202607.pdf",
+      "sha256": "e32490b6e71f6e29e1041df808a10a7102869057bf1e1c415cc86cd11b12f5f2",
+      "bytes": 582134,
+      "retrievedAt": "2026-10-20T02:26:36.786Z"
+    },
+    {
+      "id": "tepco-fuel-202608",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260626j0201.pdf",
+      "filename": "tepco-fuel-202608.pdf",
+      "sha256": "19581d9f60f862bb14e2b9b1a227515269b4771629c26c18f5e0e209d458c508",
+      "bytes": 204895,
+      "retrievedAt": "2026-10-20T02:26:36.830Z"
+    },
+    {
+      "id": "gas-fuel-202608",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2608.pdf",
+      "filename": "gas-fuel-202608.pdf",
+      "sha256": "c6cd145538bed786c454ceed30504bbc43302645e3e303c69e45552b46a535c9",
+      "bytes": 77177,
+      "retrievedAt": "2026-10-20T02:26:36.874Z"
+    },
+    {
+      "id": "eneos-fuel-202608",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2608.pdf",
+      "filename": "eneos-fuel-202608.pdf",
+      "sha256": "658414ab602fb7d4044204381930ebbffa2896463123a4be7f61713e8c7b5322",
+      "bytes": 610955,
+      "retrievedAt": "2026-10-20T02:26:36.912Z"
+    },
+    {
+      "id": "tepco-fuel-202609",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260730j0101.pdf",
+      "filename": "tepco-fuel-202609.pdf",
+      "sha256": "6d2d682d97edc485ee0655de45afb6958c083e1ea142d10ecd3e74261827b6e1",
+      "bytes": 205672,
+      "retrievedAt": "2026-10-20T02:26:36.990Z"
+    },
+    {
+      "id": "gas-fuel-202609",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2609.pdf",
+      "filename": "gas-fuel-202609.pdf",
+      "sha256": "38d959f9924feb94989555e2581b9b92b59f6136dac0a4690c442b88eaf1357e",
+      "bytes": 77198,
+      "retrievedAt": "2026-10-20T02:26:37.039Z"
+    },
+    {
+      "id": "eneos-fuel-202609",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2609.pdf",
+      "filename": "eneos-fuel-202609.pdf",
+      "sha256": "521e4a210eb95b27ff6fd4cc5e145da3268ad7224c01e0e8c26275ae25b64ca4",
+      "bytes": 611028,
+      "retrievedAt": "2026-10-20T02:26:37.069Z"
+    },
+    {
+      "id": "tepco-fuel-202610",
+      "url": "https://www.tepco.co.jp/ep/notice/pressrelease/2026/pdf/260828j0601.pdf",
+      "filename": "tepco-fuel-202610.pdf",
+      "sha256": "4c26b6f5b305e7405f790adcb23eebebde5159cac1aca2e863909ae6ae5498ad",
+      "bytes": 206244,
+      "retrievedAt": "2026-10-20T02:26:37.114Z"
+    },
+    {
+      "id": "gas-fuel-202610",
+      "url": "https://home.tokyo-gas.co.jp/gas_power/plan/power/price/pdf/chousei2610.pdf",
+      "filename": "gas-fuel-202610.pdf",
+      "sha256": "ebdb386c192f1104a0e06a0f63ef11eb3d0d305cf269955eb5f1cf32fe13db0c",
+      "bytes": 77215,
+      "retrievedAt": "2026-10-20T02:26:37.154Z"
+    },
+    {
+      "id": "eneos-fuel-202610",
+      "url": "https://eneospower-co.wjopen.jp/cmsdata/filelib/denki_charge_fuelcost_2610.pdf",
+      "filename": "eneos-fuel-202610.pdf",
+      "sha256": "1be460e4b8ec4bca045f0c9a9d91dd43fcead60322532db5f743035d2c9f7059",
+      "bytes": 727698,
+      "retrievedAt": "2026-10-20T02:26:37.194Z"
+    }
+  ]
+}

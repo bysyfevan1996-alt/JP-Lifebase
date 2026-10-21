@@ -1,0 +1,8 @@
+[Unit]
+Description=Back up Japan Life Base SQLite
+
+[Service]
+Type=oneshot
+ExecStart=/opt/whyfshenlab/node/bin/node /srv/jplifebase/current/ops/backup.mjs
+UMask=0077
+NoNewPrivileges=true

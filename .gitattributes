@@ -1,0 +1,12 @@
+# Schema version 1 is frozen and checksummed; preserve its exact bytes on checkout.
+schema.mjs -text
+migration-v*.mjs -text
+# Official evidence hashes refer to original downloaded bytes, including CRLF.
+denki/evidence/** -text
+# The release manifest hashes actual runtime bytes; Git checkouts must preserve them.
+*.mjs -text
+dist/** -text
+denki/** -text
+ops/** -text
+package.json -text
+README.md -text

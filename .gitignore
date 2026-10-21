@@ -1,0 +1,11 @@
+data/
+*.sqlite*
+*.env
+*.key
+node_modules/
+artifacts/
+test-results/
+__pycache__/
+*.pyc
+.openai/
+release-manifest.json

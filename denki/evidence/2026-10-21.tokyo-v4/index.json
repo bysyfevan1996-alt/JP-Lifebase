@@ -1,0 +1,168 @@
+{
+  "version": "2026-10-21.tokyo-v4",
+  "evidenceVersions": [
+    "2026-10-20.tokyo-v2"
+  ],
+  "records": [
+    {
+      "id": "idemitsu-s-202507",
+      "url": "https://denki.idemitsu.com/docs/kanto_spplan.pdf",
+      "filename": "idemitsu-s-202507.pdf",
+      "sha256": "7e0b43f815951da264b9c177064534e49c57c76627bac56f8afc5247832e94c7",
+      "bytes": 413611,
+      "retrievedAt": "2026-10-21T05:28:49.554Z"
+    },
+    {
+      "id": "idemitsu-terms-202607",
+      "url": "https://denki.idemitsu.com/docs/kanto_yakkan.pdf",
+      "filename": "idemitsu-terms-202607.pdf",
+      "sha256": "a67f2192493763c181f62cfcf5b0a1391cf6436fe757946772b499c2b962d650",
+      "bytes": 1070054,
+      "retrievedAt": "2026-10-21T05:28:49.647Z"
+    },
+    {
+      "id": "idemitsu-terms-change-202607",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/07/20260714_terms-change.pdf",
+      "filename": "idemitsu-terms-change-202607.pdf",
+      "sha256": "7e7a4620d250bd166dc1683bd57a49b204d63f265b8a380c042661939033441c",
+      "bytes": 314925,
+      "retrievedAt": "2026-10-21T05:28:49.683Z"
+    },
+    {
+      "id": "idemitsu-important-202610",
+      "url": "https://denki.idemitsu.com/docs/idemitsudenki_important.pdf",
+      "filename": "idemitsu-important-202610.pdf",
+      "sha256": "15677b78ba92bd028a98cb54f260b09c6b3ef2c375bafeaa92b742e48514fdee",
+      "bytes": 228806,
+      "retrievedAt": "2026-10-21T05:28:49.717Z"
+    },
+    {
+      "id": "cd-basic-b-202601",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/denki_youkou_basicB_202601.pdf",
+      "filename": "cd-basic-b-202601.pdf",
+      "sha256": "3ed6831cb93226437e1c353bd61477f526c50090da008450c0ec947c187d29c0",
+      "bytes": 172563,
+      "retrievedAt": "2026-10-21T05:28:49.817Z"
+    },
+    {
+      "id": "cd-terms-202601",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/denki_youkou_kihon_low_202601.pdf",
+      "filename": "cd-terms-202601.pdf",
+      "sha256": "3a24c6f162436e522966c4fe630853b22791337a943819cb1991c7f8739a9afb",
+      "bytes": 401932,
+      "retrievedAt": "2026-10-21T05:28:49.858Z"
+    },
+    {
+      "id": "cd-area",
+      "url": "https://www.cdedirect.co.jp/area/denki/",
+      "filename": "cd-area.html",
+      "sha256": "5f22b85f2e750078931a112b28a11ee1e99307cf3b7b1f976f25ae3cb53e5d79",
+      "bytes": 36774,
+      "retrievedAt": "2026-10-21T05:28:49.874Z"
+    },
+    {
+      "id": "cd-calculation-example",
+      "url": "https://www.cdedirect.co.jp/agreement/denki/",
+      "filename": "cd-calculation-example.html",
+      "sha256": "a71cee14cc503b14186106f06566c2b17cc21337b2ace1a5929739d3f063992e",
+      "bytes": 87352,
+      "retrievedAt": "2026-10-21T05:28:49.894Z"
+    },
+    {
+      "id": "idemitsu-fuel-202605",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/03/202605nencho.pdf",
+      "filename": "idemitsu-fuel-202605.pdf",
+      "sha256": "a9f0e29487207c6e43ebbcb1f4dadf0eb78f76e225422df74ad63927d4d41ad0",
+      "bytes": 412722,
+      "retrievedAt": "2026-10-21T05:28:49.928Z"
+    },
+    {
+      "id": "cd-fuel-202605",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202605.pdf",
+      "filename": "cd-fuel-202605.pdf",
+      "sha256": "f007af9304e5f2d1e755c05e23711693ef4ecb83dae02f7b392ca5557e21e4b5",
+      "bytes": 98462,
+      "retrievedAt": "2026-10-21T05:28:49.960Z"
+    },
+    {
+      "id": "idemitsu-fuel-202606",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/05/202606nencho.pdf",
+      "filename": "idemitsu-fuel-202606.pdf",
+      "sha256": "9118710b210180ca80fa96a61b6345ceee2843487302bc81c75c17481b621fc4",
+      "bytes": 409814,
+      "retrievedAt": "2026-10-21T05:28:49.998Z"
+    },
+    {
+      "id": "cd-fuel-202606",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202606.pdf",
+      "filename": "cd-fuel-202606.pdf",
+      "sha256": "eec07cda9bd6d14be6ef57b0503a74071f301412af8d0725644025c340bf54a1",
+      "bytes": 102474,
+      "retrievedAt": "2026-10-21T05:28:50.027Z"
+    },
+    {
+      "id": "idemitsu-fuel-202607",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/06/202607nencho.pdf",
+      "filename": "idemitsu-fuel-202607.pdf",
+      "sha256": "9f2e93922d5612926b425bce70a4f2bc152ac4f502128c39878b30ce6a2e0706",
+      "bytes": 411469,
+      "retrievedAt": "2026-10-21T05:28:50.067Z"
+    },
+    {
+      "id": "cd-fuel-202607",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202607.pdf",
+      "filename": "cd-fuel-202607.pdf",
+      "sha256": "841409ba8b305f3637fb68c2a29cdc7126294fac55ff360c050d8474dadedc69",
+      "bytes": 98375,
+      "retrievedAt": "2026-10-21T05:28:50.096Z"
+    },
+    {
+      "id": "idemitsu-fuel-202608",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/06/202608nencho.pdf",
+      "filename": "idemitsu-fuel-202608.pdf",
+      "sha256": "bf5dd566f6530a46d8a4f00aacdf2d5258d50833dc59243e9ef6e3970fe03806",
+      "bytes": 424600,
+      "retrievedAt": "2026-10-21T05:28:50.131Z"
+    },
+    {
+      "id": "cd-fuel-202608",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202608.pdf",
+      "filename": "cd-fuel-202608.pdf",
+      "sha256": "f9da36c94a2544354120535ae39f0b4f3f3e1e64904e787c8823fdbbc4416d1e",
+      "bytes": 117612,
+      "retrievedAt": "2026-10-21T05:28:50.157Z"
+    },
+    {
+      "id": "idemitsu-fuel-202609",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/07/202609nencho.pdf",
+      "filename": "idemitsu-fuel-202609.pdf",
+      "sha256": "65841e9a6c0b146ffc91e16f90de495c2e2f2960fcf44bdd48c1368a0ae2ef20",
+      "bytes": 424829,
+      "retrievedAt": "2026-10-21T05:28:50.195Z"
+    },
+    {
+      "id": "cd-fuel-202609",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202609.pdf?2026-09-01=",
+      "filename": "cd-fuel-202609.pdf",
+      "sha256": "406c467118c0d1f248b2c7c4b6285e5c9e7efd29ff73c18781cf8bde7569d59e",
+      "bytes": 121834,
+      "retrievedAt": "2026-10-21T05:28:50.218Z"
+    },
+    {
+      "id": "idemitsu-fuel-202610",
+      "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/08/202610nencho.pdf",
+      "filename": "idemitsu-fuel-202610.pdf",
+      "sha256": "22435c372d87a6665aa1dfbf21e5e122074b0030711ab04552f21f3f4148ea6a",
+      "bytes": 420988,
+      "retrievedAt": "2026-10-21T05:28:50.251Z"
+    },
+    {
+      "id": "cd-fuel-202610",
+      "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202610.pdf",
+      "filename": "cd-fuel-202610.pdf",
+      "sha256": "df97725a63b177c3b53226498f71a00c9b4a369538a79bedc34e171553723c02",
+      "bytes": 117337,
+      "retrievedAt": "2026-10-21T05:28:50.275Z"
+    }
+  ]
+}

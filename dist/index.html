@@ -2,46 +2,61 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f3f3f3">
-  <meta name="description" content="Japan Life Base，在日生活讨论社区。交流住房账单、签证手续、工作税务、汽车与日常生活。">
-  <title>Japan Life Base · 社区</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.js"></script>
+  <meta name="description" content="Japan Life Base，在日本生活的讨论社区。">
+  <title>Japan Life Base</title>
+  <link rel="canonical" href="https://www.jp-lifebase.com/">
+  <link rel="stylesheet" href="/styles.css?v=20261021102240577">
+  <link rel="stylesheet" href="/responsive.css?v=20261021102240577">
+  <link rel="stylesheet" href="/composer.css?v=20261021102240577">
+  <script type="module" src="/app.js?v=20261021102240577"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳到讨论内容</a>
+  <a class="skip-link" href="#main" data-i18n="skip">跳到讨论内容</a>
   <header class="topbar">
-    <div class="brand-group"><button class="icon-button" id="menu-toggle" aria-label="折叠导航" aria-expanded="true" aria-controls="sidebar" data-icon="menu"></button><a class="brand" href="#" aria-label="Japan Life Base 首页">Japan Life Base</a></div>
-    <form class="search" id="search-form" role="search"><span data-icon="search" aria-hidden="true"></span><input id="search-input" aria-label="搜索讨论" placeholder="搜索讨论" autocomplete="off"><button class="icon-button" id="filter-toggle" type="button" aria-label="搜索与显示设置" aria-expanded="false" aria-controls="filter-popover" data-icon="sliders"></button></form>
-    <div class="account-actions"><button class="pill" data-auth="register">注册</button><button class="pill" data-auth="login"><span data-icon="user" aria-hidden="true"></span>登录</button></div>
+    <div class="brand-group"><button class="icon-button" id="menu-toggle" aria-label="菜单" aria-expanded="true" aria-controls="sidebar" data-icon="menu"></button><a class="brand" href="/">Japan Life Base</a></div>
+    <form class="search" id="search-form" role="search"><span data-icon="search" aria-hidden="true"></span><input id="search-input" aria-label="搜索讨论" placeholder="搜索讨论" autocomplete="off"><button class="icon-button" id="filter-toggle" type="button" aria-label="搜索设置" aria-expanded="false" aria-controls="filter-popover" data-icon="sliders"></button></form>
+    <div class="header-right"><label class="language-control"><span data-icon="globe" aria-hidden="true"></span><select id="language-select" aria-label="语言" data-i18n-aria="language"><option value="system">跟随系统</option><option value="ja">日本語</option><option value="en">English</option><option value="zh-CN" selected>简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option></select></label><div class="account-actions" id="account-actions"></div></div>
   </header>
-  <div class="filter-popover" id="filter-popover" hidden><strong>搜索与显示</strong><label>分类<select id="category-select"><option value="all">所有分类</option></select></label><label class="check"><input id="banner-toggle" type="checkbox" checked>显示首页公告横幅</label><button class="plain-button" id="clear-filters">清除搜索与分类</button></div>
+  <div class="filter-popover" id="filter-popover" hidden><strong data-i18n="searchSettings">搜索设置</strong><label><span data-i18n="category">分类</span><select id="category-select"></select></label><label class="check"><input id="banner-toggle" type="checkbox" checked><span data-i18n="showBanner">显示公告横幅</span></label><button class="plain-button" id="clear-filters" data-i18n="clearFilters">清除筛选</button></div>
   <div class="drawer-shade" id="drawer-shade" hidden></div>
-  <aside class="sidebar" id="sidebar" aria-label="社区导航">
+  <aside class="sidebar" id="sidebar" aria-label="社区" data-i18n-aria="community">
     <div class="sidebar-inner">
-      <a class="side-link" href="#about" data-info="about">关于本站</a><a class="side-link" href="#guide" data-info="guide">使用指南</a>
-      <button class="side-promo" id="side-promo"><span class="promo-symbol" aria-hidden="true">↗</span><span class="promo-eyebrow">社区共建</span><strong>你的日本生活清单</strong><span class="promo-link">分享经验 <span aria-hidden="true">→</span></span></button>
-      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="content-links"><span data-icon="chevron-down"></span>内容</button><div id="content-links"><button class="side-link active" data-view="all"><span data-icon="messages"></span>全部讨论</button><button class="side-link" data-info="guides"><span data-icon="book"></span>生活指南</button><button class="side-link" data-filter-shortcut="popular"><span data-icon="flame"></span>热门话题</button><button class="side-link" data-filter-shortcut="unanswered"><span data-icon="message"></span>待回复</button><button class="side-link" data-info="saved"><span data-icon="bookmark"></span>我的收藏</button></div></section>
-      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="category-links"><span data-icon="chevron-down"></span>分类</button><div id="category-links"></div></section>
-      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="tool-links"><span data-icon="chevron-down"></span>工具</button><div id="tool-links"><button class="side-link" data-info="denki"><span data-icon="zap"></span>电费比较</button><button class="side-link" data-info="checklist"><span data-icon="check-square"></span>搬家清单</button></div></section>
-      <div class="sidebar-footer"><span>简体中文</span><span>Japan Life Base</span></div>
+      <button class="sidebar-compose" id="new-topic"><span data-i18n="newTopic">新建话题</span></button>
+      <button class="side-link personal-link" id="my-topics" data-i18n="myTopics">我的帖子</button>
+      <button class="side-link personal-link" id="my-messages" data-i18n="myMessages">我的消息</button>
+      <a class="side-link personal-link" href="#about" data-info="about" data-i18n="about">关于本站</a>
+      <a class="side-link personal-link" href="#guide" data-info="guide" data-i18n="guide">使用指南</a>
+      <button class="side-promo" id="side-promo"><span class="promo-symbol" aria-hidden="true">↗</span><span class="promo-eyebrow" data-i18n="community">社区</span><strong data-i18n="shareExperience">分享生活经验</strong><span class="promo-link"><span data-i18n="joinDiscussion">浏览讨论</span><span aria-hidden="true">→</span></span></button>
+      <section class="nav-section sidebar-tools"><button class="section-toggle" aria-expanded="true" aria-controls="tool-links"><span data-icon="chevron-down"></span><span data-i18n="tools">小工具</span></button><nav id="tool-links" aria-label="小工具" data-i18n-aria="tools"><a href="/denkikakaku" class="side-link"><span data-icon="zap"></span><span data-i18n="electricityTool">电费比较</span></a><a href="/moving-checklist" class="side-link"><span data-icon="check-square"></span><span data-i18n="movingTool">搬家清单</span><span class="tool-status" data-i18n="preparing">准备中</span></a></nav></section>
+      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="content-links"><span data-icon="chevron-down"></span><span data-i18n="content">内容</span></button><div id="content-links"><button class="side-link active" data-view="all"><span data-icon="messages"></span><span data-i18n="allTopics">全部讨论</span></button><button class="side-link" data-filter-shortcut="popular"><span data-icon="flame"></span><span data-i18n="popular">热门</span></button><button class="side-link" data-filter-shortcut="unanswered"><span data-icon="message"></span><span data-i18n="unanswered">待回复</span></button></div></section>
+      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="category-links"><span data-icon="chevron-down"></span><span data-i18n="categories">分类</span></button><div id="category-links"></div></section>
+      <section class="nav-section"><button class="section-toggle" aria-expanded="true" aria-controls="channel-links"><span data-icon="chevron-down"></span><span data-i18n="channels">频道</span></button><div id="channel-links"><button class="side-link" data-category="daily"><span data-icon="message"></span><span data-i18n="generalChat">杂谈</span></button></div></section>
+      <a class="side-link" id="admin-entry" href="/admin" hidden data-i18n="adminPanel">管理后台</a>
+      <div class="sidebar-footer"><span id="locale-label">简体中文</span><span>Japan Life Base</span></div>
     </div>
   </aside>
   <main id="main" class="main"><div class="content-panel">
-    <section id="list-view" aria-label="社区话题">
-      <div class="list-toolbar"><nav class="tabs" aria-label="话题排序"><button data-sort="latest" class="tab active" aria-pressed="true">最新</button><button data-sort="popular" class="tab" aria-pressed="false">热门</button></nav><button class="new-topic" id="new-topic"><span data-icon="plus" aria-hidden="true"></span>发帖</button></div>
-      <section class="announcement" id="announcement" aria-label="社区公告横幅"><div class="announcement-copy"><span class="banner-category">住房与账单</span><h1>这个月，你家的电费是多少？</h1><p>人数、用电量、账单期间，一起交流。</p><button class="banner-link" id="banner-topic">查看讨论 <span aria-hidden="true">↗</span></button></div><div class="banner-art" aria-hidden="true"><div class="bill-sheet"><span class="bill-head">電気ご使用量</span><strong>300<span> kWh</span></strong><div class="bill-rule"></div><div class="bill-line long"></div><div class="bill-line"></div><span class="bill-stamp">円</span></div><div class="banner-disc"><span data-icon="zap"></span></div><div class="art-grid"></div></div><button class="banner-close icon-button" id="banner-close" aria-label="隐藏公告横幅" data-icon="x"></button><span class="banner-corner">社区话题</span></section>
-      <div class="results-context" id="results-context" hidden><span id="results-label"></span><button class="plain-button" id="reset-list">清除筛选</button></div>
-      <div class="topic-list" id="topic-list" aria-live="polite"></div>
-      <div class="load-more-wrap"><button class="load-more" id="load-more">继续加载 <span data-icon="chevron-down" aria-hidden="true"></span></button><span class="end-note" id="end-note" hidden>已显示全部话题</span></div>
-      <footer class="panel-footer"><span>Japan Life Base</span><span>界面演示 · 话题与互动数据均为示例</span></footer>
+  <div id="language-suggestion" class="language-suggestion" role="status" hidden></div>
+
+    <div id="translation-notice" class="translation-notice" role="status" hidden><span id="translation-label"></span><button class="plain-button" id="original-toggle"></button></div>
+    <section id="list-view" aria-label="全部讨论" data-i18n-aria="allTopics">
+      <div class="list-toolbar"><nav class="tabs" aria-label="话题排序" data-i18n-aria="topicOrder"><button data-sort="latest" class="tab active" aria-pressed="true" data-i18n="latest">最新</button><button data-sort="popular" class="tab" aria-pressed="false" data-i18n="popular">热门</button></nav><span class="topic-total" id="topic-total"></span></div>
+      <section class="announcement" id="announcement" aria-label="社区公告" data-i18n-aria="announcement"><div class="announcement-copy"><span class="banner-category" data-i18n="housing">住房与账单</span><h1 data-i18n="bannerTitle">你家的用电量是多少？</h1><p data-i18n="bannerBody">带上所在地区和家庭人数，一起聊聊。</p><button class="banner-link" id="banner-topic"><span data-i18n="viewDiscussion">查看讨论</span><span aria-hidden="true">↗</span></button></div><div class="banner-art" aria-hidden="true"><div class="bill-sheet"><span class="bill-head">電気ご使用量</span><strong>kWh</strong><div class="bill-rule"></div><div class="bill-line long"></div><div class="bill-line"></div><span class="bill-stamp">電</span></div><div class="banner-disc"><span data-icon="zap"></span></div><div class="art-grid"></div></div><button class="banner-close icon-button" id="banner-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button><span class="banner-corner" data-i18n="community">社区</span></section>
+      <div class="results-context" id="results-context" hidden><span id="results-label"></span><button class="plain-button" id="reset-list" data-i18n="clearFilters">清除筛选</button></div>
+      <p id="tag-filter-scope" class="tag-filter-scope" hidden data-i18n="tagFilterScope"></p>
+      <div class="topic-list" id="topic-list" aria-live="polite"><div class="empty-state">読み込み中…</div></div>
+      <div class="load-more-wrap"><button class="load-more" id="load-more" hidden><span data-i18n="loadMore">继续加载</span><span data-icon="chevron-down" aria-hidden="true"></span></button><span class="end-note" id="end-note" hidden data-i18n="allLoaded">已显示全部话题</span></div>
     </section>
-    <section id="detail-view" hidden aria-label="话题详情"><button class="back-button" id="back-to-list"><span data-icon="arrow-left"></span>返回讨论</button><div id="topic-detail"></div></section>
+    <section id="detail-view" hidden aria-label="话题详情" data-i18n-aria="topicDetail"><button class="back-button" id="back-to-list"><span data-icon="arrow-left"></span><span data-i18n="back">返回讨论</span></button><div id="topic-detail"></div></section>
+    <section id="tool-view" hidden></section>
+    <section id="account-view" hidden aria-label="账号" data-i18n-aria="account"></section>
+    <footer class="panel-footer"><span>© Japan Life Base</span><button class="plain-button" id="contact-button" data-i18n="contact">联系我们</button></footer>
   </div></main>
-  <button class="assistant-launcher" id="assistant-launcher" aria-expanded="false" aria-controls="assistant-panel"><span data-icon="messages" aria-hidden="true"></span><span>AI 生活助手</span></button>
-  <section class="assistant-panel" id="assistant-panel" hidden aria-label="AI 生活助手"><header><div><strong>AI 生活助手</strong><span>交互演示</span></div><button class="icon-button" id="assistant-close" aria-label="关闭生活助手" data-icon="x"></button></header><div class="chat-messages" id="chat-messages" aria-live="polite"><div class="chat-bubble">你可以搜索社区里的讨论。试试“电费”“租房”或“搬家”。</div></div><form id="chat-form"><input id="chat-input" aria-label="向生活助手提问" placeholder="输入你的问题…" maxlength="200"><button class="icon-button" aria-label="发送问题" data-icon="arrow-up"></button></form><p class="chat-note">本页未接入 AI，使用示例回复。</p></section>
-  <dialog id="site-dialog"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="icon-button" id="dialog-close" aria-label="关闭窗口" data-icon="x"></button></div><div id="dialog-body"></div></dialog>
+  <button class="assistant-launcher" id="assistant-launcher" aria-expanded="false" aria-controls="assistant-panel"><span data-icon="search" aria-hidden="true"></span><span data-i18n="communitySearch">社区搜索</span></button>
+  <section class="assistant-panel" id="assistant-panel" hidden aria-label="社区搜索" data-i18n-aria="communitySearch"><header><div><strong data-i18n="communitySearch">社区搜索</strong><span data-i18n="searchOnly">搜索社区已发布的讨论</span></div><button class="icon-button" id="assistant-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button></header><div class="chat-messages" id="chat-messages" aria-live="polite"></div><form id="chat-form"><input id="chat-input" aria-label="搜索讨论" data-i18n-aria="search" maxlength="200"><button class="icon-button" aria-label="搜索讨论" data-i18n-aria="search" data-icon="search"></button></form><p class="chat-note" data-i18n="searchOnly">搜索社区已发布的讨论</p></section>
+  <dialog id="site-dialog"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="icon-button" id="dialog-close" aria-label="关闭" data-i18n-aria="close" data-icon="x"></button></div><div id="dialog-body"></div></dialog>
   <div class="toast" id="toast" role="status" hidden></div>
 </body>
 </html>

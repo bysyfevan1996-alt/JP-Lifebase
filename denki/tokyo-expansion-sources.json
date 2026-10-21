@@ -1,0 +1,224 @@
+[
+  {
+    "id": "idemitsu-s-202507",
+    "title": "idemitsuでんき：Sプラン料金要綱（東京・2025年7月22日実施）",
+    "url": "https://denki.idemitsu.com/docs/kanto_spplan.pdf",
+    "checkedAt": "2026-10-21",
+    "effectiveFrom": "2025-07-22",
+    "effectiveTo": "2026-10-31",
+    "pages": [
+      3,
+      4,
+      5
+    ],
+    "note": "Mutable URL; archived before the November revision.",
+    "sha256": "7e0b43f815951da264b9c177064534e49c57c76627bac56f8afc5247832e94c7"
+  },
+  {
+    "id": "idemitsu-terms-202607",
+    "title": "idemitsuでんき：電気需給約款（東京・2026年7月17日実施）",
+    "url": "https://denki.idemitsu.com/docs/kanto_yakkan.pdf",
+    "checkedAt": "2026-10-21",
+    "effectiveFrom": "2026-07-17",
+    "pages": [
+      7,
+      8,
+      15,
+      40,
+      42
+    ],
+    "note": "July amendment changes payment methods only; see the archived old/new amendment for earlier months.",
+    "sha256": "a67f2192493763c181f62cfcf5b0a1391cf6436fe757946772b499c2b962d650"
+  },
+  {
+    "id": "idemitsu-terms-change-202607",
+    "title": "idemitsuでんき：2026年7月約款改定の新旧対照（支払方法のみ）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/07/20260714_terms-change.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-07-16",
+    "pages": [
+      1,
+      2
+    ],
+    "sha256": "7e7a4620d250bd166dc1683bd57a49b204d63f265b8a380c042661939033441c"
+  },
+  {
+    "id": "idemitsu-important-202610",
+    "title": "idemitsuでんき：重要事項説明書（2026年10月31日まで）",
+    "url": "https://denki.idemitsu.com/docs/idemitsudenki_important.pdf",
+    "checkedAt": "2026-10-21",
+    "effectiveTo": "2026-10-31",
+    "note": "Mutable URL; car/EV discounts, optional services and eligibility are not included in the comparison.",
+    "sha256": "15677b78ba92bd028a98cb54f260b09c6b3ef2c375bafeaa92b742e48514fdee"
+  },
+  {
+    "id": "cd-basic-b-202601",
+    "title": "CDエナジー：ベーシックでんきB個別要綱（2026年1月1日実施）",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/denki_youkou_basicB_202601.pdf",
+    "checkedAt": "2026-10-21",
+    "effectiveFrom": "2026-01-01",
+    "effectiveTo": "2026-10-31",
+    "pages": [
+      3,
+      4,
+      9,
+      10,
+      11
+    ],
+    "note": "Excludes optional gas bundle discount and points. November tariff is not backfilled.",
+    "sha256": "3ed6831cb93226437e1c353bd61477f526c50090da008450c0ec947c187d29c0"
+  },
+  {
+    "id": "cd-terms-202601",
+    "title": "CDエナジー：電気基本契約要綱・低圧（2026年1月1日実施）",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/denki_youkou_kihon_low_202601.pdf",
+    "checkedAt": "2026-10-21",
+    "effectiveFrom": "2026-01-01",
+    "sha256": "3a24c6f162436e522966c4fe630853b22791337a943819cb1991c7f8739a9afb",
+    "pages": [
+      8
+    ]
+  },
+  {
+    "id": "cd-area",
+    "title": "CDエナジー：東京電力区域・供給対象と地域例外",
+    "url": "https://www.cdedirect.co.jp/area/denki/",
+    "checkedAt": "2026-10-21",
+    "note": "Excludes islands and bulk-receiving apartment buildings; this tool does not confirm address-specific eligibility.",
+    "sha256": "5f22b85f2e750078931a112b28a11ee1e99307cf3b7b1f976f25ae3cb53e5d79"
+  },
+  {
+    "id": "cd-calculation-example",
+    "title": "CDエナジー：料金計算例と計量期間・請求月の説明",
+    "url": "https://www.cdedirect.co.jp/agreement/denki/",
+    "checkedAt": "2026-10-21",
+    "note": "Official illustrative 30A/320kWh example with fuel -9.14 and levy 4.18 totals 9967 yen; not a published tariff month.",
+    "sha256": "a71cee14cc503b14186106f06566c2b17cc21337b2ace1a5929739d3f063992e"
+  },
+  {
+    "id": "idemitsu-fuel-202605",
+    "title": "idemitsuでんき：2026年5月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/03/202605nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-03-31",
+    "page": 1,
+    "applicableMonth": "2026-05",
+    "sha256": "a9f0e29487207c6e43ebbcb1f4dadf0eb78f76e225422df74ad63927d4d41ad0"
+  },
+  {
+    "id": "cd-fuel-202605",
+    "title": "CDエナジー：2026年5月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202605.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-04-01",
+    "page": 1,
+    "applicableMonth": "2026-05",
+    "note": "Low-voltage residential column only; no spot-market adjustment is added.",
+    "sha256": "f007af9304e5f2d1e755c05e23711693ef4ecb83dae02f7b392ca5557e21e4b5"
+  },
+  {
+    "id": "idemitsu-fuel-202606",
+    "title": "idemitsuでんき：2026年6月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/05/202606nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-04-30",
+    "page": 1,
+    "applicableMonth": "2026-06",
+    "sha256": "9118710b210180ca80fa96a61b6345ceee2843487302bc81c75c17481b621fc4"
+  },
+  {
+    "id": "cd-fuel-202606",
+    "title": "CDエナジー：2026年6月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202606.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-05-01",
+    "page": 1,
+    "applicableMonth": "2026-06",
+    "note": "Low-voltage residential column only; no spot-market adjustment is added.",
+    "sha256": "eec07cda9bd6d14be6ef57b0503a74071f301412af8d0725644025c340bf54a1"
+  },
+  {
+    "id": "idemitsu-fuel-202607",
+    "title": "idemitsuでんき：2026年7月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/06/202607nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-05-29",
+    "page": 1,
+    "applicableMonth": "2026-07",
+    "sha256": "9f2e93922d5612926b425bce70a4f2bc152ac4f502128c39878b30ce6a2e0706"
+  },
+  {
+    "id": "cd-fuel-202607",
+    "title": "CDエナジー：2026年7月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202607.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-06-01",
+    "page": 1,
+    "applicableMonth": "2026-07",
+    "note": "Low-voltage residential column only; no spot-market adjustment is added.",
+    "sha256": "841409ba8b305f3637fb68c2a29cdc7126294fac55ff360c050d8474dadedc69"
+  },
+  {
+    "id": "idemitsu-fuel-202608",
+    "title": "idemitsuでんき：2026年8月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/06/202608nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-07-06",
+    "page": 1,
+    "applicableMonth": "2026-08",
+    "sha256": "bf5dd566f6530a46d8a4f00aacdf2d5258d50833dc59243e9ef6e3970fe03806"
+  },
+  {
+    "id": "cd-fuel-202608",
+    "title": "CDエナジー：2026年8月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202608.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-07-01",
+    "page": 1,
+    "applicableMonth": "2026-08",
+    "note": "The published net unit rate already includes government support; the dataset separates gross and support once.",
+    "sha256": "f9da36c94a2544354120535ae39f0b4f3f3e1e64904e787c8823fdbbc4416d1e"
+  },
+  {
+    "id": "idemitsu-fuel-202609",
+    "title": "idemitsuでんき：2026年9月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/07/202609nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "page": 1,
+    "applicableMonth": "2026-09",
+    "sha256": "65841e9a6c0b146ffc91e16f90de495c2e2f2960fcf44bdd48c1368a0ae2ef20",
+    "publishedAt": "2026-07-31"
+  },
+  {
+    "id": "cd-fuel-202609",
+    "title": "CDエナジー：2026年9月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202609.pdf?2026-09-01=",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-08-01",
+    "page": 1,
+    "applicableMonth": "2026-09",
+    "note": "The published net unit rate already includes government support; the dataset separates gross and support once.",
+    "sha256": "406c467118c0d1f248b2c7c4b6285e5c9e7efd29ff73c18781cf8bde7569d59e"
+  },
+  {
+    "id": "idemitsu-fuel-202610",
+    "title": "idemitsuでんき：2026年10月分燃料費調整（東京）",
+    "url": "https://denki.idemitsu.com/media/wp-content/uploads/2026/08/202610nencho.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-08-31",
+    "page": 1,
+    "applicableMonth": "2026-10",
+    "sha256": "22435c372d87a6665aa1dfbf21e5e122074b0030711ab04552f21f3f4148ea6a"
+  },
+  {
+    "id": "cd-fuel-202610",
+    "title": "CDエナジー：2026年10月分低圧燃料費調整",
+    "url": "https://www.cdedirect.co.jp/assets/pdf/agreement/denki/nencho_202610.pdf",
+    "checkedAt": "2026-10-21",
+    "publishedAt": "2026-09-01",
+    "page": 1,
+    "applicableMonth": "2026-10",
+    "note": "The published net unit rate already includes government support; the dataset separates gross and support once.",
+    "sha256": "df97725a63b177c3b53226498f71a00c9b4a369538a79bedc34e171553723c02"
+  }
+]

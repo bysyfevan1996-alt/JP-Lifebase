@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Japan Life Base backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Asia/Tokyo
+RandomizedDelaySec=180
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f3f3">
+  <meta name="description" content="依据东京电力区域各检针月的官方单价比较电费，查看费用明细与来源。">
+  <title>电费比较 · Japan Life Base</title>
+  <link rel="canonical" href="https://jp-lifebase.com/denkikakaku">
+  <link rel="stylesheet" href="/denki.css?v=20261021102240577">
+  <script type="module" src="/denki.js?v=20261021102240577"></script>
+</head>
+<body>
+  <a class="skip" href="#comparison" data-i18n="skip">跳到比较结果</a>
+  <header class="topbar">
+    <a class="brand" href="https://www.jp-lifebase.com/">Japan Life Base</a>
+    <div class="header-actions"><a class="community-link" href="https://www.jp-lifebase.com/" data-i18n="community">返回社区</a><label class="language"><span aria-hidden="true">◎</span><select id="language" aria-label="语言" data-i18n-aria="language"><option value="system">跟随系统</option><option value="ja">日本語</option><option value="en">English</option><option value="zh-CN" selected>简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option></select></label></div>
+  </header>
+  <main>
+    <div id="language-suggestion" class="language-suggestion" role="status" hidden></div>
+    <div class="translation-notice" id="translation-notice" role="status" hidden></div>
+    <div class="page-heading"><div><h1 data-i18n="title">电费比较</h1><p class="coverage" id="coverage"></p><p class="coverage" id="month-window"></p></div><div class="page-heading-actions"><span class="scope" data-i18n="tokyo">东京电力供电区域</span><a class="release-notes" href="https://www.jp-lifebase.com/#topic=a378859f-98c3-46d3-9689-7a82cafe4d6e" target="_blank" rel="noopener noreferrer" data-i18n="releaseNotes">发布说明</a></div></div>
+    <div class="workspace">
+      <aside class="input-panel">
+        <h2 data-i18n="conditions">比较条件</h2>
+        <form id="compare-form" autocomplete="off">
+          <label class="field"><span data-i18n="area">供电区域</span><select id="area" name="area" required><option value="" data-i18n="selectPrompt">请选择</option></select></label>
+          <label class="field"><span data-i18n="billingMonth">电价适用月（检针月）</span><select id="month" name="billingMonth" required disabled><option value="" data-i18n="selectPrompt">请选择</option></select><small data-i18n="monthHelp">请选择账单注明的检针月份，不是自然月的用电月份。</small></label>
+          <label class="field"><span data-i18n="currentPlan">当前套餐</span><select id="current-plan" name="currentPlanId" required disabled><option value="" data-i18n="selectPrompt">请选择</option></select><small data-i18n="planHelp">章鱼请按合同选择完整版本名（2025-05／2026-04）。历史月份可比较，不代表现在仍可新申请。</small></label>
+          <div class="field-pair"><label class="field"><span data-i18n="capacity">契约容量</span><select id="amps" name="amps" required disabled></select></label><label class="field"><span data-i18n="usage">使用电量</span><span class="input-unit"><input id="kwh" name="kwh" type="number" min="1" max="10000" step="1" inputmode="numeric" placeholder="" required><span>kWh</span></span></label></div>
+          <label class="field" id="days-field" hidden><span data-i18n="days">计费天数</span><input id="days" name="days" type="number" min="1" max="62" step="1" inputmode="numeric"><small data-i18n="daysHelp">填写账单实际天数（1～62 天），不默认 30 天。仅比较其他套餐可留空；纳入章鱼时必填。</small></label>
+          <label class="field"><span><span data-i18n="bill">实际账单金额</span><span class="optional" data-i18n="optional">选填</span></span><span class="input-unit"><input id="bill" name="billYen" type="number" min="0" max="10000000" step="1" inputmode="numeric" placeholder=""><span data-i18n="yen">円</span></span><small data-i18n="billHelp">用于核对账单。套餐比较依据实际用电量计算。</small></label>
+          <label class="cycle-confirm"><input id="full-cycle" name="fullBillingCycle" type="checkbox" required><span data-i18n="fullCycle">这是一个完整的正常检针周期，不涉及搬家、变更契约等不足整期的费用分摊。</span></label>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <button type="submit" class="compare-button" id="compare-button" disabled data-i18n="compare">开始比较</button>
+        </form>
+        <div class="input-note"><span aria-hidden="true">ⓘ</span><p data-i18n="inputNote">支持住宅阶梯套餐及已核实的章鱼日额基本费。不包含分时、市场联动、EV、0 kWh 或不足完整账期的账单。</p></div>
+      </aside>
+      <section class="result-panel" id="comparison" aria-labelledby="results-title">
+        <div class="result-heading"><h2 id="results-title" data-i18n="results">比较结果</h2><span id="result-count" class="muted"></span></div>
+        <div class="result-context" id="result-context" hidden></div>
+        <div id="results" aria-live="polite"><div class="empty-state"><span class="empty-symbol" aria-hidden="true">↔</span><h3 data-i18n="emptyTitle">用相同条件比较</h3><p data-i18n="emptyBody">选择检针月份，填写契约容量和用电量，即可查看各套餐费用、计算明细及官方来源。</p></div></div>
+        <section class="pending-section" id="pending-section" hidden><h3 data-i18n="pendingTitle">暂不能比较的套餐</h3><p class="muted" data-i18n="pendingHelp">以下套餐因缺少已核实的资费、支持的账期条件或必要输入，暂不参与排名。</p><div id="pending-list"></div></section>
+        <section class="method-section"><h3 data-i18n="methodTitle">计算说明</h3><p data-i18n="methodBody">分别计算基本料金、各档电量费、燃料费调整额、再生能源附加费及政府补贴。展开套餐可查看计算明细和取整规则。</p><p data-i18n="methodLimits">结果按输入条件试算。不含可选优惠、积分、签约赠礼、银行自动扣款优惠及不足整期的费用分摊。章鱼需填写实际账期天数，并按合同选择套餐版本。若与账单有差异，请核对明细。比较采用所选历史月份的资费；当前新申请及供电条件请向各公司确认。</p><p><a id="dataset-link" href="/api/denki/dataset" target="_blank" rel="noopener" data-i18n="dataset">查看电价数据（JSON）</a></p></section>
+      </section>
+    </div>
+    <footer><span>© Japan Life Base</span><a href="https://www.jp-lifebase.com/#contact" data-i18n="contact">联系我们</a></footer>
+  </main>
+</body>
+</html>

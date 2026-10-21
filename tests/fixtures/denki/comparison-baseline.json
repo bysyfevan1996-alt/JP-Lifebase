@@ -1,0 +1,600 @@
+[
+  {
+    "version": "2026-10-20.tokyo-v1",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2025-09",
+      "amps": 30,
+      "kwh": 260,
+      "currentPlanId": "tepco-b",
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "tepco-b",
+      "results": [
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 7850,
+          "deltaYen": -217,
+          "tariffVersion": "eneos-v-202509-v1",
+          "sourceIds": [
+            "eneos-terms-202503",
+            "eneos-fuel-index",
+            "eneos-fuel-202509",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 7955,
+          "deltaYen": -112,
+          "tariffVersion": "tokyo-gas-basic-202509-v1",
+          "sourceIds": [
+            "gas-rate-202503",
+            "gas-terms-202506",
+            "gas-cycle",
+            "gas-fuel-202509",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 8067,
+          "deltaYen": 0,
+          "tariffVersion": "tepco-b-202509-v1",
+          "sourceIds": [
+            "tepco-rate-202404",
+            "tepco-terms-202504",
+            "tepco-round-202504",
+            "tepco-levy-202504",
+            "tepco-fuel-202509",
+            "renewable-2025"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "reasonCode": "historical_terms_unavailable"
+        },
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": null
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v1",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2026-01",
+      "amps": 60,
+      "kwh": 400,
+      "currentPlanId": "mitsu-b",
+      "actualBillYen": 12000,
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "mitsu-b",
+      "results": [
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "totalYen": 13746,
+          "deltaYen": 0,
+          "tariffVersion": "mitsu-b-202601-v1",
+          "sourceIds": [
+            "mitsu-rate-202404",
+            "mitsu-base",
+            "mitsu-terms-211",
+            "mitsu-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 13913,
+          "deltaYen": 167,
+          "tariffVersion": "eneos-v-202601-v1",
+          "sourceIds": [
+            "eneos-terms-202503",
+            "eneos-fuel-index",
+            "eneos-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 14312,
+          "deltaYen": 566,
+          "tariffVersion": "tokyo-gas-basic-202601-v1",
+          "sourceIds": [
+            "gas-rate-202503",
+            "gas-terms-202506",
+            "gas-cycle",
+            "gas-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 14551,
+          "deltaYen": 805,
+          "tariffVersion": "tepco-b-202601-v1",
+          "sourceIds": [
+            "tepco-rate-202404",
+            "tepco-terms-202504",
+            "tepco-round-202504",
+            "tepco-levy-202504",
+            "tepco-fuel-202601",
+            "renewable-2025"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": {
+        "actualBillYen": 12000,
+        "calculatedYen": 13746,
+        "differenceYen": -1746
+      }
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v2",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2025-09",
+      "amps": 30,
+      "kwh": 260,
+      "currentPlanId": "tepco-b",
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "tepco-b",
+      "results": [
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 7850,
+          "deltaYen": -217,
+          "tariffVersion": "eneos-v-202509-v1",
+          "sourceIds": [
+            "eneos-terms-202503",
+            "eneos-fuel-index",
+            "eneos-fuel-202509",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 7955,
+          "deltaYen": -112,
+          "tariffVersion": "tokyo-gas-basic-202509-v1",
+          "sourceIds": [
+            "gas-rate-202503",
+            "gas-terms-202506",
+            "gas-cycle",
+            "gas-fuel-202509",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 8067,
+          "deltaYen": 0,
+          "tariffVersion": "tepco-b-202509-v1",
+          "sourceIds": [
+            "tepco-rate-202404",
+            "tepco-terms-202504",
+            "tepco-round-202504",
+            "tepco-levy-202504",
+            "tepco-fuel-202509",
+            "renewable-2025"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "reasonCode": "historical_terms_unavailable"
+        },
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": null
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v2",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2026-01",
+      "amps": 60,
+      "kwh": 400,
+      "currentPlanId": "mitsu-b",
+      "actualBillYen": 12000,
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "mitsu-b",
+      "results": [
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "totalYen": 13746,
+          "deltaYen": 0,
+          "tariffVersion": "mitsu-b-202601-v1",
+          "sourceIds": [
+            "mitsu-rate-202404",
+            "mitsu-base",
+            "mitsu-terms-211",
+            "mitsu-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 13913,
+          "deltaYen": 167,
+          "tariffVersion": "eneos-v-202601-v1",
+          "sourceIds": [
+            "eneos-terms-202503",
+            "eneos-fuel-index",
+            "eneos-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 14312,
+          "deltaYen": 566,
+          "tariffVersion": "tokyo-gas-basic-202601-v1",
+          "sourceIds": [
+            "gas-rate-202503",
+            "gas-terms-202506",
+            "gas-cycle",
+            "gas-fuel-202601",
+            "renewable-2025"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 14551,
+          "deltaYen": 805,
+          "tariffVersion": "tepco-b-202601-v1",
+          "sourceIds": [
+            "tepco-rate-202404",
+            "tepco-terms-202504",
+            "tepco-round-202504",
+            "tepco-levy-202504",
+            "tepco-fuel-202601",
+            "renewable-2025"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": {
+        "actualBillYen": 12000,
+        "calculatedYen": 13746,
+        "differenceYen": -1746
+      }
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v2",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2026-09",
+      "amps": 60,
+      "kwh": 303,
+      "currentPlanId": "mitsu-b",
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "mitsu-b",
+      "results": [
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "totalYen": 9715,
+          "deltaYen": 0,
+          "tariffVersion": "mitsu-b-202609-v1",
+          "sourceIds": [
+            "mitsu-rate-202404",
+            "mitsu-base",
+            "mitsu-terms-211",
+            "mitsu-vessel-rate",
+            "mitsu-vessel-terms-202511",
+            "mitsu-vessel-contract-201",
+            "mitsu-fuel-202609",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 9775,
+          "deltaYen": 60,
+          "tariffVersion": "eneos-v-202609-v1",
+          "sourceIds": [
+            "eneos-terms-202509",
+            "eneos-fuel-index",
+            "eneos-fuel-202609",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 9922,
+          "deltaYen": 207,
+          "tariffVersion": "tokyo-gas-basic-202609-v1",
+          "sourceIds": [
+            "gas-rate-202503",
+            "gas-terms-202506",
+            "gas-cycle",
+            "gas-fuel-202609",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 10065,
+          "deltaYen": 350,
+          "tariffVersion": "tepco-b-202609-v1",
+          "sourceIds": [
+            "tepco-terms-202604",
+            "tepco-round-202604",
+            "tepco-levy-202604",
+            "tepco-support-202607",
+            "tepco-fuel-202609",
+            "renewable-2026"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": null
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v2",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2026-10",
+      "amps": 10,
+      "kwh": 1,
+      "currentPlanId": "tepco-b",
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "tepco-b",
+      "results": [
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 336,
+          "deltaYen": 0,
+          "tariffVersion": "eneos-v-202610-v1",
+          "sourceIds": [
+            "eneos-terms-202509",
+            "eneos-fuel-index",
+            "eneos-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 336,
+          "deltaYen": 0,
+          "tariffVersion": "tepco-b-202610-v1",
+          "sourceIds": [
+            "tepco-terms-202604",
+            "tepco-round-202604",
+            "tepco-levy-202604",
+            "tepco-support-202607",
+            "tepco-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 336,
+          "deltaYen": 0,
+          "tariffVersion": "tokyo-gas-basic-202610-v1",
+          "sourceIds": [
+            "gas-rate-202610",
+            "gas-terms-202610",
+            "gas-change-202610",
+            "gas-cycle",
+            "gas-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "totalYen": 338,
+          "deltaYen": 2,
+          "tariffVersion": "mitsu-b-202610-v1",
+          "sourceIds": [
+            "mitsu-rate-202404",
+            "mitsu-base",
+            "mitsu-terms-211",
+            "mitsu-vessel-rate",
+            "mitsu-vessel-terms-202511",
+            "mitsu-vessel-contract-201",
+            "mitsu-fuel-202610",
+            "renewable-2026"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": null
+    }
+  },
+  {
+    "version": "2026-10-20.tokyo-v2",
+    "input": {
+      "area": "tokyo",
+      "billingMonth": "2026-10",
+      "amps": 30,
+      "kwh": 260,
+      "currentPlanId": "tepco-b",
+      "fullCycle": true
+    },
+    "expected": {
+      "baselineId": "tepco-b",
+      "results": [
+        {
+          "planId": "eneos-v",
+          "provider": "ENEOSでんき",
+          "name": "東京Vプラン",
+          "totalYen": 8058,
+          "deltaYen": -217,
+          "tariffVersion": "eneos-v-202610-v1",
+          "sourceIds": [
+            "eneos-terms-202509",
+            "eneos-fuel-index",
+            "eneos-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "mitsu-b",
+          "provider": "ミツウロコでんき",
+          "name": "従量電灯B（関東）",
+          "totalYen": 8070,
+          "deltaYen": -205,
+          "tariffVersion": "mitsu-b-202610-v1",
+          "sourceIds": [
+            "mitsu-rate-202404",
+            "mitsu-base",
+            "mitsu-terms-211",
+            "mitsu-vessel-rate",
+            "mitsu-vessel-terms-202511",
+            "mitsu-vessel-contract-201",
+            "mitsu-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tokyo-gas-basic",
+          "provider": "東京ガス",
+          "name": "基本プラン",
+          "totalYen": 8163,
+          "deltaYen": -112,
+          "tariffVersion": "tokyo-gas-basic-202610-v1",
+          "sourceIds": [
+            "gas-rate-202610",
+            "gas-terms-202610",
+            "gas-change-202610",
+            "gas-cycle",
+            "gas-fuel-202610",
+            "renewable-2026"
+          ]
+        },
+        {
+          "planId": "tepco-b",
+          "provider": "東京電力エナジーパートナー",
+          "name": "従量電灯B",
+          "totalYen": 8275,
+          "deltaYen": 0,
+          "tariffVersion": "tepco-b-202610-v1",
+          "sourceIds": [
+            "tepco-terms-202604",
+            "tepco-round-202604",
+            "tepco-levy-202604",
+            "tepco-support-202607",
+            "tepco-fuel-202610",
+            "renewable-2026"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "planId": "octopus-green",
+          "provider": "オクトパスエナジー",
+          "name": "グリーンオクトパス 2025-05（東京）",
+          "reasonCode": "daily_billing_and_fuel_not_verified"
+        }
+      ],
+      "reconciliation": null
+    }
+  }
+]

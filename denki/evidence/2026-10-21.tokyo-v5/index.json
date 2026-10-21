@@ -1,0 +1,89 @@
+{
+  "retrievedAt": "2026-10-21T06:19:50.505Z",
+  "entries": [
+    {
+      "url": "https://a.storyblok.com/f/122730/x/f3e556d071/_2026-12-1.pdf",
+      "file": "_2026-12-1.pdf",
+      "sha256": "f471f02571b8b1f13dcb0d55aeabfbf885917c86d02e1780af3526ddf3002856",
+      "bytes": 1249617
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/bb974dfd6c/_250317.pdf",
+      "file": "_250317.pdf",
+      "sha256": "99862cc7cac01eaf98099e2e097f547281161a9a0afeaa5e803ba8c04e49ffe1",
+      "bytes": 338638
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/5ebddf63fa/_greenoctopus-2026-10-tokyo.pdf",
+      "file": "_greenoctopus-2026-10-tokyo.pdf",
+      "sha256": "ffc0895ebd90ccafbd0e6fbc70a107442d3fb87163a81fb3836c648152dbf3c5",
+      "bytes": 197998
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/e2541792da/_greenoctopus-2026-04-tokyo.pdf",
+      "file": "_greenoctopus-2026-04-tokyo.pdf",
+      "sha256": "c14c177dde3cbaf3f4e1d830e89794bcef34b70a0ef2c6033092b0b9481eabcc",
+      "bytes": 198207
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/a9f2a9f355/_greenoctopus-2025-05-tokyo.pdf",
+      "file": "_greenoctopus-2025-05-tokyo.pdf",
+      "sha256": "89a3145c462990674066f28f471a33aa984bc95a5608c17cec64d793a87ef53b",
+      "bytes": 198129
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/4fbd10fa11/20260630_-_.pdf",
+      "file": "20260630_-_.pdf",
+      "sha256": "4bc7b9e9fd8409651f61c537587f4f606e3965529b3a153ae4c40cee89c629e9",
+      "bytes": 104869
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/4a6017231e/2026-05.pdf",
+      "file": "2026-05.pdf",
+      "sha256": "0c8e7417b870937a2abd2e71a5e2e6db8a2f571177b266927f5906543091431e",
+      "bytes": 233268
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/b29470d82f/2026-06.pdf",
+      "file": "2026-06.pdf",
+      "sha256": "1b051052588bfdaa0c801c273858725f67b7f37577af607470d3594f0e1b47b1",
+      "bytes": 236326
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/6dec1a3882/2026-07.pdf",
+      "file": "2026-07.pdf",
+      "sha256": "1b1bd69d9a9a2530f92fbaf70df44ea0ec78fea925abee86527371312d336133",
+      "bytes": 248400
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/726ecca2ec/2026-08.pdf",
+      "file": "2026-08.pdf",
+      "sha256": "82c9416b8de584cb27ce7db33a6136738fc62f3a683f5a61d07eec4df9a592e9",
+      "bytes": 48552
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/7b4adc51cc/2026-09.pdf",
+      "file": "2026-09.pdf",
+      "sha256": "cdefc62c618d9948ee6ae33c6545ff2c49298bbf592907fd2b88b0dc07a730e4",
+      "bytes": 48659
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/ba4a1d7b6e/2026-10.pdf",
+      "file": "2026-10.pdf",
+      "sha256": "3a89adfa63a4138d9a0bf2bf50ea3e8e7d062a43ac8bf30c057b8af184f9189e",
+      "bytes": 48701
+    },
+    {
+      "url": "https://a.storyblok.com/f/122730/x/ae167b8a44/fy2026_.pdf",
+      "file": "fy2026_.pdf",
+      "sha256": "3af6f6153556a1b946f46f7d91579bf9d8c756e8f67d00b5ff5a0f200746c4d6",
+      "bytes": 54278
+    },
+    {
+      "url": "https://octopusenergy.co.jp/terms",
+      "file": "terms.html",
+      "sha256": "63753ffbd1d38ce28063d87c322b6913687e12c90c50bc39d23b299a815b18d8",
+      "bytes": 1857106
+    }
+  ]
+}

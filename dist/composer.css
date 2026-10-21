@@ -1,0 +1,278 @@
+/* The topic composer is isolated from the forum shell and shared dialogs. */
+.compose-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  height: 100dvh;
+  color: #30343b;
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+  container-type: inline-size;
+}
+.compose-root *, .compose-root *::before, .compose-root *::after { box-sizing: border-box; }
+.compose-root [hidden] { display: none !important; }
+.compose-root button, .compose-root input, .compose-root textarea { font: inherit; }
+.compose-root button { cursor: pointer; color: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.compose-root button:disabled { cursor: default; opacity: .55; }
+.compose-root button:focus-visible, .compose-root input:focus-visible, .compose-root textarea:focus-visible, .compose-root [tabindex]:focus-visible { outline: 3px solid #7899bf; outline-offset: 3px; }
+.compose-root svg { display: block; width: 20px; height: 20px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.compose-root .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.compose-root .muted { color: #858b94; }
+body.composer-open { overflow: hidden; }
+body.composer-open .assistant-launcher, body.composer-open .assistant-panel { display: none !important; }
+.compose-root .scrim { position: absolute; inset: 0; background: #1a20282b; pointer-events: auto; }
+
+.compose-root .composer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  height: 72%;
+  min-height: min(460px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e1e5e9;
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+  box-shadow: 0 -8px 40px #2532451c;
+  pointer-events: auto;
+}
+.compose-root .composer.maximized { inset: 16px 16px 0; transform: none; width: calc(100% - 32px); max-width: none; height: calc(100% - 16px); min-height: 0; max-height: calc(100% - 16px); }
+.compose-root .composer[aria-busy="true"] { cursor: progress; }
+.compose-root .composer-header { display: flex; align-items: center; justify-content: space-between; flex: 0 0 56px; height: 56px; gap: 12px; padding: 0 20px 0 28px; border-bottom: 1px solid #e9ecf0; }
+.compose-root .composer-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.compose-root .composer-title > svg { color: #707783; }
+.compose-root .composer-title h1, .compose-root .composer-title h2 { margin: 0; overflow: hidden; color: #30343b; font-size: 16px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.compose-root .window-actions { display: flex; flex-shrink: 0; gap: 2px; }
+.compose-root .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; padding: 8px; border: 0; background: transparent; border-radius: 8px; color: #828995; }
+.compose-root .icon-button:hover, .compose-root .tool-button:hover { background: #f0f2f5; color: #303943; }
+.compose-root #write-form { display: flex; flex: 1; min-height: 0; margin: 0; flex-direction: column; }
+.compose-root .metadata-row { display: flex; align-items: stretch; flex: 0 0 56px; height: 56px; padding: 0 28px; border-bottom: 1px solid #edf0f3; }
+.compose-root .category-field { position: relative; display: flex; align-items: center; width: 100%; min-width: 0; }
+.compose-root .metadata-row .category-field { width: 50%; flex: 1 1 50%; padding-right: 20px; border-right: 1px solid #edf0f3; }
+.compose-root .tags-field { position: relative; display: flex; align-items: center; gap: 8px; width: 50%; flex: 1 1 50%; min-width: 0; padding-left: 20px; }
+.compose-root #write-tags { flex: 1; width: auto; min-width: 44px; }
+.compose-root #write-tags::after { content: '+'; font-size: 22px; margin-left: auto; line-height: 1; }
+.compose-root #write-tag-chips { display: flex; align-items: center; flex: 1; gap: 5px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+.compose-root #write-tag-chips:empty { display: none; }
+.compose-root #write-tag-chips:not(:empty) + #write-tags { flex: 0 0 36px; width: 36px; font-size: 0; }
+.compose-root #write-tag-chips button { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; min-height: 32px; padding: 4px 8px; border: 1px solid #e1e6eb; border-radius: 6px; background: #f7f8fa; color: #667180; font-size: 12px; white-space: nowrap; }
+.compose-root #write-tags-menu { left: auto; right: 0; width: 340px; max-width: calc(100cqw - 56px); }
+.compose-root #write-tag-search { display: block; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid #dfe4ea; border-radius: 7px; font-size: 16px; }
+.compose-root .tag-limit { margin: 7px 2px; color: #7b8490; font-size: 11px; }
+.compose-root #write-tag-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+.compose-root #write-tag-options button { min-width: 0; min-height: 44px; padding: 7px 9px; border: 0; border-radius: 6px; background: transparent; color: #5f6a79; font-size: 13px; text-align: left; overflow-wrap: anywhere; }
+.compose-root #write-tag-options button:hover { background: #f4f6f8; }
+.compose-root #write-tag-options button[aria-pressed="true"] { background: #edf1f6; color: #3e5877; }
+.compose-root .metadata-button { display: inline-flex; align-items: center; gap: 9px; width: 100%; min-height: 44px; padding: 5px 0; border: 0; background: transparent; color: #7c8490; font-size: 13px; text-align: left; }
+.compose-root .metadata-button:hover { color: #343d49; }
+.compose-root .metadata-button > svg { width: 15px; height: 15px; margin-left: auto; }
+.compose-root #write-category-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compose-root .category-dot { display: inline-block; width: 8px; height: 8px; flex-shrink: 0; border-radius: 2px; background: var(--category-color, #dda66c); }
+.compose-root [data-write-category="visa"] .category-dot { background: #91a1bf; }
+.compose-root [data-write-category="work"] .category-dot { background: #8fb4a3; }
+.compose-root [data-write-category="car"] .category-dot { background: #c7aa88; }
+.compose-root [data-write-category="daily"] .category-dot { background: #b29ab9; }
+.compose-root .popover { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; min-width: 230px; max-width: calc(100cqw - 56px); max-height: min(320px, calc(100dvh - 220px)); padding: 10px; overflow-y: auto; border: 1px solid #e0e5eb; border-radius: 12px; background: #fff; box-shadow: 0 10px 30px #1d2c421f; }
+.compose-root .popover-header { display: block; padding: 5px 8px 10px; color: #939ba5; font-size: 12px; }
+.compose-root .category-option, .compose-root .more-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 9px 10px; border: 0; background: transparent; border-radius: 7px; color: #6b7582; text-align: left; font-size: 13px; }
+.compose-root .category-option:hover, .compose-root .more-menu button:hover { background: #f2f4f7; }
+.compose-root .category-option[aria-selected="true"], .compose-root .category-option[aria-pressed="true"] { background: #edf1f6; color: #465c77; }
+.compose-root .title-row { display: flex; align-items: center; gap: 16px; flex: 0 0 64px; height: 64px; padding: 0 28px; border-bottom: 1px solid #edf0f3; }
+.compose-root #write-title { width: 100%; min-width: 0; flex: 1; padding: 8px 0; border: 0; background: transparent; color: #333943; font-size: 22px; font-weight: 600; }
+.compose-root #write-title::placeholder { color: #a6abb3; font-weight: 500; }
+.compose-root #write-title-count { min-width: 52px; color: #a6adb7; font-size: 11px; text-align: right; white-space: nowrap; }
+.compose-root .writing-area { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); grid-template-areas: "editor"; flex: 1; min-height: 0; gap: 24px; padding: 24px 28px 18px; overflow: hidden; }
+.compose-root .writing-area:has(#write-tip:not([hidden])) { grid-template-columns: minmax(0, 1fr) 340px; grid-template-areas: "editor tip"; }
+.compose-root .writing-area:has(#write-images-region:not([hidden])) { grid-template-rows: minmax(96px, 1fr) auto; grid-template-areas: "editor" "media"; overflow-y: auto; gap: 12px 24px; }
+.compose-root .writing-area:has(#write-images-region:not([hidden])):has(#write-tip:not([hidden])) { grid-template-areas: "editor tip" "media tip"; }
+.compose-root .compose-images-region { grid-area: media; min-width: 0; }
+.compose-root .compose-image-hint { margin: 0 0 7px; color: #7b8490; font-size: 11px; line-height: 1.5; }
+.compose-root .compose-images { display: flex; gap: 10px; max-width: 100%; padding: 2px 2px 8px; overflow-x: auto; scrollbar-width: thin; }
+.compose-root .compose-image-card { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 4px 9px; flex: 0 0 264px; min-width: 0; min-height: 104px; padding: 8px; border: 1px solid #e2e7ed; border-radius: 9px; background: #fafbfc; }
+.compose-root .compose-image-card > img { grid-column: 1; grid-row: 1 / span 5; display: block; width: 76px; height: 76px; object-fit: cover; border-radius: 5px; background: #edf0f4; }
+.compose-root .compose-image-card > :not(img) { grid-column: 2; min-width: 0; margin: 0; }
+.compose-root .compose-image-card p, .compose-root .compose-image-card span { color: #687484; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.compose-root .compose-image-card progress { width: 100%; max-width: 140px; height: 6px; accent-color: #7e94ae; }
+.compose-root .compose-image-card button { min-height: 36px; padding: 4px 8px; border: 1px solid #dce2e9; border-radius: 6px; background: #fff; color: #667589; font-size: 11px; }
+.compose-root .compose-image-card button + button { margin-left: 4px; }
+.compose-root .body-stack, .compose-root .preview { grid-area: editor; min-width: 0; min-height: 0; }
+.compose-root .body-stack { display: flex; flex-direction: column; overflow: hidden; }
+.compose-root #write-body { display: block; flex: 1; min-height: 0; width: 100%; padding: 0 3px 0 0; border: 0; resize: none; overflow: auto; background: transparent; color: #3a414a; font-size: 16px; line-height: 1.9; }
+.compose-root #write-body::placeholder { color: #a4abb5; }
+.compose-root #write-title:focus:not(:focus-visible), .compose-root #write-body:focus:not(:focus-visible) { outline: none; }
+.compose-root .writing-area:has(#write-preview:not([hidden])) .body-stack { display: none; }
+.compose-root .preview { overflow: auto; color: #3a414a; font-size: 16px; line-height: 1.9; }
+.compose-root .tip-card { grid-area: tip; align-self: start; min-width: 0; max-height: 100%; overflow: auto; background: #fff; border: 1px solid #e8ebef; border-radius: 18px; box-shadow: 0 12px 36px #25334817; }
+.compose-root .tip-heading { display: flex; align-items: center; justify-content: space-between; min-height: 48px; gap: 8px; padding: 8px 12px 0 20px; }
+.compose-root #write-tip-expand { padding: 0; border: 0; background: transparent; color: #535d6b; font-size: 14px; font-weight: 600; text-align: left; }
+.compose-root .tip-body { padding: 0 20px 20px; color: #8a929d; font-size: 13px; line-height: 1.8; }
+.compose-root .tip-body p { margin: 7px 0 12px; }
+.compose-root .link-button { padding: 0; border: 0; background: transparent; color: #718ba9; font-size: 13px; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.compose-root .form-error { flex: 0 0 auto; margin: 0; max-height: 72px; padding: 8px 28px; overflow-y: auto; background: #fff3f1; color: #b06055; font-size: 12px; }
+.compose-root .compose-notice { display: flex; align-items: center; flex: 0 0 auto; flex-wrap: wrap; gap: 6px 12px; max-height: 100px; padding: 8px 28px; overflow-y: auto; border-top: 1px solid #eee5d4; background: #fcf8ed; color: #8b7953; font-size: 12px; line-height: 1.6; }
+.compose-root .compose-notice > p, .compose-root .compose-notice > span { flex: 1 1 240px; margin: 0; }
+.compose-root .compose-notice button { flex-shrink: 0; min-height: 36px; padding: 5px 10px; border: 1px solid #dfd5bd; border-radius: 7px; background: #fffdf6; color: #806b40; font-size: 12px; }
+.compose-root .compose-notice button:hover { background: #f5edda; }
+.compose-root .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: 0 0 76px; min-height: 76px; padding: 12px 28px; border-top: 1px solid #e9ecf0; background: #fff; }
+.compose-root .footer-tools { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.compose-root .mode-tabs { display: flex; flex-shrink: 0; gap: 2px; padding: 3px; border: 1px solid #e5e9ee; border-radius: 8px; background: #f5f6f8; }
+.compose-root .mode-tabs button { min-height: 32px; padding: 5px 10px; border: 0; border-radius: 5px; background: transparent; color: #9aa2ad; font-size: 13px; white-space: nowrap; }
+.compose-root .mode-tabs button[aria-pressed="true"] { background: #fff; color: #535e6d; box-shadow: 0 1px 4px #25344912; }
+.compose-root .format-tools { display: flex; align-items: center; gap: 1px; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.compose-root .tool-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 34px; height: 40px; padding: 7px; border: 0; border-radius: 7px; background: transparent; color: #8d96a3; font-size: 15px; }
+.compose-root .tool-button[data-write-format="bold"] { font-weight: 700; }
+.compose-root .tool-button[data-write-format="italic"] { font-family: Georgia, serif; font-style: italic; }
+.compose-root .tool-button[data-write-format="heading"] { font-family: Georgia, serif; }
+.compose-root .footer-actions { display: flex; align-items: center; flex-shrink: 0; gap: 12px; margin-left: auto; }
+.compose-root .draft-state { color: #a1a8b2; font-size: 11px; white-space: nowrap; }
+.compose-root .secondary-button, .compose-root .publish-button, .compose-root .danger-button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 16px; border: 1px solid #e2e6eb; border-radius: 10px; background: #fff; color: #7e8896; font-size: 13px; white-space: nowrap; }
+.compose-root .secondary-button:hover { border-color: #bdc7d2; color: #475768; }
+.compose-root .publish-button { min-width: 128px; min-height: 44px; border: 0; border-radius: 12px; color: #fff; background: #24282f; font-weight: 600; }
+.compose-root .publish-button:hover { background: #3d454f; }
+.compose-root .danger-button { border: 0; color: #fff; background: #a4534f; }
+.compose-root .popover.more-menu { top: auto; bottom: 76px; left: 190px; width: 220px; }
+
+.compose-root .draft-bar { position: absolute; bottom: 16px; left: 16px; display: flex; align-items: center; gap: 12px; width: 640px; max-width: calc(100% - 220px); padding: 12px 16px; border: 1px solid #e1e6ed; border-radius: 14px; background: #fff; box-shadow: 0 8px 30px #283b5721; pointer-events: auto; }
+.compose-root .draft-title, .compose-root #write-draft-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5d6978; }
+.compose-root .draft-bar small { flex-shrink: 0; color: #a0a9b4; font-size: 10px; white-space: nowrap; }
+.compose-root #write-resume { flex-shrink: 0; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 7px; background: #edf1f6; color: #62758f; font-size: 12px; }
+.compose-root dialog.small-dialog { width: min(460px, calc(100cqw - 32px), calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 24px; overflow: auto; border: 0; border-radius: 18px; background: #fff; color: #626e7d; box-shadow: 0 24px 90px #17263c38; font-size: 14px; line-height: 1.8; pointer-events: auto; }
+.compose-root dialog.small-dialog::backdrop { background: #141a2459; }
+.compose-root dialog h2 { margin: 0 0 12px; color: #3d4857; font-size: 19px; font-weight: 600; }
+.compose-root dialog p + p { margin-top: 12px; }
+.compose-root .dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.compose-root .dialog-heading h2 { margin: 0; }
+.compose-root .dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+/* Only explicitly marked Markdown posts use these rules; plain posts keep pre-wrap. */
+.post-body.markdown-body, .compose-root .preview { white-space: normal; overflow-wrap: anywhere; }
+.post-body.markdown-body > :first-child, .compose-root .preview > :first-child { margin-top: 0; }
+.post-body.markdown-body > :last-child, .compose-root .preview > :last-child { margin-bottom: 0; }
+.post-body.markdown-body p, .compose-root .preview p { margin: 0 0 .85em; }
+.post-body.markdown-body h1, .post-body.markdown-body h2, .post-body.markdown-body h3, .compose-root .preview h1, .compose-root .preview h2, .compose-root .preview h3 { margin: 1em 0 .5em; color: inherit; font-size: 1.25em; font-weight: 600; line-height: 1.5; }
+.post-body.markdown-body ul, .post-body.markdown-body ol, .compose-root .preview ul, .compose-root .preview ol { margin: .6em 0 1em; padding-left: 1.7em; }
+.post-body.markdown-body ul, .compose-root .preview ul { list-style: disc; }
+.post-body.markdown-body ol, .compose-root .preview ol { list-style: decimal; }
+.post-body.markdown-body li, .compose-root .preview li { margin: .2em 0; }
+.post-body.markdown-body li > p, .compose-root .preview li > p { margin-bottom: .25em; }
+.post-body.markdown-body blockquote, .compose-root .preview blockquote { margin: 12px 0; padding: 2px 14px; border-left: 3px solid #d4dce5; color: #7a8795; }
+.post-body.markdown-body blockquote > :last-child, .compose-root .preview blockquote > :last-child { margin-bottom: 0; }
+.post-body.markdown-body pre, .compose-root .preview pre { margin: 12px 0; padding: 14px; overflow: auto; border-radius: 8px; background: #f3f5f7; font-size: 13px; line-height: 1.6; white-space: pre; overflow-wrap: normal; tab-size: 4; }
+.post-body.markdown-body code, .compose-root .preview code { padding: 2px 4px; border-radius: 4px; background: #f0f3f6; font-family: Consolas, "Courier New", monospace; font-size: .9em; white-space: break-spaces; }
+.post-body.markdown-body pre code, .compose-root .preview pre code { padding: 0; background: transparent; white-space: pre; }
+.post-body.markdown-body a, .compose-root .preview a { color: #526f94; text-decoration: underline; text-underline-offset: 3px; }
+.post-body.markdown-body hr, .compose-root .preview hr { margin: 20px 0; border: 0; border-top: 1px solid #e1e6ec; }
+.post-body.markdown-body img, .compose-root .preview img { max-width: 100%; height: auto; border-radius: 8px; }
+.topic-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.topic-tag { min-height: 28px; padding: 3px 8px; border: 1px solid #e2e6eb; border-radius: 6px; background: #f7f8fa; color: #6c7785; font: inherit; font-size: 11px; cursor: pointer; overflow-wrap: anywhere; }
+.topic-tag:hover { background: #edf1f5; color: #425770; }
+.detail-summary { flex-wrap: wrap; }
+.topic-image-count, .tag-filter-scope { display: inline-block; margin: 6px 0 0; color: #7b8490; font-size: 11px; }
+.tag-filter-scope { display: block; margin: 0 0 16px; }
+.topic-image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; max-width: 960px; margin: 20px 0 10px; }
+.topic-image-gallery a { display: block; min-width: 0; border: 1px solid #e3e7ec; border-radius: 10px; overflow: hidden; background: #f5f7f9; }
+.topic-image-gallery img { display: block; width: 100%; max-width: 100%; height: auto; max-height: 480px; object-fit: contain; }
+
+@container (max-width: 1050px) {
+  .compose-root .composer-footer { flex: 0 0 auto; flex-wrap: wrap; min-height: 116px; row-gap: 8px; }
+  .compose-root .footer-tools { width: 100%; }
+  .compose-root .footer-actions { width: 100%; justify-content: flex-end; }
+  .compose-root .draft-state { margin-right: auto; }
+  .compose-root .popover.more-menu { bottom: 116px; }
+}
+
+@container (max-width: 760px) {
+  .compose-root .composer, .compose-root .composer.maximized { inset: 0; transform: none; width: 100%; height: 100%; min-height: 0; max-height: 100%; max-width: none; border: 0; border-radius: 0; }
+  .compose-root .composer-header { height: 48px; flex-basis: 48px; padding: 0 8px 0 16px; gap: 4px; }
+  .compose-root .composer-title { gap: 8px; }
+  .compose-root .composer-title h1, .compose-root .composer-title h2 { font-size: 15px; }
+  .compose-root .composer-title > svg { width: 18px; height: 18px; }
+  .compose-root #write-maximize { display: none; }
+  .compose-root .window-actions { gap: 0; }
+  .compose-root .icon-button { width: 44px; height: 44px; }
+  .compose-root .metadata-row { height: 44px; flex-basis: 44px; padding: 0 16px; }
+  .compose-root .metadata-row { height: 88px; flex-basis: 88px; flex-direction: column; }
+  .compose-root .metadata-row .category-field { width: 100%; flex: 0 0 44px; padding-right: 0; border-right: 0; }
+  .compose-root .tags-field { width: 100%; flex: 0 0 44px; padding-left: 0; border-top: 1px solid #edf0f3; }
+  .compose-root #write-tags-menu { max-width: calc(100cqw - 32px); }
+  .compose-root #write-tag-chips button { min-height: 44px; }
+  .compose-root .metadata-button { font-size: 13px; }
+  .compose-root .popover { max-width: calc(100cqw - 32px); }
+  .compose-root .title-row { height: 52px; flex-basis: 52px; gap: 8px; padding: 0 16px; }
+  .compose-root #write-title { font-size: 20px; }
+  .compose-root #write-title-count { min-width: 46px; font-size: 10px; }
+  .compose-root .writing-area { gap: 12px; padding: 14px 16px; }
+  .compose-root .writing-area:has(#write-tip:not([hidden])) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "tip" "editor"; }
+  .compose-root .writing-area:has(#write-images-region:not([hidden])) { grid-template-rows: minmax(96px, 1fr) auto; grid-template-areas: "editor" "media"; overflow-y: auto; }
+  .compose-root .writing-area:has(#write-images-region:not([hidden])):has(#write-tip:not([hidden])) { grid-template-rows: auto minmax(96px, 1fr) auto; grid-template-areas: "tip" "editor" "media"; }
+  .compose-root .compose-image-card button { min-height: 44px; }
+  .compose-root .tip-card { width: 100%; max-height: none; border-radius: 12px; box-shadow: 0 3px 12px #25334808; overflow: hidden; }
+  .compose-root .tip-heading { min-height: 44px; padding: 0 4px 0 12px; }
+  .compose-root #write-tip-expand { display: flex; align-items: center; align-self: stretch; flex: 1; min-height: 44px; font-size: 12px; font-weight: 500; }
+  .compose-root .tip-body { display: none; max-height: 120px; overflow: auto; padding: 0 14px 12px; font-size: 12px; }
+  .compose-root .tip-card.expanded .tip-body, .compose-root .tip-card:has(#write-tip-expand[aria-expanded="true"]) .tip-body { display: block; }
+  .compose-root .tip-body p { margin: 0 0 8px; }
+  .compose-root #write-guide { min-height: 44px; }
+  .compose-root .composer-footer { flex-direction: column; align-items: stretch; flex-wrap: nowrap; flex-basis: auto; min-height: calc(108px + env(safe-area-inset-bottom, 0px)); padding: 0 16px env(safe-area-inset-bottom, 0px); gap: 0; }
+  .compose-root .footer-tools { width: 100%; height: 44px; flex-shrink: 0; gap: 8px; }
+  .compose-root .mode-tabs { padding: 2px; }
+  .compose-root .mode-tabs button { min-height: 36px; padding: 5px 8px; font-size: 12px; }
+  .compose-root .format-tools { flex: 1; margin-left: auto; gap: 0; }
+  .compose-root .tool-button { width: 44px; height: 44px; }
+  .compose-root .footer-actions { width: 100%; height: 64px; flex-shrink: 0; gap: 8px; }
+  .compose-root .draft-state { flex: 1; min-width: 0; margin-right: auto; font-size: 10px; white-space: normal; line-height: 1.5; }
+  .compose-root .secondary-button, .compose-root .danger-button { min-height: 44px; padding: 9px 12px; }
+  .compose-root .publish-button { min-width: 104px; min-height: 44px; }
+  .compose-root .popover.more-menu { bottom: calc(108px + env(safe-area-inset-bottom, 0px)); left: auto; right: 16px; max-width: calc(100% - 32px); }
+  .compose-root .form-error { padding: 8px 16px; }
+  .compose-root .compose-notice { gap: 4px 8px; max-height: 120px; padding: 6px 16px; font-size: 11px; }
+  .compose-root .compose-notice > p, .compose-root .compose-notice > span { flex-basis: 100%; }
+  .compose-root .compose-notice button { min-height: 44px; }
+  .compose-root .draft-bar { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); gap: 8px; width: calc(100% - 32px); max-width: calc(100% - 32px); padding: 8px 12px; }
+  .compose-root .draft-bar > svg { display: none; }
+  .compose-root .draft-bar small { max-width: 70px; font-size: 9px; white-space: normal; }
+  .compose-root dialog.small-dialog { padding: 20px; }
+}
+
+/* Compact fixed rows retain an editable body on short landscape screens. */
+@media (max-height: 480px) and (min-width: 761px) {
+  .compose-root .composer, .compose-root .composer.maximized { inset: 0; transform: none; width: 100%; max-width: none; height: 100%; min-height: 0; max-height: 100%; border-radius: 0; }
+  .compose-root .composer-header { height: 44px; flex-basis: 44px; }
+  .compose-root .metadata-row { height: 44px; flex-basis: 44px; }
+  .compose-root .title-row { height: 48px; flex-basis: 48px; }
+  .compose-root .writing-area { padding: 10px 16px; gap: 12px; }
+  .compose-root .composer-footer { flex: 0 0 60px; min-height: calc(60px + env(safe-area-inset-bottom, 0px)); flex-direction: row; flex-wrap: nowrap; padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); gap: 12px; }
+  .compose-root .footer-tools { width: auto; flex: 1; gap: 8px; overflow: hidden; }
+  .compose-root .footer-actions { width: auto; height: 44px; }
+  .compose-root .draft-state { display: none; }
+  .compose-root .popover.more-menu { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-height: 480px) {
+  .compose-root .popover { max-height: max(80px, calc(100dvh - 180px)); }
+  .compose-root .compose-notice { max-height: 60px; }
+  .compose-root dialog.small-dialog { max-height: calc(100dvh - 24px); padding: 16px 20px; }
+  @container (max-width: 760px) {
+    .compose-root .composer-header { height: 44px; flex-basis: 44px; }
+    .compose-root .title-row { height: 44px; flex-basis: 44px; }
+    .compose-root .writing-area { padding: 8px 16px; gap: 12px; }
+    .compose-root .writing-area:has(#write-tip:not([hidden])) { grid-template-columns: minmax(0, 1fr) min(240px, 40%); grid-template-rows: minmax(0, 1fr); grid-template-areas: "editor tip"; }
+    .compose-root .metadata-row { height: 44px; flex-basis: 44px; flex-direction: row; }
+    .compose-root .metadata-row .category-field { width: 45%; flex: 0 0 45%; padding-right: 12px; border-right: 1px solid #edf0f3; }
+    .compose-root .tags-field { width: 55%; flex: 1; padding-left: 12px; border-top: 0; }
+    .compose-root .writing-area:has(#write-images-region:not([hidden])):has(#write-tip:not([hidden])) { grid-template-rows: minmax(80px, 1fr) auto; grid-template-areas: "editor tip" "media tip"; }
+    .compose-root .tip-card { max-height: 100%; overflow: auto; }
+    .compose-root .compose-notice { flex-wrap: nowrap; }
+    .compose-root .compose-notice > p, .compose-root .compose-notice > span { flex-basis: auto; min-width: 0; }
+  }
+}
+@media (max-width: 760px) { .topic-tag { min-height: 44px; padding: 8px 10px; } .topic-image-gallery { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: no-preference) {
+  .compose-root button { transition: background-color .12s ease, border-color .12s ease, color .12s ease; }
+}

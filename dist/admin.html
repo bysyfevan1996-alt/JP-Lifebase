@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f3f3f3">
+  <title>Japan Life Base</title>
+  <link rel="stylesheet" href="/admin.css?v=20261021102240577">
+  <script type="module" src="/admin.js?v=20261021102240577"></script>
+</head>
+<body>
+  <a href="#admin-main" class="skip-link" data-label="skip">跳到管理内容</a>
+  <header class="admin-topbar">
+    <a class="brand" href="/">Japan Life Base</a>
+    <div class="admin-header-actions">
+      <a href="/" class="back-community" data-label="back">返回社区</a>
+      <label class="language-control"><span data-label="language">语言</span><select id="admin-language" aria-label="语言" data-i18n-aria="language"><option value="system">跟随系统</option><option value="ja">日本語</option><option value="en">English</option><option value="zh-CN" selected>简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option></select></label>
+    </div>
+  </header>
+  <div id="translation-notice" class="translation-notice" role="status" hidden></div>
+  <div id="language-suggestion" class="language-suggestion" role="status" hidden></div>
+  <section id="admin-gate" class="admin-gate" role="status"><p data-label="loading">加载中…</p></section>
+  <div id="admin-layout" class="admin-layout" hidden>
+    <aside class="admin-sidebar"><nav aria-label="管理后台" data-i18n-aria="admin"><button data-view="overview" data-label="overview" class="active" aria-current="page">概览</button><button data-view="topics" data-label="topics">话题</button><button data-view="users" data-label="users">用户</button><button data-view="reports" data-label="reports">举报</button><button data-view="contacts" data-label="contacts">联系留言</button><button data-view="audit" data-label="audit">管理日志</button></nav></aside>
+    <main id="admin-main" class="admin-main" tabindex="-1">
+      <div class="admin-heading"><h1 id="view-heading">概要</h1><span id="admin-identity"></span></div>
+      <div id="view-status" class="view-status" role="status" hidden></div>
+      <section id="admin-content" aria-busy="true"></section>
+    </main>
+  </div>
+</body>
+</html>
