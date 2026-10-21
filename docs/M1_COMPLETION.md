@@ -46,9 +46,9 @@ M1核实时线上已升级为`20261021T070826Z-denki-v5`，应用0.1.1/schema1�
 
 ## 仓库与维护
 
-完整运行源码、公开电价证据、测试和文档交付到专属仓库；保留原本的两条Git历史，不强推。排除生产库、环境文件、密钥、临时发布包和旧预览元数据。GitHub检查仅测试，不自动发布。最终推送及CI结果在本节交付收尾时补充。
+完整运行源码、公开电价证据、测试和文档已推送到[专属仓库main](https://github.com/bysyfevan1996-alt/JP-Lifebase)。功能提交`5a6e558`，历史合并提交`9bfac0b`；保留原本两条Git历史，未强推。188个运行文件的Git暂存字节与线上发布清单逐一匹配，排除生产库、环境文件、密钥、临时发布包和旧预览元数据。[GitHub Actions首次检查](https://github.com/bysyfevan1996-alt/JP-Lifebase/actions/runs/39585038719)已成功，字典、Node测试和Python检查步骤均通过；工作流不自动发布生产。此后交付记录提交以仓库最新历史为准。
 
-已同步更新本机`jplifebase-community`的SKILL.md和community/frontend/deployment三份参考，官方quick_validate通过。后续按新增迁移维护，版本1和2均冻结，schema1旧代码不作为schema2数据库的自动恢复候选。
+已同步更新本机`jplifebase-community`的SKILL.md和community/frontend/deployment三份参考；`jplifebase-denki`只同步共用语言偏好和检查说明，不改变资费约定。两个skill均通过官方quick_validate。后续按新增迁移维护，版本1和2均冻结，schema1旧代码不作为schema2数据库的自动恢复候选。
 
 ## 限制
 
