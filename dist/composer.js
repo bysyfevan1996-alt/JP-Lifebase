@@ -1,6 +1,6 @@
-import {renderMarkdown} from './markdown.js?v=20261021102240577';
-import {createDraftStore} from './compose-drafts.js?v=20261021102240577';
-import {createComposerExtras} from './composer-extras.js?v=20261021102240577';
+import {renderMarkdown} from './markdown.js?v=20261021110501783';
+import {createDraftStore} from './compose-drafts.js?v=20261021110501783';
+import {createComposerExtras} from './composer-extras.js?v=20261021110501783';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const drawings = {

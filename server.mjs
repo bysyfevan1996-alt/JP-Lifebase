@@ -114,10 +114,13 @@ async function batchTranslate(entries,target){
  }));
  return {automatic,unavailable};
 }
-async function getTopic(id,target){
+async function getTopic(id,target,replyWindow='first'){
+ if(!['first','latest'].includes(replyWindow))throw httpError(400,'invalid_reply_window');
  const row=q(topicQuery+' WHERE t.id=? AND t.hidden=0').get(id);if(!row)throw httpError(404,'topic_not_found');
  const localized=await localizedTopics([row],target,true),topic=localized.topics[0];
- const replies=q('SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? ORDER BY p.created_at,p.id LIMIT 250').all(id);
+ const direction=replyWindow==='latest'?'DESC':'ASC';
+ const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
+ if(replyWindow==='latest')replies.reverse();
  const posts=[{id:'first-'+id,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
  let automatic=localized.translation.automatic,unavailable=localized.translation.unavailable;
  const pending=[];
@@ -126,7 +129,7 @@ async function getTopic(id,target){
   posts.push(p);
  }
  const translated=await batchTranslate(pending,target);automatic||=translated.automatic;unavailable||=translated.unavailable;
- return {topic,posts,translation:{automatic,unavailable,language:target}};
+ return {topic,posts,replyWindow:{mode:replyWindow,total:topic.replies,loaded:replies.length,hasEarlier:replyWindow==='latest'&&topic.replies>replies.length,hasLater:replyWindow==='first'&&topic.replies>replies.length},translation:{automatic,unavailable,language:target}};
 }
 async function api(req,res,url){
  const route=url.pathname,method=req.method,target=language(url.searchParams.get('lang')||'zh-CN');
@@ -163,7 +166,7 @@ async function api(req,res,url){
  }
  const match=route.match(/^\/api\/topics\/([a-zA-Z0-9_-]{1,100})(?:\/(replies|report))?$/);
  if(match){const id=match[1];
-  if(method==='GET'&&!match[2]){limit(req,'read',120,60000);return json(res,200,await getTopic(id,target));}
+  if(method==='GET'&&!match[2]){limit(req,'read',120,60000);return json(res,200,await getTopic(id,target,url.searchParams.get('replyWindow')||'first'));}
   if(method==='POST'&&match[2]==='replies'){
    const previous=policy.postingRequired(req);limit(req,'reply',15,10*60000);const b=await body(req),user=policy.postingRequired(req);if(user.id!==previous.id)throw httpError(409,'account_changed');const content=text(b.body,1,6000),lang=language(b.language||'zh-CN');if(lang==='original')throw httpError(400,'invalid_language');
    if(!q('SELECT id FROM topics WHERE id=? AND hidden=0').get(id))throw httpError(404,'topic_not_found');

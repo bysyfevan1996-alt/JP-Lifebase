@@ -1,0 +1,73 @@
+// Maintained interface translations; user-written posts are not translated here.
+export const readingCopy={
+ en:{
+  topicReadingNav:'Topic navigation',
+  readingOriginal:'Original post',
+  readingReplies:'View replies · {count}',
+  readingLatest:'Latest reply',
+  readingLatestLoaded:'Last loaded reply',
+  readingWrite:'Write a reply',
+  readingReturn:'Back to where you were',
+  readingNoReplies:'No replies yet',
+  readingRepliesHeading:'Replies · {count}',
+  readingFirstReply:'Write the first reply',
+  readingMoreReplies:'Showing the first {count} replies.',
+  readingLatestWindow:'Showing the last {count} replies.'
+ },
+ ja:{
+  topicReadingNav:'話題内の移動',
+  readingOriginal:'本文',
+  readingReplies:'返信を見る · {count}',
+  readingLatest:'最新の返信',
+  readingLatestLoaded:'読み込み済みの最後の返信',
+  readingWrite:'返信を書く',
+  readingReturn:'先ほど読んでいた場所へ',
+  readingNoReplies:'返信はまだありません',
+  readingRepliesHeading:'返信 · {count}',
+  readingFirstReply:'最初の返信を書く',
+  readingMoreReplies:'最初の{count}件の返信を表示しています。',
+  readingLatestWindow:'最新の{count}件の返信を表示しています。'
+ },
+ 'zh-CN':{
+  topicReadingNav:'话题导航',
+  readingOriginal:'正文',
+  readingReplies:'查看回复 · {count}',
+  readingLatest:'最新回复',
+  readingLatestLoaded:'最后一条已加载回复',
+  readingWrite:'写回复',
+  readingReturn:'返回刚才位置',
+  readingNoReplies:'暂无回复',
+  readingRepliesHeading:'回复 · {count}',
+  readingFirstReply:'写第一条回复',
+  readingMoreReplies:'当前显示前 {count} 条回复。',
+  readingLatestWindow:'当前显示最后 {count} 条回复。'
+ },
+ 'zh-TW':{
+  topicReadingNav:'話題導覽',
+  readingOriginal:'正文',
+  readingReplies:'查看回覆 · {count}',
+  readingLatest:'最新回覆',
+  readingLatestLoaded:'最後一則已載入回覆',
+  readingWrite:'寫回覆',
+  readingReturn:'返回剛才位置',
+  readingNoReplies:'暫無回覆',
+  readingRepliesHeading:'回覆 · {count}',
+  readingFirstReply:'寫第一則回覆',
+  readingMoreReplies:'目前顯示前 {count} 則回覆。',
+  readingLatestWindow:'目前顯示最後 {count} 則回覆。'
+ },
+ ko:{
+  topicReadingNav:'게시글 탐색',
+  readingOriginal:'본문',
+  readingReplies:'답글 보기 · {count}',
+  readingLatest:'최신 답글',
+  readingLatestLoaded:'불러온 마지막 답글',
+  readingWrite:'답글 쓰기',
+  readingReturn:'읽던 위치로 돌아가기',
+  readingNoReplies:'아직 답글이 없습니다',
+  readingRepliesHeading:'답글 · {count}',
+  readingFirstReply:'첫 답글 쓰기',
+  readingMoreReplies:'처음 {count}개의 답글을 표시합니다.',
+  readingLatestWindow:'마지막 {count}개의 답글을 표시합니다.'
+ }
+};

@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {mkdtemp,mkdir} from 'node:fs/promises';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+import {applySchema} from '../schema.mjs';
+import {testPort} from './test-port.mjs';
+test('long topics expose chronological first/latest windows including equal timestamps and enforce public visibility',async()=>{
+ const root=fileURLToPath(new URL('../',import.meta.url));await mkdir(path.join(root,'artifacts/test-tmp'),{recursive:true});
+ const dir=await mkdtemp(path.join(root,'artifacts/test-tmp/reading-')),db=new DatabaseSync(path.join(dir,'community.sqlite'));
+ applySchema(db);
+ const date='2026-10-01T00:00:00.000Z';
+ db.prepare('INSERT INTO users(id,name,email,password,salt,role,created_at) VALUES(?,?,?,?,?,?,?)').run('reader','Reader','reader@example.test','unused','unused','member',date);
+ for(const id of ['long','empty','hidden'])db.prepare('INSERT INTO topics(id,title,body,excerpt,category,user_id,author,avatar,language,created_at,updated_at,hidden) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(id,'Long reading topic','Original text remains intact','Original text','daily','reader','Reader','R','en',date,date,Number(id==='hidden'));
+ for(let i=0;i<253;i++)db.prepare('INSERT INTO posts(id,topic_id,user_id,body,language,created_at) VALUES(?,?,?,?,?,?)').run('reply-'+String(i).padStart(3,'0'),'long','reader','Reply '+i,'en',date);
+ db.close();
+ const env={...process.env,PORT:await testPort(),JPL_DATA_DIR:dir,JPL_SEED:'0',NODE_ENV:'test',COOKIE_SECURE:'0'};
+ for(const key of Object.keys(env))if(/^(TRANSLATION_|RESEND_|MAIL_)/.test(key)||key==='AUTH_TOKEN_SECRET')delete env[key];
+ const child=spawn(process.execPath,['server.mjs'],{cwd:root,env,stdio:['ignore','pipe','pipe']});
+ const base=await new Promise((resolve,reject)=>{child.stdout.on('data',b=>{const match=String(b).match(/http:\/\/127\.0\.0\.1:\d+/);if(match)resolve(match[0]);});child.once('exit',()=>reject(Error('Reading test server exited')));});
+ try{
+  const first=await(await fetch(base+'/api/topics/long?lang=original')).json();
+  assert.equal(first.topic.body,'Original text remains intact');assert.equal(first.topic.replies,253);
+  assert.equal(first.posts[1].id,'reply-000');assert.equal(first.posts.at(-1).id,'reply-249');assert.equal(first.replyWindow.hasLater,true);
+  const latest=await(await fetch(base+'/api/topics/long?lang=original&replyWindow=latest')).json();
+  assert.equal(latest.posts.length,251);assert.equal(latest.posts[1].id,'reply-003');assert.equal(latest.posts.at(-1).id,'reply-252');assert.equal(latest.replyWindow.hasEarlier,true);assert.equal(latest.replyWindow.hasLater,false);
+  assert.equal((await fetch(base+'/api/topics/long?replyWindow=invalid')).status,400);
+  assert.equal((await fetch(base+'/api/topics/hidden?replyWindow=latest')).status,404);
+  const empty=await(await fetch(base+'/api/topics/empty?replyWindow=latest')).json();assert.equal(empty.posts.length,1);assert.equal(empty.replyWindow.total,0);assert.equal(empty.replyWindow.loaded,0);
+ }finally{await new Promise(resolve=>{child.once('exit',resolve);child.kill();});}
+});

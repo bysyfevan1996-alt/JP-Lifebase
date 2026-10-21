@@ -1,7 +1,7 @@
-import {ensureLanguageOption} from './language-ui.js?v=20261021102240577';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021102240577';
-import {resolveLocale} from './locale.js?v=20261021102240577';
-import {dictionaries} from './admin-i18n.js?v=20261021102240577';
+import {ensureLanguageOption} from './language-ui.js?v=20261021110501783';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261021110501783';
+import {resolveLocale} from './locale.js?v=20261021110501783';
+import {dictionaries} from './admin-i18n.js?v=20261021110501783';
 
 const $=selector=>document.querySelector(selector);
 const views=['overview','topics','users','reports','contacts','audit'];

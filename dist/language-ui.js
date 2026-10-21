@@ -1,4 +1,4 @@
-import {resolveLocale} from './locale.js?v=20261021102240577';
+import {resolveLocale} from './locale.js?v=20261021110501783';
 
 export function ensureLanguageOption(select,preference,language){
  if([...select.options].some(option=>option.value===preference))return;

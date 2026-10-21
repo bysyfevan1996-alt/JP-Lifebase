@@ -1,4 +1,4 @@
-import {normalizeTopicTags} from './topic-tags.js?v=20261021102240577';
+import {normalizeTopicTags} from './topic-tags.js?v=20261021110501783';
 const PREFIX = 'jlb-compose-v1:';
 const TTL = 7 * 24 * 60 * 60 * 1000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

@@ -23,7 +23,7 @@ export function checkDictionary(name,dictionaries){
 export async function auditDictionaries(){
  const groups={site,admin,denki,composer},errors=Object.entries(groups).flatMap(([name,copy])=>checkDictionary(name,copy));
  const editor=Object.fromEntries(manualLanguages.map(language=>[language,{...site[language],...composer[language]}]));
- const sources=[['site',editor,['app.js','language-ui.js']],['auth',site,['auth-ui.js']],['admin',admin,['admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js']]];
+ const sources=[['site',editor,['app.js','language-ui.js','reading-nav.js']],['auth',site,['auth-ui.js']],['admin',admin,['admin.js','language-ui.js']],['denki',denki,['denki.js','language-ui.js']],['composer',editor,['composer.js','composer-extras.js','composer-images.js']]];
  for(const [group,copy,files]of sources)for(const file of files){
   const source=await readFile(new URL('../dist/'+file,import.meta.url),'utf8');
   for(const key of staticTranslationKeys(source))for(const language of manualLanguages)if(typeof copy[language][key]!=='string')errors.push(`${group}/${language}/${file}: unknown key ${key}`);
