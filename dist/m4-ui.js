@@ -1,6 +1,6 @@
-import {categoryLabel} from './community-directory.js?v=20261022012917915';
-import {renderMarkdown} from './markdown.js?v=20261022012917915';
-import {formatContentTime} from './content-time.js?v=20261022012917915';
+import {categoryLabel} from './community-directory.js?v=20261022042008490';
+import {renderMarkdown} from './markdown.js?v=20261022042008490';
+import {formatContentTime} from './content-time.js?v=20261022042008490';
 
 const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const button=(text,work,className='m4-button')=>{const node=element('button',text,className);node.type='button';node.onclick=work;return node;};
@@ -84,6 +84,7 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
   const owner=getUser()?.id||null,ticket=generation,life=new AbortController();let active=true,interaction=null,changing=false;
   const alive=()=>active&&current(owner,ticket)&&root.isConnected;
   const controls=element('section',undefined,'m4-topic-controls'),actions=element('div',undefined,'m4-topic-actions'),hint=element('p',undefined,'m4-subscription-note'),error=element('div'),label=element('label'),select=element('select',undefined,'m4-subscription'),bookmark=button(t('m4Bookmark'),()=>change('bookmark',{bookmarked:!interaction?.bookmark})),answer=button(t('m4BestAnswer'),()=>interaction?.answerPostId&&source({kind:'post',id:interaction.answerPostId},answer)),newCount=element('span',undefined,'m4-seen-count'),seen=button(t('m4Seen'),()=>change('seen',{}));
+  bookmark.setAttribute('data-topic-bookmark','');
   for(const [value,[key]]of Object.entries(subscriptionKeys)){const option=element('option',t(key));option.value=value;select.append(option);}select.setAttribute('aria-label',t('m4Subscription'));select.disabled=true;label.append(element('span',t('m4Subscription'),'m4-subscription-label'),select);actions.append(label,bookmark,answer,newCount,seen);controls.append(actions,hint,error);(root.querySelector('.reading-nav')?root.querySelector('.reading-nav').append(controls):root.querySelector('.posts').before(controls));bookmark.disabled=true;answer.hidden=seen.hidden=newCount.hidden=true;
   const answerButtons=[];
   function render(){if(!interaction||!alive())return;select.value=interaction.subscription||'normal';hint.textContent=t(subscriptionKeys[select.value]?.[1]||'m4NormalHint');select.title=hint.textContent;bookmark.textContent=t(interaction.bookmark?'m4Bookmarked':'m4Bookmark');bookmark.setAttribute('aria-pressed',String(!!interaction.bookmark));answer.hidden=!interaction.answerPostId;answer.textContent=t('m4Solved')+' · '+t('m4BestAnswer');newCount.textContent=t('m4NewReplies',{count:interaction.newReplies||0});newCount.hidden=seen.hidden=!owner||!interaction.newReplies;

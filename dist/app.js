@@ -1,23 +1,24 @@
-import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261022012917915';
-import {m5Dictionaries} from './m5-i18n.js?v=20261022012917915';
-import {createM5UI,searchURL} from './m5-ui.js?v=20261022012917915';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022012917915';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261022012917915';
-import {categories,avatarColors} from './topics.js?v=20261022012917915';
-import {selectTopics} from './select-topics.js?v=20261022012917915';
-import {icon} from './icons.js?v=20261022012917915';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261022012917915';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261022012917915';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261022012917915';
-import {createContentUI} from './m3-ui.js?v=20261022012917915';
-import {m3Dictionaries} from './m3-i18n.js?v=20261022012917915';
-import {createCommunityInteractionsUI} from './m4-ui.js?v=20261022012917915';
-import {m4Dictionaries} from './m4-i18n.js?v=20261022012917915';
-import {createComposer} from './composer.js?v=20261022012917915';
-import {composerDictionaries} from './composer-i18n.js?v=20261022012917915';
-import {renderMarkdown} from './markdown.js?v=20261022012917915';
-import {createReadingNavigation} from './reading-nav.js?v=20261022012917915';
-import {topicTags} from './topic-tags.js?v=20261022012917915';
+import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261022042008490';
+import {m5Dictionaries} from './m5-i18n.js?v=20261022042008490';
+import {createM5UI,searchURL} from './m5-ui.js?v=20261022042008490';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022042008490';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261022042008490';
+import {categories,avatarColors} from './topics.js?v=20261022042008490';
+import {selectTopics} from './select-topics.js?v=20261022042008490';
+import {icon} from './icons.js?v=20261022042008490';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261022042008490';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261022042008490';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261022042008490';
+import {createContentUI} from './m3-ui.js?v=20261022042008490';
+import {m3Dictionaries} from './m3-i18n.js?v=20261022042008490';
+import {createCommunityInteractionsUI} from './m4-ui.js?v=20261022042008490';
+import {m4Dictionaries} from './m4-i18n.js?v=20261022042008490';
+import {createComposer} from './composer.js?v=20261022042008490';
+import {composerDictionaries} from './composer-i18n.js?v=20261022042008490';
+import {renderMarkdown} from './markdown.js?v=20261022042008490';
+import {createReadingNavigation} from './reading-nav.js?v=20261022042008490';
+import {createMobileReading} from './mobile-reading.js?v=20261022042008490';
+import {topicTags} from './topic-tags.js?v=20261022042008490';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 for(const [language,copy] of Object.entries(m3Dictionaries))Object.assign(dictionaries[language],copy);
@@ -41,7 +42,7 @@ const avatarPalette=[...avatarColors,['#e4e8f2','#7484a8'],['#f0e4ec','#99758c']
 const avatar=p=>{const [bg,fg]=avatarPalette[Math.abs(Number(p.tone)||0)%avatarPalette.length];const url=typeof p.avatarUrl==='string'&&/^\/api\/avatars\/[A-Za-z0-9_-]+\/[A-Fa-f0-9]{1,128}$/.test(p.avatarUrl)?p.avatarUrl:null;return `<span class="avatar" style="--av-bg:${bg};--av-fg:${fg}" aria-hidden="true"><span>${escape(p.avatar||Array.from(p.name||p.author||'?')[0])}</span>${url?`<img data-avatar-image src="${escape(url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:''}</span>`;};
 const categoryTag=id=>{const c=categories[id]||categories.daily;return `<button class="category-tag" data-category="${escape(id)}" style="--cat:${c.color};--tag-bg:${c.bg};--tag-fg:${c.fg}"><span class="category-marker"></span>${escape(categoryLabel(id,state.language,t))}</button>`;};
 const tagName=id=>tagLabel(id,state.language,t);
-const topicTagMarkup=ids=>(Array.isArray(ids)?ids:[]).filter(id=>topicTags.some(tag=>tag.id===id)).slice(0,5).map(id=>`<button type="button" class="topic-tag" data-topic-tag="${escape(id)}">${escape(tagName(id))}</button>`).join('');
+const topicTagMarkup=ids=>(Array.isArray(ids)?ids:[]).filter(id=>topicTags.some(tag=>tag.id===id)).slice(0,5).map(id=>`<button type="button" class="topic-tag" data-topic-tag="${escape(id)}"><span>${escape(tagName(id))}</span></button>`).join('');
 function bindTopicTags(parent){parent.querySelectorAll('[data-topic-tag]').forEach(button=>button.onclick=()=>setTag(button.dataset.topicTag));}
 function attachmentGallery(items){
  const gallery=document.createElement('div');gallery.className='topic-image-gallery';
@@ -176,7 +177,7 @@ function renderDetail(result){
 
  mobile.innerHTML='<button type="button" class="reading-action" data-reading-mobile-left data-reading-action="replies"><span class="reading-action-icon">'+icon('message')+'</span><span class="reading-action-label">'+escape(t('readingRepliesLabel'))+'</span><span class="reading-count">'+Number(topic.replies||0)+'</span></button>'+navButton('write','readingWrite',true);
  mobile.hidden=false;document.body.classList.add('topic-reading');
- function mountReading(){const bookmark=readingNavigation?.getBookmark()||readingState.bookmark;readingNavigation?.destroy();readingNavigation=createReadingNavigation({root,mobile,t,bookmark,replyInput:document.getElementById('reply-text'),onBookmark:point=>{readingState.bookmark=point?{...point,window:readingState.window}:null;},onWindow:action=>{
+ function mountReading(){const bookmark=readingNavigation?.getBookmark()||readingState.bookmark;readingNavigation?.destroy();readingNavigation=createReadingNavigation({root,mobile,t,bookmark,replyInput:document.getElementById('reply-text'),onWrite:()=>contentUI?.openWriter()||false,onBookmark:point=>{readingState.bookmark=point?{...point,window:readingState.window}:null;},onWindow:action=>{
   const mode=action==='return'?readingState.bookmark?.window:action==='latest'?'latest':action==='replies'?'first':null;
   const needed=mode&&mode!==readingState.window&&(action==='return'||action==='latest'&&result.replyWindow?.hasLater||action==='replies'&&result.replyWindow?.hasEarlier);
   if(!needed)return false;
@@ -185,7 +186,9 @@ function renderDetail(result){
  mountReading();
  bindCategories(root);bindTopicTags(root);
  contentUI=createContentUI({root,topic,posts:result.posts||[],api,t,getUser:()=>state.user,getLanguage:()=>state.language,replyState:replyDrafts.get(replyDraftKey(topic.id))||{},onReplyState:value=>{savedReplyDraft={topicId:topic.id,owner:state.user?.id||null,...value};replyDrafts.set(replyDraftKey(topic.id),savedReplyDraft);},navigateWrite:()=>readingNavigation.navigate('write'),onLayout:mountReading,onAuth:()=>openAuth('login',null,'reply'),onChanged:async jump=>{const owner=state.user?.id||null,scroll=window.scrollY;await loadTopics();if(state.topicId===topic.id&&(state.user?.id||null)===owner){await loadDetail(topic.id,jump==='latest'?'latest':readingState.window,jump==='latest'?'latest':null);if(jump!=='latest')window.scrollTo({top:scroll,behavior:'instant'});}},onHidden:async content=>{const owner=state.user?.id||null,current=()=>state.topicId===topic.id&&(state.user?.id||null)===owner;if(!current())return;if(content.kind==='topic'){navigateHome();await loadTopics();}else{await loadTopics();if(current())await loadDetail(topic.id);}},toast});
- disposeInteractions=interactionsUI?.attachTopic({root,topic,posts:result.posts||[]})||null;mountReading();
+ const disposeTopic=interactionsUI?.attachTopic({root,topic,posts:result.posts||[]});
+ const phoneReading=createMobileReading({root,topic,t,onBack:()=>$('#back-to-list').click(),onSearch:()=>toggleAssistant(true),onMenu:()=>$('#menu-toggle').click()});
+ disposeInteractions=()=>{phoneReading.destroy();disposeTopic?.();};mountReading();
 }
 const dialog=$('#site-dialog');
 function openDialog(title,html){privateRequest++;$('#dialog-title').textContent=title;$('#dialog-body').innerHTML=html;svgInit($('#dialog-body'));closeFilter();closeDrawer();if(!dialog.open)dialog.showModal();}

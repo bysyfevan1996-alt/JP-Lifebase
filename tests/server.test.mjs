@@ -8,6 +8,7 @@ import {mkdtemp,rm,mkdir,readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const packageVersion=JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version;
 const testTemp=path.join(root,'artifacts','test-tmp');
 await mkdir(testTemp,{recursive:true});
 async function launch(dataDir){
@@ -54,7 +55,7 @@ test('accounts, persistent posts, private messages, contacts and origin boundari
  const data=await mkdtemp(path.join(testTemp,'jpl-test-'));let app=await launch(data);
  try{
   const health=(await app.request('/api/health')).body;
-  assert.equal(health.version,'0.5.0');assert.equal(health.releaseId,'development');assert.equal(health.schemaVersion,5);assert.match(health.sourceSha256,/^[a-f0-9]{64}$/);assert.equal(typeof health.datasetVersion,'string');
+  assert.equal(health.version,packageVersion);assert.equal(health.releaseId,'development');assert.equal(health.schemaVersion,5);assert.match(health.sourceSha256,/^[a-f0-9]{64}$/);assert.equal(typeof health.datasetVersion,'string');
   assert.equal((await app.request('/api/topics')).body.topics.length,0);
   assert.equal((await app.request('/api/topics','POST',{title:'Example',body:'Public topic',category:'daily'})).status,401);
   const a=await app.register({name:'OwnerTest',email:'owner@example.test',password:'example-password-123'});assert.equal(a.status,201);assert.equal(a.body.user.role,'member');assert(a.cookie);

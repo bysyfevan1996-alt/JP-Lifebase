@@ -6,6 +6,8 @@ Live community: https://www.jp-lifebase.com/
 
 ## Current M5
 
+Phone topic reading now uses a dedicated 52px toolbar, full-width body text and a flush bottom reply rail. Bookmark/subscription controls reuse the existing server-backed state in an options sheet; the reply action opens the same full-screen editor. Desktop keeps its existing reading card. See `docs/MOBILE_READING_RELEASE.md` for behavior and actual release evidence.
+
 M5 adds full-corpus original topic/reply search with multilingual trigram indexing and literal short-word fallback, advanced filters and pagination; opt-in public profiles with private activity settings; editable category/tag catalogs; defined UTC operational metrics; and canonical original topic HTML at `/t/<id>`. Legacy hash links remain usable. The current guide is published in site announcements and linked from the sidebar after acceptance. See `docs/M5_COMPLETION.md` for actual validation and release status. M2 full discussion pagination and cross-device paragraph progress remain separate work.
 
 M4 adds persistent in-site notifications, topic watching/tracking/normal/muted modes, stable public handles and mentions, private bookmarks, mutually exclusive reactions, best answers and solved filtering. Edits display an absolute Japan-time timestamp; private author/admin history supports older-version pagination and source text. See `docs/M4_COMPLETION.md` for current acceptance and deployment evidence. Older milestone sections below retain their historical context. Email notifications and private messaging remain out of scope.

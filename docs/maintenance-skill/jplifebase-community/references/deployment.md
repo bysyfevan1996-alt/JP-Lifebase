@@ -101,3 +101,8 @@ M4应用0.4.0/schema4追加迁移4；1–3冻结。必须打包community-interac
 用户指南使用docs/USER_GUIDE.json、固定request-id、现有管理员，通过ops/publish-announcement --publish --pin发布并审计；重放不重复建帖。实际topic ID返回后将左栏guide href改为/t/id，移除旧data-info短弹窗拦截，使用站内导航保留草稿，再发布资产变更。不要伪造未知topic ID或把未发布的指南当成可访问链接。最终发布与指南证据见docs/M5_COMPLETION.md。
 
 M5实际最终发布20261021T225400Z-m5-guide，0.5.0/schema5、231文件，源码摘要29d4225c95156fa6df2ca395e9663ad48a4a6ae0a9777e00ef6375166499dc64，电费v5不变。262项Node、4项Python和五语检查通过，原32表迁移前缀/记录保留、含FTS的41表恢复通过，14份备份校验及两域名公网/既有服务正常。指南topic32122823-b43c-46b6-95ba-6625763f03c7已置顶，站务中先显示指南，再按原版本顺序。以上为本次历史证据，不代表未来任务已重跑。
+
+
+## 手机阅读独立布局发布
+
+20261022T042225Z-mobile-reading，0.5.1/schema5，239文件，sourceSha256 5368275f2531bfddce3b559ce466bd1c950b6b92888db9d518c60647765e8ff0；274项Node/4项安装器/五语检查通过，真实41表副本无新增迁移、账本保留及恢复通过，电费仍v5。原指南以现有管理员通过edit-user-guide更新为v3（保留创建时间/编辑历史）并再次备份。Chrome手机320/390与桌面1440正式验证通过；iPhone Safari键盘/地址栏尚未真机验收。发布细节查项目docs/MOBILE_READING_RELEASE.md，历史次数不代表后续重跑。

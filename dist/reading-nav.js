@@ -1,10 +1,10 @@
-import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261022012917915';
-import {readingControls} from './reading-controls.js?v=20261022012917915';
-import {icon} from './icons.js?v=20261022012917915';
-import {createReadingHeader} from './reading-header.js?v=20261022012917915';
+import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261022042008490';
+import {readingControls} from './reading-controls.js?v=20261022042008490';
+import {icon} from './icons.js?v=20261022042008490';
+import {createReadingHeader} from './reading-header.js?v=20261022042008490';
 
 // Page-local return points. No browser history or persistent read/unread state.
-export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow,replyInput=null}){
+export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow,onWrite,replyInput=null}){
  const controller=new AbortController(),options={signal:controller.signal};
  const original=root.querySelector('#topic-original'),replies=root.querySelector('#topic-replies');
  const desktop=root.querySelector('.reading-nav'),input=replyInput||root.querySelector('#reply-text');
@@ -64,6 +64,7 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
   if(disposed)return;
   if(['replies','latest','write'].includes(action)){if(rememberPosition)remember();jumped=true;}
   if(onWindow?.(action,returnPoint))return;
+  if(action==='write'&&onWrite?.())return;
   if(action==='return'&&returnPoint){
    const point=returnPoint;restoring=true;jumped=false;
    const restore=()=>{

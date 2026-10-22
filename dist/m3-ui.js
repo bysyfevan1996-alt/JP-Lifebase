@@ -1,8 +1,8 @@
-import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261022012917915';
-import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261022012917915';
-import {createReplyMedia} from './m3-media.js?v=20261022012917915';
-import {createReplyWriting} from './reply-writing.js?v=20261022012917915';
-import {formatContentTime} from './content-time.js?v=20261022012917915';
+import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261022042008490';
+import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261022042008490';
+import {createReplyMedia} from './m3-media.js?v=20261022042008490';
+import {createReplyWriting} from './reply-writing.js?v=20261022042008490';
+import {formatContentTime} from './content-time.js?v=20261022042008490';
 
 const el=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const action=(text,handler,className='')=>{const node=el('button',text,className);node.type='button';node.onclick=handler;return node;};
@@ -129,5 +129,5 @@ export function createContentUI({root,topic,posts,api,t,getUser,getLanguage,onCh
  if(getUser()?.role==='admin'){const manage=el('div',undefined,'m3-moderation');manage.append(action(t('m3HiddenReplies'),hiddenReplies));replyHost.append(manage);}
  writing=createReplyWriting({host:replyHost,textarea:input,editor,t,topicTitle:topic.title,expanded:replyState.fullscreen,onState:()=>{if(current())onReplyState(snapshot());}});
  quoteMarkup(refs,state.quotes,true);controls();if(editDraft?.owner===actor){const retained={...editDraft};queueMicrotask(()=>{if(current())edit({kind:retained.kind,id:retained.id},retained);});}
- return {getReplyState:snapshot,destroy(){disposed=true;lifecycle.abort();writing?.destroy();media.destroy();for(const editor of editors)editor.destroy();for(const state of translations.values())state.controller?.abort();for(const modal of [...dialogs])modal.close();selectionButton.remove();document.body.classList.remove('m3-dialog-open');}};
+ return {getReplyState:snapshot,openWriter(){if(!matchMedia('(max-width:760px)').matches)return false;writing?.open();return !!writing?.isExpanded();},destroy(){disposed=true;lifecycle.abort();writing?.destroy();media.destroy();for(const editor of editors)editor.destroy();for(const state of translations.values())state.controller?.abort();for(const modal of [...dialogs])modal.close();selectionButton.remove();document.body.classList.remove('m3-dialog-open');}};
 }

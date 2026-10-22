@@ -143,3 +143,12 @@ community-directory.js维护动态目录并更新categories/topicTags；所有�
 M4通知与收藏已合入.reading-nav：宽屏右卡底部、窄桌面同横栏、手机仅显示这一行控件并保留独立底部阅读双按钮；提示用title及可访问隐藏文本，不占说明行。窄屏nowrap且局部横向可滚，不能挤出页面。attachTopic之后重新mountReading测量吸顶标题高度，避免新增控件覆盖正文；返回、焦点和全屏草稿继续保留。
 
 左栏“使用指南”指向正式帖子`/t/32122823-b43c-46b6-95ba-6625763f03c7`，#guide-link使用站内navigatePage保留草稿，不能恢复data-info=guide旧短弹窗。正文源稿docs/USER_GUIDE.md/json；后续功能变化编辑原指南，避免反复创建同名帖。指南保留置顶标识，但排序遵从上文最新倒序规则；不改原公告真实时间。
+
+
+## 手机帖子阅读独立布局（2026-10-22）
+
+760px 及以下仅 body.topic-reading 用 mobile-reading.js/css：52px 单行顶栏代替全站双行栏，标题在正文随滚动离开，顶栏过阈值后显示一行话题名；正文16px/1.86、两侧16px，头像与作者同排。标签小视觉/44px触控，书签是图标。底部查看回复/写回复贴屏幕底边、无外围圆角/阴影，56px+safe-area，正文预留底部空间。不要恢复浮动卡片。
+
+话题选项原生dialog移动同一个M4通知/收藏控件，不复制状态；工具栏代理真实bookmark button并同步disabled/aria-pressed。错误保留重试，切桌面将原控件归还灰色话题导航卡；路由销毁关闭面板/observer/listeners。搜索是全社区搜索，别标本帖搜索。更多菜单可打开社区导航。
+
+reading-header以root.dataset.mobileReading为动态布局标记，手机inset64px，不计已滚走的标题；切回电脑仍测量原顶栏+返回行+收缩标题。手机写回复调用现有createReplyWriting.open移动同一表单，保留输入、引用、上传回执、预览及账号隔离，收起恢复阅读位置。电脑仍行内回复。验证含手机/桌面切换、选项关闭后的焦点、长草稿/引用/图片原节点与清理；自动化不代替iPhone真机键盘验收。发布证据查docs/MOBILE_READING_RELEASE.md。

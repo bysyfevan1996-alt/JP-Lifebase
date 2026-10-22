@@ -49,6 +49,15 @@ test('sticky title reserves expanded height, shrinks on both layouts, remeasures
   globalThis.window.scrollY=0;controller.update();
   assert.equal(header.style.getPropertyValue('--reading-progress'),'0');
   assert.ok(!('compact' in header.dataset));assert.equal(classes.has('is-stuck'),false);
+  root.dataset={mobileReading:'true'};globalThis.window.scrollY=300;controller.update();
+  assert.equal(controller.inset(),64,'dedicated phone bar excludes the scrolling article title');
+  assert.equal(root.style.getPropertyValue('--reading-live-height'),'0px');
+  assert.equal(header.style.getPropertyValue('--reading-expanded-height'),undefined);
+  assert.equal(header.style.getPropertyValue('--reading-progress'),'0');
+  assert.equal(classes.has('is-stuck'),false);
+  root.dataset.mobileReading='false';expanded=240;controller.update();
+  assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'240px','same-width transition restores desktop measurement');
+  assert.equal(controller.inset(),284,'desktop still includes its header surface');
   controller.destroy();controller=null;assert.equal(disconnected,true);
   assert.equal(root.style.getPropertyValue('--reading-live-height'),undefined);
  }finally{controller?.destroy();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key]}}
