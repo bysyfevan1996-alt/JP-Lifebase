@@ -1,4 +1,4 @@
-import {readingHeaderProgress} from './reading-header-state.js?v=20261022012556469';
+import {readingHeaderProgress} from './reading-header-state.js?v=20261022012917915';
 
 // Keep a stable space in the document while the visible sticky header shrinks.
 export function createReadingHeader(root){

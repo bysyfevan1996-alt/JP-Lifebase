@@ -1,8 +1,8 @@
-import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261022012556469';
-import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261022012556469';
-import {createReplyMedia} from './m3-media.js?v=20261022012556469';
-import {createReplyWriting} from './reply-writing.js?v=20261022012556469';
-import {formatContentTime} from './content-time.js?v=20261022012556469';
+import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261022012917915';
+import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261022012917915';
+import {createReplyMedia} from './m3-media.js?v=20261022012917915';
+import {createReplyWriting} from './reply-writing.js?v=20261022012917915';
+import {formatContentTime} from './content-time.js?v=20261022012917915';
 
 const el=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const action=(text,handler,className='')=>{const node=el('button',text,className);node.type='button';node.onclick=handler;return node;};

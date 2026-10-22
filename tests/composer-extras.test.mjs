@@ -32,6 +32,7 @@ async function fixture(work){
 test('custom tag confirmation selects and persists a real tag, blocks publishing in flight, and respects IME',async()=>fixture(async f=>{
  f.extras.setDraft({},'draft-a');f.nodes['tag-search'].value='街头摄影';f.nodes['tag-search'].oninput();
  f.nodes['tag-search'].listeners.keydown({key:'Enter',isComposing:true,preventDefault(){throw Error('IME must remain untouched')}});assert.equal(f.calls.length,0);
+ for(const modifier of ['ctrlKey','metaKey','altKey']){f.nodes['tag-search'].listeners.keydown({key:'Enter',[modifier]:true,preventDefault(){throw Error('Modified Enter belongs to existing shortcuts')}});assert.equal(f.calls.length,0);}
  const pending=deferred();f.setApi(()=>pending.promise);const create=f.nodes['tag-options'].children.find(row=>row.dataset?.createTag);
  const work=create.onclick();assert.equal(f.extras.hasBlockingWork(),true);assert.equal(f.calls[0][0],'/api/tags');assert.deepEqual(JSON.parse(f.calls[0][1].body),{name:'街头摄影',expectedUserId:'alice'});
  const tag={id:'tag-custom',name:'街头摄影',translations:{},active:true,position:200};const catalog=structuredClone(getDirectory());

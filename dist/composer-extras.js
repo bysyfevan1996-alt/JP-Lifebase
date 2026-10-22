@@ -1,7 +1,7 @@
-import {tagLabel,applyDirectory} from './community-directory.js?v=20261022012556469';
-import {normalizeTagName,tagNameKey} from './tag-name.js?v=20261022012556469';
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261022012556469';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261022012556469';
+import {tagLabel,applyDirectory} from './community-directory.js?v=20261022012917915';
+import {normalizeTagName,tagNameKey} from './tag-name.js?v=20261022012917915';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261022012917915';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261022012917915';
 
 export function createComposerExtras({root,t,api,getContext,getLanguage=()=>document.documentElement?.lang||'en',onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);
@@ -120,7 +120,7 @@ export function createComposerExtras({root,t,api,getContext,getLanguage=()=>docu
  }
  $('tags').onclick=()=>{if(!mutable())return;const open=$('tags-menu').hidden;$('tags-menu').hidden=!open;$('tags').setAttribute('aria-expanded',String(open));if(open)$('tag-search').focus();};
  $('tag-search').oninput=renderTags;
- $('tag-search').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if($('tag-search').value.trim())addNamedTag();}});
+ $('tag-search').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if($('tag-search').value.trim())addNamedTag();}});
  $('upload').onclick=()=>{if(mutable())$('image-input').click();};
  $('image-input').onchange=e=>{const files=[...e.target.files];e.target.value='';addFiles(files);};
  const sheet=$('sheet');

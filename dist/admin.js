@@ -1,9 +1,9 @@
-import {createM5Admin} from './m5-admin.js?v=20261022012556469';
-import {m5Dictionaries} from './m5-i18n.js?v=20261022012556469';
-import {ensureLanguageOption} from './language-ui.js?v=20261022012556469';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022012556469';
-import {resolveLocale} from './locale.js?v=20261022012556469';
-import {dictionaries} from './admin-i18n.js?v=20261022012556469';
+import {createM5Admin} from './m5-admin.js?v=20261022012917915';
+import {m5Dictionaries} from './m5-i18n.js?v=20261022012917915';
+import {ensureLanguageOption} from './language-ui.js?v=20261022012917915';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022012917915';
+import {resolveLocale} from './locale.js?v=20261022012917915';
+import {dictionaries} from './admin-i18n.js?v=20261022012917915';
 
 for(const [language,copy]of Object.entries(m5Dictionaries))Object.assign(dictionaries[language],copy,{directory:copy.m5Directory,insights:copy.m5Insights});
 const $=selector=>document.querySelector(selector);
