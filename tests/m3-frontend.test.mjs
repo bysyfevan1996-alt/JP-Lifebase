@@ -15,9 +15,9 @@ test('shared formatter supports fenced code, links and ordered lines without cor
  const link=formatMarkdown({value:'example',start:0,end:7,format:'link'});assert.equal(link.value,'[example](https://example.com)');assert.equal(link.value.slice(link.start,link.end),'https://example.com');
  assert.equal(formatMarkdown({value:'one\ntwo\nthree',start:0,end:8,format:'ordered'}).value,'1. one\n2. two\nthree');
 });
-test('site release overview sorts V1.0 before V1.1 and V1.2 without changing timestamps or ordinary forum order',()=>{
+test('site release overview uses the same descending time order as ordinary discussions',()=>{
  const topics=[{id:'v12',category:'site',releaseOrder:120,minutes:0},{id:'ordinary',category:'site',minutes:1},{id:'v10',category:'site',releaseOrder:100,minutes:3},{id:'v11',category:'site',releaseOrder:110,minutes:100}];
- assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(x=>x.id),['v10','v11','v12','ordinary']);
+ assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(x=>x.id),['v12','ordinary','v10','v11']);
  assert.deepEqual(selectTopics(topics).items.map(x=>x.id),['v12','ordinary','v10','v11']);
  assert.deepEqual(topics.map(x=>x.minutes),[0,1,3,100]);
 });

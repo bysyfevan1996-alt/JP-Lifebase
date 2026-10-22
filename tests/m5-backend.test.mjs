@@ -28,6 +28,27 @@ const category=(id='newcat',extra={})=>({expectedUserId:'admin',id,name:'新分�
 const tag=(id='newtag',extra={})=>({expectedUserId:'admin',id,name:'新标签',translations:{en:'New tag'},position:100,active:true,...extra});
 const profile=(extra={})=>({expectedUserId:'alice',bio:'Plain <script>not HTML</script>','location':'Tokyo',website:'https://example.test',publicEnabled:true,showActivity:true,...extra});
 
+test('members create reusable Unicode tags; aliases, quotas, restrictions and audit rollback are enforced',async()=>{
+ const f=fixture();try{
+  const add=(name,extra={})=>f.invoke(f.directory,'/api/tags',{who:'alice',method:'POST',input:{name,expectedUserId:'alice'},...extra});
+  const first=await add('　ＡＢＣ 写真　');assert.equal(first.status,201);assert.equal(first.body.tag.name,'ABC 写真');
+  const again=await add('abc  写真');assert.equal(again.status,200);assert.equal(again.body.tag.id,first.body.tag.id);
+  assert.equal((await add('Rent')).body.tag.id,'rent');assert.equal((await add('租房')).body.tag.id,'rent');
+  assert.equal(f.db.prepare("SELECT count(*) n FROM admin_actions WHERE action='create_tag'").get().n,1);
+  for(const name of ['',null,'x'.repeat(31),'bad\nname'])assert.equal((await add(name)).status,400);
+  assert.equal((await add('another',{input:{name:'another',expectedUserId:'bob'}})).status,409);
+  f.db.exec("UPDATE community_tags SET active=0 WHERE id='rent'");assert.equal((await add('Rent')).body.error,'inactive_tag');
+  assert.equal((await add('muted',{midway:()=>f.db.exec("UPDATE users SET muted=1 WHERE id='alice'")})).status,403);
+  f.db.exec("UPDATE users SET muted=0 WHERE id='alice'");
+  assert.equal((await add('stale',{midway:()=>f.setIdentity('bob')})).status,409);
+  f.db.exec("CREATE TRIGGER fail_tag_audit BEFORE INSERT ON admin_actions WHEN new.action='create_tag' BEGIN SELECT RAISE(ABORT,'audit failure'); END");
+  assert.equal((await add('rollback')).status,500);assert.equal(f.db.prepare("SELECT count(*) n FROM community_tags WHERE name='rollback'").get().n,0);
+  f.db.exec('DROP TRIGGER fail_tag_audit');
+  for(let i=0;i<9;i++)assert.equal((await add('extra '+i)).status,201);
+  assert.equal((await add('beyond limit')).status,429);assert.equal((await add('ABC 写真')).status,200);
+ }finally{f.close();}
+});
+
 test('M5 migration preserves exact legacy records/ledger, seeds known and historical IDs, synchronizes FTS transactionally',()=>{
  const db=new DatabaseSync(':memory:');db.exec('PRAGMA foreign_keys=ON');try{
   runMigrations(db,migrations.slice(0,4));db.prepare('INSERT INTO users(id,name,email,password,salt,created_at) VALUES(?,?,?,?,?,?)').run('u','User','private@example.test','old-hash','old-salt',date);

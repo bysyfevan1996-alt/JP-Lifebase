@@ -18,6 +18,7 @@ REQUIRED = {'server.mjs','schema.mjs','migrations.mjs','migration-v2.mjs','migra
 REQUIRED.update({'migration-v4.mjs','community-interactions.mjs','interaction-mentions.mjs','dist/m4-ui.js','dist/m4-i18n.js','dist/m4.css','dist/content-time.js','dist/reply-writing.js','dist/reply-writing.css','dist/reply-viewport.js'})
 REQUIRED.update({'migration-v5.mjs','community-directory.mjs','community-profiles.mjs','community-insights.mjs','community-search.mjs','community-seo.mjs','dist/m5-ui.js','dist/m5-i18n.js','dist/m5.css','dist/m5-admin.js'})
 REQUIRED.update({'search-text.mjs','dist/community-directory.js'})
+REQUIRED.update({'dist/tag-name.js','dist/composer-extras.js'})
 
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()

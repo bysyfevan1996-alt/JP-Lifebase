@@ -1,6 +1,10 @@
 const copy = {
  composeTagsOptional:['Tags (optional)','タグ（任意）','标签（可选）','標籤（選填）','태그 (선택)'],
- composeTagSearch:['Search tags','タグを検索','搜索标签','搜尋標籤','태그 검색'],
+ composeTagSearch:['Search or add a tag','タグを検索・追加','搜索或添加标签','搜尋或新增標籤','태그 검색 또는 추가'],
+ composeTagCreate:['Add “{name}”','「{name}」を追加','添加“{name}”','新增「{name}」','“{name}” 추가'],
+ composeTagCreating:['Adding…','追加中…','添加中…','新增中…','추가 중…'],
+ composeTagInvalid:['Use 1–30 characters without control characters.','制御文字を使わず1〜30文字で入力してください。','标签请输入 1～30 个字符，不含控制字符。','標籤請輸入 1～30 個字元，不含控制字元。','제어 문자 없이 1~30자로 입력해 주세요.'],
+ composeTagCreateFailed:['Could not add the tag. Please retry.','タグを追加できませんでした。再試行してください。','标签添加失败，请重试。','標籤新增失敗，請重試。','태그를 추가하지 못했습니다. 다시 시도해 주세요.'],
  composeTagRemove:['Remove {name}','{name} を外す','移除 {name}','移除 {name}','{name} 삭제'],
  composeTagNone:['No matching tags','該当するタグはありません','没有匹配的标签','沒有符合的標籤','일치하는 태그가 없습니다'],
  composeTagLimit:['Choose up to 5 tags.','タグは5つまで選べます。','最多选择 5 个标签。','最多選擇 5 個標籤。','태그는 최대 5개까지 선택하세요.'],

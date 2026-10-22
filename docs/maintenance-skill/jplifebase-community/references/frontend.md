@@ -2,6 +2,10 @@
 
 相对路径均以 `D:/2.Work/7.JapanLifeBase/sites/community-home` 为根；基线 2026-10-21（M1）。
 
+2026-10-22目录与排序更新：摄影photography、生活life为独立分区，car只改名为“汽车”，原帖category ID保留。目录配置通过ops/update-community-sections.mjs与community-sections.json、现有管理员审计写入，不改冻结迁移。普通/站务列表均按createdAt倒序，同毫秒ID倒序；pinned与历史releaseOrder保留数据但不再抢排序。热门按回复数倒序、同数按发布时间；服务端取250条之前也先按created_at倒序，不能只改前端排序。该规则替代下文M1/M3的旧“置顶/版本顺序优先”描述。
+
+标签输入支持回车或“添加”：复用同名标签，不存在时POST /api/tags，成功后applyDirectory更新共享topicTags，再把真实ID存入既有草稿tagIds。名称NFKC/空白/大小写归一去重，1–30字符；五语标签别名也复用。最多5个标签、每账号24小时新增10个，全库200个；停用名称不重复创建。创建中hasBlockingWork阻止发布，失败保留输入/原选择；跨账号/草稿的迟到响应丢弃，IME确认不提交。用户自定义标签保持原名称，不自动翻译。创建即时入公共库，弃稿不删除标签。更新原使用指南用ops/edit-user-guide.mjs保留版本历史/原发帖时间，不重新发布同名帖。
+
 帖子阅读时，`.detail-top-actions` 的“返回讨论”和搜索同排吸顶在站点顶栏下方，两端至少44px触控高度；缩小标题固定在这排下方。`reading-header.js` 的 inset/缩小起点和 CSS scroll-margin 同时计入该排高度，防止跳到正文、回复或恢复阅读位置时被遮挡。保留原按钮ID与返回列表滚动位置行为；右侧灰色大导航卡继续对齐正文上沿，不移到返回栏。
 
 列表右下角`.community-actions`纵向排列黑色圆形加号与原社区搜索，quick-topic.css在原样式后加载；搜索按钮改为容器内定位，不另算两按钮固定偏移。#quick-new-topic复用左栏#new-topic的登录/发帖处理，空白新话题沿用composer.getCategory读取当前state.category；已有草稿不覆盖分类或正文，停用/受限分类沿用原校验。搜索面板展开时隐藏加号，收起后恢复；账号、资料、搜索、工具与详情页不显示该浮动组，避免与阅读操作重叠。写作、抽屉及站内弹窗打开时隐藏整个组；手机44px按钮、底部安全区与footer留白一起维护。新入口复用五语人工newTopic文案，不新增机器翻译。
@@ -138,4 +142,4 @@ community-directory.js维护动态目录并更新categories/topicTags；所有�
 
 M4通知与收藏已合入.reading-nav：宽屏右卡底部、窄桌面同横栏、手机仅显示这一行控件并保留独立底部阅读双按钮；提示用title及可访问隐藏文本，不占说明行。窄屏nowrap且局部横向可滚，不能挤出页面。attachTopic之后重新mountReading测量吸顶标题高度，避免新增控件覆盖正文；返回、焦点和全屏草稿继续保留。
 
-左栏“使用指南”指向置顶正式帖子`/t/32122823-b43c-46b6-95ba-6625763f03c7`，#guide-link使用站内navigatePage保留草稿，不能恢复data-info=guide旧短弹窗。正文源稿docs/USER_GUIDE.md/json；后续功能变化编辑原指南，避免反复创建同名帖。站务分类中无releaseOrder的置顶指南优先，再保持版本公告的releaseOrder升序；不改原公告真实时间。
+左栏“使用指南”指向正式帖子`/t/32122823-b43c-46b6-95ba-6625763f03c7`，#guide-link使用站内navigatePage保留草稿，不能恢复data-info=guide旧短弹窗。正文源稿docs/USER_GUIDE.md/json；后续功能变化编辑原指南，避免反复创建同名帖。指南保留置顶标识，但排序遵从上文最新倒序规则；不改原公告真实时间。

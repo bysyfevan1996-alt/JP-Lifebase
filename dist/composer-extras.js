@@ -1,16 +1,36 @@
-import {tagLabel} from './community-directory.js?v=20261021234459592';
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261021234459592';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261021234459592';
+import {tagLabel,applyDirectory} from './community-directory.js?v=20261022012556469';
+import {normalizeTagName,tagNameKey} from './tag-name.js?v=20261022012556469';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261022012556469';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261022012556469';
 
 export function createComposerExtras({root,t,api,getContext,getLanguage=()=>document.documentElement?.lang||'en',onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);
- let tags=[],rows=[],epoch=0,identity=null,renewing=null,lastRenew=0,releasing=false;
- const mutable=()=>{const c=getContext();return c.authenticated&&c.owner&&!c.frozen&&!c.conflict&&!releasing;};
+ let tags=[],rows=[],epoch=0,identity=null,renewing=null,lastRenew=0,releasing=false,creatingTag=null;
+ const mutable=()=>{const c=getContext();return c.authenticated&&c.owner&&!c.frozen&&!c.conflict&&!releasing&&!creatingTag;};
  const capture=()=>({owner:getContext().owner,identity:getContext().identity,epoch});
  const current=token=>token.epoch===epoch&&token.owner===getContext().owner&&token.identity===getContext().identity;
  const notify=()=>{refresh();onState();};
  function authError(error,token){if(current(token)&&(error.status===401||error.code==='account_changed'))onAuth();}
  function button(label,action){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=action;return b;}
+ const matchingTag=name=>topicTags.find(tag=>[tag.id,tag.name||'',tagLabel(tag.id,getLanguage(),t),...Object.values(tag.translations||{})].some(label=>tagNameKey(label)===tagNameKey(name)));
+ async function addNamedTag(){
+  if(!mutable())return;
+  let name;try{name=normalizeTagName($('tag-search').value);}catch{onProblem('composeTagInvalid');return;}
+  const existing=matchingTag(name);
+  if(existing?.active===false){onProblem('m5DirectoryChanged');return;}
+  if(existing&&tags.includes(existing.id)){$('tag-search').value='';refresh();return;}
+  if(tags.length>=5){onProblem('composeTagLimit');return;}
+  if(existing){tags=normalizeTopicTags([...tags,existing.id],{allowUnknown:true});$('tag-search').value='';onChange();refresh();return;}
+  const token=capture();creatingTag=token;notify();
+  try{
+   const result=await api('/api/tags',{method:'POST',body:JSON.stringify({name,expectedUserId:token.owner})});
+   if(!current(token))return;
+   if(!result.tag?.id||!Array.isArray(result.tags)||!Array.isArray(result.categories))throw new Error('invalid_tag_response');
+   applyDirectory(result);
+   tags=normalizeTopicTags([...tags,result.tag.id],{allowUnknown:true});$('tag-search').value='';onChange();
+  }catch(error){if(current(token)){authError(error,token);onProblem(error.status===429?'rateLimited':error.code==='invalid_tag_name'?'composeTagInvalid':error.code==='inactive_tag'?'m5DirectoryChanged':error.code==='account_muted'?'accountMuted':error.code==='account_banned'?'accountBanned':'composeTagCreateFailed');}}
+  finally{if(current(token)){creatingTag=null;notify();}}
+ }
  function renderTags(){
   const active=document.activeElement,activeTag=active?.dataset?.extraTag,activeChip=active?.dataset?.extraChip;
   $('tag-chips').replaceChildren();
@@ -20,6 +40,10 @@ export function createComposerExtras({root,t,api,getContext,getLanguage=()=>docu
   $('tag-options').replaceChildren();
   for(const tag of options){const chosen=tags.includes(tag.id),b=button(tagLabel(tag.id,getLanguage(),t),()=>{if(!mutable())return;if(tags.includes(tag.id))tags=tags.filter(id=>id!==tag.id);else if(tags.length<5)tags=normalizeTopicTags([...tags,tag.id],{allowUnknown:true});else{onProblem('composeTagLimit');return;}onChange();refresh();});b.dataset.extraTag=tag.id;b.setAttribute('aria-pressed',String(chosen));b.disabled=!mutable()||!chosen&&tags.length>=5;$('tag-options').append(b);}
   if(!options.length){const p=document.createElement('p');p.textContent=t('composeTagNone');$('tag-options').append(p);}
+  if(query&&!matchingTag(query)){
+   let name;try{name=normalizeTagName($('tag-search').value);}catch{}
+   const add=button(t(creatingTag?'composeTagCreating':'composeTagCreate',{name:name||query}),addNamedTag);add.dataset.createTag='true';add.disabled=!mutable()||!name||tags.length>=5;$('tag-options').append(add);
+  }
   $('tags').disabled=!mutable();$('tag-search').disabled=!mutable();$('tag-search').placeholder=t('composeTagSearch');
   const restore=activeTag?root.querySelector('[data-extra-tag="'+activeTag+'"]'):activeChip?root.querySelector('[data-extra-chip="'+activeChip+'"]'):null;
   if(restore&&!restore.disabled&&active!==document.activeElement)restore.focus({preventScroll:true});
@@ -46,7 +70,7 @@ export function createComposerExtras({root,t,api,getContext,getLanguage=()=>docu
  }
  function refresh(){renderTags();renderImages();}
  function dispose(row){row.controller?.abort();if(row.preview)URL.revokeObjectURL(row.preview);}
- function reset(){epoch++;for(const row of rows)dispose(row);rows=[];tags=[];renewing=null;lastRenew=0;identity=null;releasing=false;refresh();}
+ function reset(){epoch++;for(const row of rows)dispose(row);rows=[];tags=[];renewing=null;lastRenew=0;identity=null;releasing=false;creatingTag=null;refresh();}
  function setDraft(value,nextIdentity){reset();identity=nextIdentity;try{tags=normalizeTopicTags(value.tagIds,{allowUnknown:true});}catch{tags=[];}
   rows=(value.attachmentIds||[]).map(id=>({key:crypto.randomUUID(),id,status:'checking'}));refresh();
   if(rows.length&&getContext().owner)queueMicrotask(()=>{if(identity===nextIdentity)renew(true);});
@@ -96,11 +120,12 @@ export function createComposerExtras({root,t,api,getContext,getLanguage=()=>docu
  }
  $('tags').onclick=()=>{if(!mutable())return;const open=$('tags-menu').hidden;$('tags-menu').hidden=!open;$('tags').setAttribute('aria-expanded',String(open));if(open)$('tag-search').focus();};
  $('tag-search').oninput=renderTags;
+ $('tag-search').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if($('tag-search').value.trim())addNamedTag();}});
  $('upload').onclick=()=>{if(mutable())$('image-input').click();};
  $('image-input').onchange=e=>{const files=[...e.target.files];e.target.value='';addFiles(files);};
  const sheet=$('sheet');
  sheet.addEventListener('dragover',e=>{if([...e.dataTransfer?.items||[]].some(item=>item.kind==='file'))e.preventDefault();});
  sheet.addEventListener('drop',e=>{const files=[...e.dataTransfer?.files||[]];if(files.length){e.preventDefault();addFiles(files);}});
  sheet.addEventListener('paste',e=>{const files=[...e.clipboardData?.items||[]].filter(item=>item.kind==='file'&&item.type.startsWith('image/')).map(item=>item.getAsFile()).filter(Boolean);if(files.length){e.preventDefault();addFiles(files);}});
- return {setDraft,getDraft,refresh,renew,release,reset,hasBlockingWork:()=>releasing||rows.some(row=>row.status!=='ready'),hasVolatileFiles:()=>rows.some(row=>!row.id)};
+ return {setDraft,getDraft,refresh,renew,release,reset,hasBlockingWork:()=>releasing||Boolean(creatingTag)||rows.some(row=>row.status!=='ready'),hasVolatileFiles:()=>rows.some(row=>!row.id)};
 }

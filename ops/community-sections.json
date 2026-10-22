@@ -1,0 +1,7 @@
+{
+ "categories":[
+  {"id":"car","name":"汽车","translations":{"en":"Cars","ja":"車","zh-CN":"汽车","zh-TW":"汽車","ko":"자동차"}},
+  {"id":"photography","name":"摄影","color":"#a38db5","position":35,"active":true,"translations":{"en":"Photography","ja":"写真","zh-CN":"摄影","zh-TW":"攝影","ko":"사진"}},
+  {"id":"life","name":"生活","color":"#c59e72","position":36,"active":true,"translations":{"en":"Life","ja":"暮らし","zh-CN":"生活","zh-TW":"生活","ko":"생활"}}
+ ]
+}

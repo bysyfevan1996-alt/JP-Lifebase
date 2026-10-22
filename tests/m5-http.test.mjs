@@ -43,6 +43,33 @@ const write=(f,route,value={},who='author',other={})=>f.request(route,{method:'P
 const reply=(f,value={},who='reader',topic='topic')=>write(f,'/api/topics/'+topic+'/replies',{body:'Fresh reply body',bodyFormat:'markdown',language:'und',clientRequestId:randomUUID(),...value},who);
 const notifications=(f,who='author',suffix='')=>get(f,'/api/me/notifications'+suffix,who);
 const identity=async(f,who)=>{const result=await get(f,'/api/me/identity',who);assert.equal(result.status,200);return result.body.identity;};
+
+test('HTTP custom tags require same-origin login, survive restart and attach to posts with replay intact',async()=>{
+ const f=await fixture();try{
+  assert.equal((await write(f,'/api/tags',{name:'匿名标签'},'anonymous')).status,401);
+  assert.equal((await write(f,'/api/tags',{name:'跨站标签'},'reader',{origin:'https://other.example'})).status,403);
+  const created=await write(f,'/api/tags',{name:'街头摄影'},'reader');assert.equal(created.status,201);
+  const id=created.body.tag.id;assert.equal((await write(f,'/api/tags',{name:'街头摄影'},'watcher')).body.tag.id,id);
+  const input={title:'Custom tag test topic',body:'A real body with a reusable tag',category:'daily',bodyFormat:'markdown',language:'und',tagIds:[id],clientRequestId:randomUUID()};
+  const topic=await write(f,'/api/topics',input,'reader');assert.equal(topic.status,201);assert.deepEqual(topic.body.topic.tagIds,[id]);
+  await f.restart();assert.ok((await get(f,'/api/tags')).body.tags.some(tag=>tag.id===id&&tag.name==='街头摄影'));
+  assert.equal((await write(f,'/api/topics',input,'reader')).body.topic.id,topic.body.topic.id);
+  assert.equal((await f.slowWrite('/api/tags',{name:'不能添加'},()=>f.db(db=>db.exec("UPDATE users SET muted=1 WHERE id='reader'")),'reader')).status,403);
+  assert.equal(f.db(db=>db.prepare("SELECT count(*) n FROM community_tags WHERE name='不能添加'").get().n),0);
+ }finally{await f.close();}
+});
+
+test('public list applies descending creation order before the 250-row window, including old pinned announcements',async()=>{
+ const f=await fixture();try{
+  f.db(db=>{
+   db.exec("UPDATE topics SET pinned=1,updated_at='2030-01-01T00:00:00.000Z' WHERE id='topic'");
+   const insert=db.prepare('INSERT INTO topics(id,title,body,excerpt,category,user_id,author,avatar,language,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)');
+   for(let i=0;i<260;i++){const date=new Date(Date.UTC(2026,9,2,0,i)).toISOString();insert.run('new-'+String(i).padStart(3,'0'),'New topic '+i,'Visible body','excerpt',i%2?'site':'daily','author','TopicOwner','T','und',date,date);}
+  });
+  const result=await get(f,'/api/topics');assert.equal(result.status,200);assert.equal(result.body.topics.length,250);assert.equal(result.body.topics[0].id,'new-259');assert.ok(!result.body.topics.some(topic=>topic.id==='topic'));
+  for(let i=1;i<result.body.topics.length;i++)assert.ok(Date.parse(result.body.topics[i-1].createdAt)>=Date.parse(result.body.topics[i].createdAt));
+ }finally{await f.close();}
+});
 const interaction=(f,who='author',topic='topic')=>get(f,'/api/topics/'+topic+'/interaction',who);
 const subscription=(f,mode,who,topic='topic')=>write(f,'/api/topics/'+topic+'/subscription',{mode},who);
 const visible=(f,kind,id,hidden,who='operator')=>write(f,content(kind,id,'visibility'),{hidden},who);

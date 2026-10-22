@@ -1,5 +1,7 @@
 # 社区服务与数据
 
+2026-10-22新增成员POST /api/tags（name、expectedUserId）：await body后及事务内重验账号/禁言/封禁；以NFKC、合并空白及大小写key匹配既有ID/名称/五语别名，停用名称不重建；新ID为名称key的SHA256前32位加tag-。创建与create_tag审计同事务，审计失败回滚；原账号24小时最多10个、全库200个，请求限速。没有给成员开放目录编辑、改名或停用权限；使用原community_tags/admin_actions表，schema仍5，冻结迁移不改。摄影/生活及汽车改名通过受现有管理员约束的ops/update-community-sections.mjs执行，保留历史分类ID。详见docs/COMMUNITY_CATALOG_UPDATE.md。
+
 先读当前 `server.mjs`、`auth.mjs` 与 `ops/README.md`。项目使用 Node.js **24+** 的内置 HTTP、crypto、SQLite，无外部运行依赖或打包步骤，不沿早期规划另建 WordPress／FastAPI。账号流程在 `auth.mjs`，投递在 `mailer.mjs`，头像校验在 `avatar.mjs`，独立账户页面在 `dist/auth-ui.js`。
 
 管理服务在 `community-admin.mjs`，独立画面在 `/admin`。前端先读会话：匿名引导到 `/account/login?return=%2Fadmin`，普通成员显示无权限；入口隐藏只是界面约定，所有 `/api/admin/*` 仍由服务器强制匿名 401、非管理员 403。

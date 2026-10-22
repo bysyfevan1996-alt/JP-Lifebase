@@ -1,5 +1,5 @@
-import {renderMarkdown} from './markdown.js?v=20261021234459592';
-import {directoryLabel,getDirectory} from './community-directory.js?v=20261021234459592';
+import {renderMarkdown} from './markdown.js?v=20261022012556469';
+import {directoryLabel,getDirectory} from './community-directory.js?v=20261022012556469';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;return n;};
 const button=(text,work,cls='m5-button')=>{const n=el('button',text,cls);n.type='button';n.onclick=work;return n;};
 const handlePattern=/^[a-z][a-z0-9_]{2,31}$/;

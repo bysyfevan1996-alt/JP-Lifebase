@@ -5,9 +5,9 @@ import {applySchema} from '../schema.mjs';
 import {setReleaseOrder} from '../release-notes.mjs';
 import {selectTopics} from '../dist/select-topics.js';
 
-test('pinned community guide precedes release chronology without changing the order of version notes',()=>{
+test('announcements sort newest first without pinned or historical release-order overrides',()=>{
  const topics=[{id:'v14',category:'site',releaseOrder:140,pinned:false,minutes:0},{id:'v11',category:'site',releaseOrder:110,pinned:true,minutes:2},{id:'guide',category:'site',releaseOrder:null,pinned:true,minutes:1},{id:'v10',category:'site',releaseOrder:100,pinned:false,minutes:3},{id:'ordinary',category:'site',releaseOrder:null,pinned:false,minutes:0}];
- assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(item=>item.id),['guide','v10','v11','v14','ordinary']);
+ assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(item=>item.id),['v14','ordinary','guide','v11','v10']);
  assert.equal(topics[0].id,'v14');
 });
 
@@ -22,8 +22,8 @@ test('release chronology is operator-only, audited, idempotent and preserves act
   setReleaseOrder(db,{topicId:'v10',order:100,operatorId:'admin'});
   assert.equal(db.prepare('SELECT count(*) n FROM admin_actions').get().n,3);
   assert.deepEqual(db.prepare('SELECT id,created_at,updated_at FROM topics ORDER BY id').all(),before);
-  const topics=db.prepare('SELECT id,title,category,release_order AS releaseOrder,0 AS minutes,0 AS replies FROM topics ORDER BY id DESC').all();
-  assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(t=>t.id),['v10','v11','v12']);
+  const topics=db.prepare('SELECT id,title,category,release_order AS releaseOrder,created_at AS createdAt,0 AS minutes,0 AS replies FROM topics ORDER BY id DESC').all();
+  assert.deepEqual(selectTopics(topics,{category:'site'}).items.map(t=>t.id),['v12','v10','v11']);
   for(const order of [NaN,-1,10001,'100'])assert.throws(()=>setReleaseOrder(db,{topicId:'v10',order,operatorId:'admin'}));
  }finally{db.close();}
 });

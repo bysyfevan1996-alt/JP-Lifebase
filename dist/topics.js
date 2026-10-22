@@ -3,6 +3,8 @@ export const categories={
  visa:{color:'#c4a16a',bg:'#f7f1e7',fg:'#a28c69'},
  work:{color:'#8b8fbc',bg:'#efeff7',fg:'#8988a5'},
  car:{color:'#709fb7',bg:'#eaf2f6',fg:'#7295aa'},
+ photography:{color:'#a38db5',bg:'#f2eef7',fg:'#8c789e'},
+ life:{color:'#c59e72',bg:'#f8f0e6',fg:'#a38662'},
  daily:{color:'#bd8781',bg:'#f8edeb',fg:'#b48a84'},
  site:{color:'#9b9b9b',bg:'#f0f0f0',fg:'#8b8b8b'}
 };

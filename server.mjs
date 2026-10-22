@@ -153,7 +153,7 @@ async function api(req,res,url){
   if(solved!==null&&!['true','false'].includes(solved))throw httpError(400,'invalid_solved_filter');
   const effectiveAnswer='EXISTS (SELECT 1 FROM topic_answers ta JOIN posts ap ON ap.id=ta.post_id AND ap.topic_id=ta.topic_id WHERE ta.topic_id=t.id AND ap.hidden=0)';
   const conditions=['t.hidden=0'],params=[];if(tag!==null){conditions.push('EXISTS (SELECT 1 FROM topic_tags tt WHERE tt.topic_id=t.id AND tt.tag_id=?)');params.push(tag);}if(solved!==null)conditions.push((solved==='false'?'NOT ':'')+effectiveAnswer);
-  const rows=q(topicQuery+' WHERE '+conditions.join(' AND ')+' ORDER BY t.pinned DESC,t.updated_at DESC LIMIT 250').all(...params);
+  const rows=q(topicQuery+' WHERE '+conditions.join(' AND ')+' ORDER BY t.created_at DESC,t.id DESC LIMIT 250').all(...params);
   return json(res,200,{...await localizedTopics(rows,target),tag:tag||null});
  }
  if(method==='POST'&&route==='/api/topics'){
@@ -170,7 +170,7 @@ async function api(req,res,url){
   if(method==='POST'&&match[2]==='report'){const previous=userRequired(req);limit(req,'report',5,3600000);const b=await body(req),u=userRequired(req);if(u.id!==previous.id)throw httpError(409,'account_changed');if(!q('SELECT id FROM topics WHERE id=? AND hidden=0').get(id))throw httpError(404,'topic_not_found');q('INSERT INTO reports(id,topic_id,user_id,reason,created_at) VALUES(?,?,?,?,?)').run(randomUUID(),id,u.id,text(b.reason,3,1000),now());return json(res,201,{ok:true});}
   if(method==='DELETE'&&!match[2]){const u=policy.postingRequired(req);const topic=changeTopicFlags(db,{topicId:id,operator:u,hidden:true,action:'author_hide',allowAuthor:true});return json(res,200,{ok:true,topic,recoverable:true});}
  }
- if(method==='GET'&&route==='/api/me/topics'){const u=userRequired(req);return json(res,200,await localizedTopics(q(topicQuery+' WHERE t.user_id=? AND t.hidden=0 ORDER BY t.updated_at DESC').all(u.id),target));}
+ if(method==='GET'&&route==='/api/me/topics'){const u=userRequired(req);return json(res,200,await localizedTopics(q(topicQuery+' WHERE t.user_id=? AND t.hidden=0 ORDER BY t.created_at DESC,t.id DESC').all(u.id),target));}
  if(method==='GET'&&route==='/api/me/messages'){
   const u=userRequired(req);const rows=q('SELECT p.id,p.topic_id AS topicId,t.title AS topicTitle,u.name AS author,p.body,p.created_at AS createdAt FROM posts p JOIN topics t ON t.id=p.topic_id JOIN users u ON u.id=p.user_id WHERE t.user_id=? AND p.user_id<>? AND t.hidden=0 AND p.hidden=0 ORDER BY p.created_at DESC LIMIT 100').all(u.id,u.id);
   return json(res,200,{messages:rows});
