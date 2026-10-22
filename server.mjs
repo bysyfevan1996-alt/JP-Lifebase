@@ -201,9 +201,10 @@ const server=http.createServer(async(req,res)=>{
    return res.end(req.method==='HEAD'?undefined:xml?sitemapForHost(hostname):robotsForHost(hostname));
   }
   let pathname=decodeURIComponent(url.pathname);if(pathname.includes('\0')||pathname.includes('\\')||pathname.split('/').some(s=>s.startsWith('.')))throw httpError(404,'not_found');
-  if(/^\/u\//.test(pathname)||/^\/search\/?$/.test(pathname))res.setHeader('X-Robots-Tag','noindex, follow');
+  if(/^\/u\//.test(pathname)||/^\/(?:search|notifications|bookmarks|my-topics)\/?$/.test(pathname))res.setHeader('X-Robots-Tag','noindex, follow');
   if(/^\/denkikakaku\/?$/.test(pathname))pathname='/denki.html';
   if(/^\/admin\/?$/.test(pathname))pathname='/admin.html';
+  if(/^\/(?:notifications|bookmarks|my-topics)\/?$/.test(pathname))pathname='/index.html';
   if(pathname==='/'||/^\/moving-checklist\/?$/.test(pathname)||/^\/u\/[a-z][a-z0-9_]{2,31}\/?$/.test(pathname)||/^\/search\/?$/.test(pathname)||/^\/account(?:\/[a-z-]+)?\/?$/.test(pathname))pathname='/index.html';
   const filename=path.resolve(dist,'.'+pathname);if(!filename.startsWith(dist+path.sep)||!mime[path.extname(filename)])throw httpError(404,'not_found');
   let bytes;try{if(!(await stat(filename)).isFile())throw 0;bytes=await readFile(filename);}catch{throw httpError(404,'not_found');}

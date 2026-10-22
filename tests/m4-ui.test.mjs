@@ -21,6 +21,17 @@ class Node{
 }
 const deferred=()=>{let resolve;const promise=new Promise(yes=>resolve=yes);return {promise,resolve};};
 const tick=()=>new Promise(done=>setImmediate(done));
+
+test('notifications mount as a route page, open topics directly and clear on route changes',()=>environment(async({body})=>{
+ const opened=[],calls=[],notice={id:'n1',type:'reply',topicId:'topic-a',topicTitle:'Real topic',kind:'post',contentId:'post-a',actor:{name:'Member'},createdAt:'2026-10-22T00:00:00Z'};
+ const ui=createCommunityInteractionsUI({api:async(path,config)=>{calls.push({path,config});if(path==='/api/me/identity')return {identity:{id:'owner',handle:'u_owner'}};if(path.endsWith('/read'))return {unreadCount:0};return {notifications:[notice],unreadCount:1};},t:key=>key,getUser:()=>({id:'owner'}),onAuth(){},onOpenTopic:id=>opened.push(id)});
+ try{await ui.refreshIdentity();const host=new Node('main');body.append(host);ui.openNotifications({host});await tick();assert(host.querySelector('.m4-private-page'));assert.equal(body.children.filter(node=>node.tagName==='dialog').length,0);await host.querySelector('.m4-notification-open').onclick();assert.deepEqual(opened,['topic-a']);assert.equal(calls.some(call=>call.path.endsWith('/source')),false);ui.leaveRoute();assert.equal(host.children.length,0);}finally{ui.destroy();}
+}));
+
+test('bookmark route ignores late previous-account responses and never creates a modal',()=>environment(async({body})=>{
+ const pending=deferred();let owner={id:'owner'};const ui=createCommunityInteractionsUI({api:async path=>path==='/api/me/identity'?{identity:{id:owner.id,handle:'u_owner'}}:path==='/api/me/bookmarks'?pending.promise:{notifications:[],unreadCount:0},t:key=>key,getUser:()=>owner,onAuth(){},onOpenTopic(){}});
+ try{await ui.refreshIdentity();const host=new Node('main');body.append(host);ui.openBookmarks({host});owner={id:'other'};await ui.refreshIdentity();pending.resolve({bookmarks:[{topicId:'secret',title:'Old private bookmark'}]});await tick();assert.equal(host.children.length,0);assert.doesNotMatch(body.textContent,/Old private bookmark/);}finally{ui.destroy();}
+}));
 function nodes(root){return [root,...root.children.flatMap(child=>nodes(child))];}
 async function environment(work){
  const previous=new Map(['document','setInterval','clearInterval'].map(key=>[key,globalThis[key]])),body=new Node('body'),listeners=new Map(),timers=new Map();let counter=0;

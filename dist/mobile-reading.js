@@ -1,4 +1,4 @@
-import {icon} from './icons.js?v=20261022042008490';
+import {icon} from './icons.js?v=20261022055817972';
 
 const node=(tag,className,text)=>{const item=document.createElement(tag);item.className=className;if(text!==undefined)item.textContent=text;return item;};
 

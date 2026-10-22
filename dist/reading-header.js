@@ -1,4 +1,4 @@
-import {readingHeaderProgress} from './reading-header-state.js?v=20261022042008490';
+import {readingHeaderProgress} from './reading-header-state.js?v=20261022055817972';
 
 // Keep a stable space in the document while the visible sticky header shrinks.
 export function createReadingHeader(root){
@@ -6,6 +6,7 @@ export function createReadingHeader(root){
  const topInset=()=>{
   if(root.dataset?.mobileReading==='true')return 52;
   const topbar=document.querySelector('.topbar');
+  if(root.dataset?.flowHeader==='true'){const row=typeof matchMedia==='function'&&matchMedia('(min-width:761px) and (max-width:1199px)').matches?root.querySelector('.reading-desktop-aside'):null;return (topbar?.getBoundingClientRect().bottom||0)+(row?.getBoundingClientRect().height||0);}
   const detailView=root.closest?.('#detail-view');
   const actions=detailView?.querySelector('.detail-top-actions');
   const actionsHeight=actions?actions.getBoundingClientRect().height:0;
@@ -15,7 +16,7 @@ export function createReadingHeader(root){
  let width=-1,disposed=false,wasMobile=false;
  function update(){
   if(disposed)return;
-  if(root.dataset?.mobileReading==='true'){
+  if(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'){
    wasMobile=true;width=-1;
    header.style.setProperty('--reading-progress','0');
    header.style.removeProperty('--reading-expanded-height');
@@ -40,5 +41,5 @@ export function createReadingHeader(root){
  const observer=typeof ResizeObserver==='function'?new ResizeObserver(update):null;
  observer?.observe(root);
  update();
- return {update,inset:()=>topInset()+(root.dataset?.mobileReading==='true'?0:surface.getBoundingClientRect().height)+12,destroy(){disposed=true;observer?.disconnect();root.style.removeProperty('--reading-live-height');}};
+ return {update,inset:()=>topInset()+(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'?0:surface.getBoundingClientRect().height)+12,destroy(){disposed=true;observer?.disconnect();root.style.removeProperty('--reading-live-height');}};
 }

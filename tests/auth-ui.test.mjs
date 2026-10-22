@@ -98,3 +98,17 @@ test('authentication write lock survives route changes and leave; later forms un
   for(const [key,descriptor] of Object.entries(saved))if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];
  }
 });
+
+
+test('signed-in account uses independent settings panels and preserves the selected section on language changes',async()=>{
+ const saved=Object.fromEntries(['document','location','requestAnimationFrame'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ const host=new Surface();let ui;const choices=[],user={id:'alice',name:'Alice',email:'alice@example.test',emailVerified:true};
+ try{globalThis.location={pathname:'/account',search:''};globalThis.document={title:'',activeElement:null};globalThis.requestAnimationFrame=fn=>fn();
+  ui=createAuthUI({host,api:async()=>({}),t:key=>key,getUser:()=>user,getIdentity:()=>null,onUser(){},avatar:()=>'',navigate(){},onContinue(){},onLogout(){},getLanguage:()=> 'en',getPreference:()=> 'ja',onLanguage:value=>choices.push(value)});
+  await ui.render();assert.doesNotMatch(host.html,/class="auth-tabs"|class="auth-layout"/);assert.match(host.html,/class="account-center"/);assert.match(host.html,/form="account-profile-form"/);
+  let preferences=host.querySelectorAll('[data-account-section]').find(node=>node.dataset.accountSection==='preferences');preferences.onclick();
+  assert.equal(host.querySelector('#account-panel-preferences').hidden,false);assert.equal(host.querySelector('#account-profile-footer').hidden,true);
+  host.querySelector('#account-language').onchange({target:{value:'ko'}});assert.deepEqual(choices,['ko']);await ui.refreshLanguage();assert.equal(host.querySelector('#account-panel-preferences').hidden,false);
+  assert.equal(safeReturn('/notifications'),'/notifications');assert.equal(safeReturn('/bookmarks'),'/bookmarks');assert.equal(safeReturn('/notifications?next=evil'),'/');
+ }finally{ui?.leave();for(const [key,descriptor]of Object.entries(saved))if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+});

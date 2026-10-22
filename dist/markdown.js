@@ -1,4 +1,4 @@
-import {parseMarkdown} from './markdown-core.js?v=20261022042008490';
+import {parseMarkdown} from './markdown-core.js?v=20261022055817972';
 
 export function renderMarkdownDocument(container,tree){
  container.replaceChildren();

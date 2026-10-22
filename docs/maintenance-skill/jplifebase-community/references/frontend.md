@@ -151,4 +151,15 @@ M4通知与收藏已合入.reading-nav：宽屏右卡底部、窄桌面同横栏
 
 话题选项原生dialog移动同一个M4通知/收藏控件，不复制状态；工具栏代理真实bookmark button并同步disabled/aria-pressed。错误保留重试，切桌面将原控件归还灰色话题导航卡；路由销毁关闭面板/observer/listeners。搜索是全社区搜索，别标本帖搜索。更多菜单可打开社区导航。
 
-reading-header以root.dataset.mobileReading为动态布局标记，手机inset64px，不计已滚走的标题；切回电脑仍测量原顶栏+返回行+收缩标题。手机写回复调用现有createReplyWriting.open移动同一表单，保留输入、引用、上传回执、预览及账号隔离，收起恢复阅读位置。电脑仍行内回复。验证含手机/桌面切换、选项关闭后的焦点、长草稿/引用/图片原节点与清理；自动化不代替iPhone真机键盘验收。发布证据查docs/MOBILE_READING_RELEASE.md。
+reading-header以root.dataset.mobileReading为动态布局标记，手机inset64px，不计已滚走的标题；0.6.0起切回电脑走flowHeader布局，偏移只计仍固定的顶栏和窄桌面操作行。手机写回复调用现有createReplyWriting.open移动同一表单，保留输入、引用、上传回执、预览及账号隔离，收起恢复阅读位置。电脑仍行内回复。验证含手机/桌面切换、选项关闭后的焦点、长草稿/引用/图片原节点与清理；自动化不代替iPhone真机键盘验收。发布证据查docs/MOBILE_READING_RELEASE.md。
+
+
+## 0.6.0 社区与用户中心
+
+interface-v2.css最后加载，interface-shell.js复用全站真实入口：桌面社区侧栏、手机54px顶栏和四项底导航；帖子页仍由mobile-reading管理单行阅读栏/贴底回复双按钮。手机语言选择移动同一#language-control节点到抽屉，切桌面归还，不复制偏好事件。首页横幅默认隐藏，保留已有明确visible选择。
+
+/account已登录状态不再使用登录卡片或登录/注册tabs。auth-ui管理profile/preferences/security面板与外部保存/取消栏；m5-ui挂到.account-profile-mount，头像独立保存，资料加载/请求期间同时锁外部按钮。切语言保留同账号未保存输入与当前section/头像折叠状态；换账号清空草稿。全局文本框选择器排除checkbox/radio；18/20px复选框和有效点击标签，不能恢复整行宽大输入样式。关闭公开资料时取消并禁用活动开关。昵称、简介、隐私由同一表单保存，纯profilePayload白名单，省略未变昵称。阅读字号只在当前浏览器设置正文，不与界面语言混用。
+
+/notifications、/bookmarks、/my-topics为真实私人页面，复用原API与可见过滤；M4同时保留旧modal调用兼容。privatePages与dialogs分别管理，避免页面挂载触发modal锁屏；离页/换账号abort并清私有内容。通知页点击进入话题，不再嵌套来源弹窗；不要声称已做精确回复滚动。safeReturn仅新增这三个精确本地路径。统一搜索到/search，filters=1展开原高级条件，不能恢复另一个独立首页过滤搜索。
+
+reading根dataset.flowHeader=true：完整标题随正文滚走；原reading-nav同节点移到reading-desktop-aside。>=1200为168px灰卡从正文顶部开始后固定，761–1199横排sticky；偏移仅计60px顶栏与窄桌面导航实测高度。手机延用mobileReading偏移/标题阈值/同一全屏回复表单。运行布局分支保留legacy测试，勿重新把完整标题加进滚动偏移。新文案在interface-i18n五语人工维护并纳入check-i18n。实际证据见docs/INTERFACE_V2_RELEASE.md。

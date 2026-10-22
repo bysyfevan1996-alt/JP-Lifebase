@@ -1,4 +1,4 @@
-import {directoryLabel} from './community-directory.js?v=20261022042008490';
+import {directoryLabel} from './community-directory.js?v=20261022055817972';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;return n;};
 const button=(text,work,cls='m5-button')=>{const n=el('button',text,cls);n.type='button';n.onclick=work;return n;};
 export function createM5Admin({request,t,getUser,getLanguage,onError,onUnauthorized}){

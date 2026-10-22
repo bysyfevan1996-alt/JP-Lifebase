@@ -28,6 +28,19 @@ const category=(id='newcat',extra={})=>({expectedUserId:'admin',id,name:'新分�
 const tag=(id='newtag',extra={})=>({expectedUserId:'admin',id,name:'新标签',translations:{en:'New tag'},position:100,active:true,...extra});
 const profile=(extra={})=>({expectedUserId:'alice',bio:'Plain <script>not HTML</script>','location':'Tokyo',website:'https://example.test',publicEnabled:true,showActivity:true,...extra});
 
+test('nickname changes keep handles and topic timestamps, reject impersonation/collisions and roll back atomically',async()=>{
+ const f=fixture();try{
+  f.topic('owned');f.topic('other','bob');const handle=f.interactions.handleFor('alice');
+  const save=name=>f.invoke(f.profiles,'/api/me/profile',{who:'alice',method:'POST',input:profile({name})});
+  assert.equal((await save('Alice Tokyo')).status,200);assert.equal(f.profiles.own('alice').name,'Alice Tokyo');
+  assert.equal(f.interactions.handleFor('alice'),handle);const row=f.db.prepare("SELECT author,created_at,edited_at FROM topics WHERE id='owned'").get();assert.equal(row.author,'Alice Tokyo');assert.equal(row.created_at,date);assert.equal(row.edited_at,null);assert.equal(f.db.prepare("SELECT author FROM topics WHERE id='other'").get().author,'bob');
+  assert.equal((await save('bob')).status,409);
+  for(const name of ['a','x'.repeat(41),'a\nb','ＡＤＭＩＮ','管理員',false])assert.equal((await save(name)).status,400);
+  f.db.exec("CREATE TRIGGER reject_profile BEFORE UPDATE ON user_profiles BEGIN SELECT RAISE(ABORT,'rejected'); END");
+  assert.equal((await save('Rollback Name')).status,500);assert.equal(f.profiles.own('alice').name,'Alice Tokyo');assert.equal(f.db.prepare("SELECT author FROM topics WHERE id='owned'").get().author,'Alice Tokyo');
+ }finally{f.close();}
+});
+
 test('members create reusable Unicode tags; aliases, quotas, restrictions and audit rollback are enforced',async()=>{
  const f=fixture();try{
   const add=(name,extra={})=>f.invoke(f.directory,'/api/tags',{who:'alice',method:'POST',input:{name,expectedUserId:'alice'},...extra});

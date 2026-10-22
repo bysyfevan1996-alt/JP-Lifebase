@@ -1,19 +1,20 @@
-import {renderMarkdown} from './markdown.js?v=20261022042008490';
-import {directoryLabel,getDirectory} from './community-directory.js?v=20261022042008490';
+import {profilePayload} from './profile-payload.js?v=20261022055817972';
+import {renderMarkdown} from './markdown.js?v=20261022055817972';
+import {directoryLabel,getDirectory} from './community-directory.js?v=20261022055817972';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;return n;};
 const button=(text,work,cls='m5-button')=>{const n=el('button',text,cls);n.type='button';n.onclick=work;return n;};
 const handlePattern=/^[a-z][a-z0-9_]{2,31}$/;
 const localId=/^[A-Za-z0-9_-]{1,100}$/;
 export const searchKeys=['q','category','tag','author','language','from','to','solved','kind','sort'];
 export function searchURL(values={}){const p=new URLSearchParams();for(const key of searchKeys){const value=String(values[key]??'').trim();if(value&&value!=='all')p.set(key,value);}return '/search'+(p.size?'?'+p:'');}
-export function createM5UI({api,t,getUser,getLanguage,navigate,openTopic,toast,host}){
+export function createM5UI({api,t,getUser,getLanguage,navigate,openTopic,toast,host,onProfileSaved=async()=>{}}){
  const dialogs=new Set();
- let generation=0,controller=new AbortController(),profileOwner=null,profileDraft=null,profileLoaded=false,settingsSequence=0,settingsMount=null,profileSaving=false;
+ let generation=0,controller=new AbortController(),profileOwner=null,profileDraft=null,profileLoaded=false,profileSaved=null,settingsSequence=0,settingsMount=null,profileSaving=false;
  const language=()=>getLanguage?.()||'zh-CN';
  const request=(path,options={})=>api(path,{...options,signal:options.signal||controller.signal});
  const current=ticket=>ticket===generation;
  function leave(){for(const dialog of [...dialogs])dialog.close();generation++;controller.abort();controller=new AbortController();settingsSequence++;settingsMount=null;host.replaceChildren();}
- function setUser(){const owner=getUser()?.id||null;if(owner!==profileOwner){profileOwner=owner;profileDraft=null;profileLoaded=false;settingsSequence++;settingsMount=null;profileSaving=false;}}
+ function setUser(){const owner=getUser()?.id||null;if(owner!==profileOwner){profileOwner=owner;profileDraft=null;profileLoaded=false;profileSaved=null;settingsSequence++;settingsMount=null;profileSaving=false;}}
  function field(label,node){const wrap=el('label',undefined,'m5-field');wrap.append(el('span',label),node);return wrap;}
  function input(name,type='text',value=''){const n=el('input');n.name=name;n.type=type;n.value=value;return n;}
  function select(name,options,value=''){const n=el('select');n.name=name;for(const [id,label]of options){const option=el('option',label);option.value=id;n.append(option);}n.value=value;return n;}
@@ -30,7 +31,7 @@ export function createM5UI({api,t,getUser,getLanguage,navigate,openTopic,toast,h
   const form=el('form',undefined,'m5-search-form'),query=input('q','search',values.q);query.maxLength=100;query.setAttribute('aria-label',t('m5Keyword'));form.append(query);const submit=el('button',t('m5Apply'),'m5-button primary');submit.type='submit';form.append(submit);page.append(form);
   const filters=el('details',undefined,'m5-filters');filters.append(el('summary',t('m5Advanced')));const grid=el('div',undefined,'m5-filter-grid'),nodes={q:query},directory=getDirectory();
   const all=t('m4All');nodes.category=select('category',[['',all],...directory.categories.map(row=>[row.id,directoryLabel(row,language())+(row.active?'':' · '+t('m5Inactive'))])],values.category);nodes.tag=select('tag',[['',all],...directory.tags.map(row=>[row.id,directoryLabel(row,language())+(row.active?'':' · '+t('m5Inactive'))])],values.tag);nodes.author=input('author','text',values.author);nodes.author.maxLength=32;nodes.language=input('language','text',values.language);nodes.language.maxLength=35;nodes.from=input('from','date',values.from);nodes.to=input('to','date',values.to);nodes.solved=select('solved',[['',all],['true',t('m4Solved')],['false',t('m4Unsolved')]],values.solved);nodes.kind=select('kind',[['',all],['topic',t('m5Topic')],['post',t('m5Reply')]],values.kind);nodes.sort=select('sort',[['relevance',t('m5Relevance')],['latest',t('m5Latest')]],values.sort||'relevance');
-  for(const [key,label]of [['category','category'],['tag','m5Tag'],['author','m5Author'],['language','m5Language'],['from','m5From'],['to','m5To'],['solved','m4SolvedFilter'],['kind','m5Kind'],['sort','m5Sort']])grid.append(field(t(label),nodes[key]));filters.append(grid);const actions=el('div',undefined,'m5-filter-actions');actions.append(button(t('m5Clear'),()=>navigate('/search')),button(t('m5Apply'),apply,'m5-button primary'));filters.append(actions);page.append(filters,el('p',t('m5SearchMode'),'m5-search-status'));if(searchKeys.some(key=>key!=='q'&&values[key]))filters.open=true;
+  for(const [key,label]of [['category','category'],['tag','m5Tag'],['author','m5Author'],['language','m5Language'],['from','m5From'],['to','m5To'],['solved','m4SolvedFilter'],['kind','m5Kind'],['sort','m5Sort']])grid.append(field(t(label),nodes[key]));filters.append(grid);const actions=el('div',undefined,'m5-filter-actions');actions.append(button(t('m5Clear'),()=>navigate('/search')),button(t('m5Apply'),apply,'m5-button primary'));filters.append(actions);page.append(filters,el('p',t('m5SearchMode'),'m5-search-status'));if(params.get('filters')==='1'||searchKeys.some(key=>key!=='q'&&values[key]))filters.open=true;
   const status=el('p',undefined,'m5-search-status'),results=el('div');page.append(status,results);let cursor=null,loaded=0,busy=false;
   function apply(){navigate(searchURL(Object.fromEntries(Object.entries(nodes).map(([key,node])=>[key,node.value]))));}
   form.onsubmit=e=>{e.preventDefault();apply();};
@@ -48,13 +49,47 @@ export function createM5UI({api,t,getUser,getLanguage,navigate,openTopic,toast,h
   }catch(err){if(!current(ticket)||err.name==='AbortError')return;if(!append){page.replaceChildren(el('p',err.status===404?t('m5ProfileUnavailable'):t('connectionError'),'m5-search-status'));if(err.status!==404)page.append(button(t('retry'),()=>load()));}else{activity.querySelector('.m5-more')?.remove();more(activity,()=>load(true)).textContent=t('retry');}}finally{busy=false;}}
   await load();
  }
- function mountSettings(parent){setUser();const user=getUser();if(!user)return;const owner=user.id,ticket=++settingsSequence;parent.querySelector('.m5-profile-settings')?.remove();const section=el('section',undefined,'m5-profile-settings');settingsMount=section;parent.querySelector('.auth-card')?.append(section);section.append(el('h2',t('m5Profile')));const body=el('div');section.append(body);const alive=()=>settingsSequence===ticket&&settingsMount===section&&(getUser()?.id||null)===owner&&/^\/account\/?$/.test(location.pathname)&&section.isConnected;
-  function draw(){if(!alive())return;body.replaceChildren();const draft=profileDraft||{bio:'',location:'',website:'',publicEnabled:false,showActivity:false},form=el('form',undefined,'m5-profile-form'),bio=el('textarea');bio.value=draft.bio;bio.maxLength=1000;const place=input('location','text',draft.location),website=input('website','url',draft.website);place.maxLength=80;website.maxLength=300;form.append(field(t('m5Bio'),bio),field(t('m5Location'),place),field(t('m5Website'),website));const pub=input('publicEnabled','checkbox'),show=input('showActivity','checkbox');pub.checked=draft.publicEnabled;show.checked=draft.showActivity;
-   for(const [node,key]of [[pub,'m5PublicEnabled'],[show,'m5ShowActivity']]){const label=el('label',undefined,'m5-check');label.append(node,el('span',t(key)));form.append(label);}form.append(el('p',t('m5PrivacyNote'),'m5-profile-note'));const notice=el('p',undefined,'m5-profile-note'),save=el('button',t('m5Save'),'m5-button primary');save.type='submit';for(const n of [bio,place,website,pub,show,save])n.disabled=profileSaving;form.append(save,notice);body.append(form);
-   const capture=()=>{profileDraft={bio:bio.value,location:place.value,website:website.value,publicEnabled:pub.checked,showActivity:show.checked};};for(const n of [bio,place,website,pub,show])n.addEventListener('input',capture);
-   form.onsubmit=async event=>{event.preventDefault();if(profileSaving||!alive())return;capture();const snapshot={...profileDraft};profileSaving=true;for(const n of [bio,place,website,pub,show,save])n.disabled=true;notice.textContent='';try{const result=await api('/api/me/profile',{method:'POST',body:JSON.stringify({...snapshot,expectedUserId:owner})});if((getUser()?.id||null)!==owner||profileOwner!==owner)return;profileDraft={...result.profile};profileLoaded=true;if(alive())notice.textContent=t('m5Saved');}catch{if(alive())notice.textContent=t('requestError');}finally{if(profileOwner===owner)profileSaving=false;if(alive())for(const n of [bio,place,website,pub,show,save])n.disabled=false;else if(profileOwner===owner&&getUser()?.id===owner&&/^\/account\/?$/.test(location.pathname))mountSettings(parent);}};
+ function mountSettings(parent){
+  setUser();const user=getUser();if(!user)return;const owner=user.id,ticket=++settingsSequence;
+  parent.querySelector('.m5-profile-settings')?.remove();const section=el('section',undefined,'m5-profile-settings');settingsMount=section;
+  (parent.querySelector('.account-profile-mount')||parent.querySelector('.auth-card'))?.append(section);
+  const externalSave=parent.querySelector('#account-profile-submit'),externalCancel=parent.querySelector('#account-profile-cancel');
+  if(!externalSave)section.append(el('h2',t('m5Profile')));
+  const body=el('div');section.append(body);
+  const alive=()=>settingsSequence===ticket&&settingsMount===section&&(getUser()?.id||null)===owner&&/^\/account\/?$/.test(location.pathname)&&section.isConnected;
+  function draw(){
+   if(!alive())return;body.replaceChildren();const draft=profileDraft||{bio:'',location:'',website:'',publicEnabled:false,showActivity:false};
+   const form=el('form',undefined,'m5-profile-form');form.id='account-profile-form';
+   const name=typeof user.name==='string'?input('name','text',draft.name??user.name):null;
+   if(name){name.id='account-profile-name';name.required=true;name.minLength=2;name.maxLength=40;name.autocomplete='nickname';form.append(field(t('name'),name),el('p',t('accountNameHint'),'m5-profile-note'));}
+   const bio=el('textarea');bio.id='account-profile-bio';bio.value=draft.bio;bio.maxLength=1000;
+   const place=input('location','text',draft.location),website=input('website','url',draft.website);place.id='account-profile-location';website.id='account-profile-website';place.maxLength=80;website.maxLength=300;
+   form.append(field(t('m5Bio'),bio));const pair=el('div',undefined,'account-field-pair');pair.append(field(t('m5Location'),place),field(t('m5Website'),website));form.append(pair);
+   const pub=input('publicEnabled','checkbox'),show=input('showActivity','checkbox');pub.id='account-profile-public';show.id='account-profile-activity';pub.checked=draft.publicEnabled;show.checked=!!draft.publicEnabled&&draft.showActivity;
+   for(const [node,key]of [[pub,'m5PublicEnabled'],[show,'m5ShowActivity']]){const label=el('label',undefined,'m5-check'),words=el('span');words.append(el('strong',t(key)));if(node===show)words.append(el('small',t('accountActivityOff')));label.append(words,node);form.append(label);}
+   form.append(el('p',t('m5PrivacyNote'),'m5-profile-note'));
+   const externalNotice=parent.querySelector('#account-save-status'),notice=externalNotice||el('p',undefined,'m5-profile-note');notice.setAttribute('role','status');const save=externalSave||el('button',t('m5Save'),'m5-button primary');save.type='submit';
+   if(!externalSave)form.append(save);if(!externalNotice)form.append(notice);body.append(form);
+   const nodes=[bio,place,website,pub,show,save,...name?[name]:[]];
+   function availability(){for(const node of nodes)node.disabled=profileSaving;show.disabled=profileSaving||!pub.checked;if(externalCancel)externalCancel.disabled=profileSaving;}
+   const capture=()=>{if(!pub.checked)show.checked=false;profileDraft={...name?{name:name.value}:{},bio:bio.value,location:place.value,website:website.value,publicEnabled:pub.checked,showActivity:show.checked};availability();};
+   for(const node of [bio,place,website,pub,show,...name?[name]:[]])node.addEventListener('input',capture);
+   if(externalCancel)externalCancel.onclick=()=>{if(profileSaving||!alive())return;profileDraft={...profileSaved};draw();};
+   availability();
+   form.onsubmit=async event=>{
+    event.preventDefault();if(profileSaving||!alive())return;capture();const snapshot=profilePayload(profileDraft,user.name,owner);profileSaving=true;availability();notice.textContent='';
+    try{const result=await api('/api/me/profile',{method:'POST',body:JSON.stringify(snapshot)});if((getUser()?.id||null)!==owner||profileOwner!==owner)return;
+     profileDraft={...result.profile,...typeof user.name==='string'?{name:result.name||snapshot.name||user.name}:{}};profileSaved={...profileDraft};profileLoaded=true;
+     try{await onProfileSaved(result,owner);}catch{}
+     if(alive())notice.textContent=t('accountProfileSaved');
+    }catch(error){if(alive())notice.textContent=t(error.code==='name_taken'?'accountNameTaken':error.code==='invalid_name'?'authNameRules':error.code==='reserved_name'?'authReservedName':'requestError');}
+    finally{if(profileOwner===owner)profileSaving=false;if(alive())availability();else if(profileOwner===owner&&getUser()?.id===owner&&/^\/account\/?$/.test(location.pathname))mountSettings(parent);}
+   };
   }
-  if(profileLoaded||profileDraft){draw();return;}body.append(el('p',t('loading')));api('/api/me/profile').then(result=>{if(!alive())return;profileDraft={...result.profile};profileLoaded=true;draw();}).catch(()=>{if(alive())error(body,()=>mountSettings(parent));});
+  if(profileLoaded||profileDraft){draw();return;}
+  if(externalSave)externalSave.disabled=true;if(externalCancel)externalCancel.disabled=true;
+  body.append(el('p',t('loading')));api('/api/me/profile').then(result=>{if(!alive())return;profileDraft={...result.profile,...typeof user.name==='string'?{name:result.name||user.name}:{}};profileSaved={...profileDraft};profileLoaded=true;draw();}).catch(()=>{if(alive())error(body,()=>mountSettings(parent));});
  }
+
  return {leave,setUser,mountSettings,renderSearch,renderProfile,showSource};
 }

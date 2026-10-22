@@ -101,3 +101,10 @@ test('public electricity API uses verified snapshots without requiring a communi
   assert.equal((await app.request('/denki/data.mjs')).status,404);
  }finally{await app.stop();assert(path.resolve(data).startsWith(path.resolve(testTemp)+path.sep+'jpl-test-'));await rm(data,{recursive:true,force:true});}
 });
+
+
+test('private community page routes serve the real app, stay noindex and keep anonymous APIs private',async()=>{
+ const data=await mkdtemp(path.join(testTemp,'jpl-test-'));const app=await launch(data);
+ try{for(const path of ['/notifications','/bookmarks','/my-topics']){const response=await fetch(app.base+path);assert.equal(response.status,200);assert.match(response.headers.get('x-robots-tag'),/noindex/);const html=await response.text();assert.match(html,/interface-v2/);assert.doesNotMatch(html,/Old private bookmark/);}for(const path of ['/api/me/notifications','/api/me/bookmarks','/api/me/profile'])assert.equal((await app.request(path)).status,401);}
+ finally{await app.stop();await rm(data,{recursive:true,force:true});}
+});

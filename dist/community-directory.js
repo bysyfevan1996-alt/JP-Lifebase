@@ -1,5 +1,5 @@
-import {categories} from './topics.js?v=20261022042008490';
-import {topicTags} from './topic-tags.js?v=20261022042008490';
+import {categories} from './topics.js?v=20261022055817972';
+import {topicTags} from './topic-tags.js?v=20261022055817972';
 const stable=/^[a-z][a-z0-9-]{0,39}$/;
 let catalog={categories:Object.entries(categories).map(([id,value])=>({id,...value,name:id,translations:{},active:true,position:0})),tags:topicTags.map(tag=>({...tag,name:tag.id,translations:{},active:true,position:0}))};
 let loaded=false;

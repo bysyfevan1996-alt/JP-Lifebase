@@ -151,3 +151,6 @@ GET /api/me/profile与POST保存私人设置；公开页默认关闭，showActiv
 GET /api/directory含所有active和inactive，显示历史用全部，新选择只active。后台POST /api/admin/directory/categories|tags稳定ID不能重命名，不提供物理删除；保护site及最后普通分类。修改与update_category/update_tag审计同事务且重查admin。新发帖先规范化回执并匹配成功记录，再检查当前active；不能让目录停用破坏已成功发布的重试。
 
 GET /api/admin/insights?days=7|30|90说明UTC半开区间及定义；可见非seed主题/回复、去重作者、有效答案/当前反应、待处理举报积压分开。没有访客/浏览量采集，不把作者数叫访问人数。静态指标定义保持五语人工字典，不能直接展示API英文来替代其他语言。
+
+
+0.6.0的私人profile GET增加顶层name，POST兼容原字段并可选name。昵称trim后2–40字，拒绝控制字符，保留名称沿注册规范NFKC和空格/_/-归一化，重复规则与注册一致。读取正文后与事务内重验会话/封禁；昵称、本人topics.author和资料同事务，失败全回滚，handle/角色/邮箱/正文/内容版本/原时间不变。旧客户端不传name可继续保存历史保留名称账号。不能用可改昵称替代稳定handle做身份或授权。

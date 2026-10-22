@@ -58,6 +58,7 @@ test('sticky title reserves expanded height, shrinks on both layouts, remeasures
   root.dataset.mobileReading='false';expanded=240;controller.update();
   assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'240px','same-width transition restores desktop measurement');
   assert.equal(controller.inset(),284,'desktop still includes its header surface');
+  root.dataset.flowHeader='true';controller.update();assert.equal(controller.inset(),124,'new flow title does not remain in the jump offset');assert.equal(header.style.getPropertyValue('--reading-expanded-height'),undefined);
   controller.destroy();controller=null;assert.equal(disconnected,true);
   assert.equal(root.style.getPropertyValue('--reading-live-height'),undefined);
  }finally{controller?.destroy();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key]}}

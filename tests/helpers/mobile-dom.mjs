@@ -4,12 +4,13 @@ export class Element extends EventTarget{
  append(...nodes){for(const node of nodes){node.remove();this.children.push(node);node.parentNode=this;}}
  prepend(...nodes){for(const node of nodes.reverse()){node.remove();this.children.unshift(node);node.parentNode=this;}}
  before(node){const parent=this.parentNode;node.remove();parent.children.splice(parent.children.indexOf(this),0,node);node.parentNode=parent;}
+ after(node){const parent=this.parentNode;node.remove();parent.children.splice(parent.children.indexOf(this)+1,0,node);node.parentNode=parent;}
  replaceWith(node){this.before(node);this.remove();}
  remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(node=>node!==this);this.parentNode=null;}
  setAttribute(name,value){this.attributes.set(name,String(value));}
  getAttribute(name){return this.attributes.get(name)??null;}
  querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
- querySelectorAll(selector){return this.children.flatMap(node=>[...(selector.startsWith('.')?node.classList.contains(selector.slice(1)):selector.startsWith('[')?node.attributes.has(selector.slice(1,-1)):selector.startsWith('label[')?node.tagName==='label'&&node.getAttribute('for')==='reply-text':node.tagName===selector)?[node]:[],...node.querySelectorAll(selector)]);}
+ querySelectorAll(selector){return this.children.flatMap(node=>[...(selector.startsWith('.')?node.classList.contains(selector.slice(1)):selector.startsWith('#')?node.getAttribute('id')===selector.slice(1):selector.startsWith('[')?node.attributes.has(selector.slice(1,-1)):selector.startsWith('label[')?node.tagName==='label'&&node.getAttribute('for')==='reply-text':node.tagName===selector)?[node]:[],...node.querySelectorAll(selector)]);}
  getBoundingClientRect(){return {top:0,bottom:this.bottom??100,left:0,right:390};}
  click(){if(!this.disabled)this.onclick?.();}
  focus(){document.activeElement=this;}

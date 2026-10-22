@@ -1,10 +1,10 @@
-import {topicTags} from './topic-tags.js?v=20261022042008490';
+import {topicTags} from './topic-tags.js?v=20261022055817972';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const routes=new Set(['/account','/account/login','/account/register','/account/verify','/account/forgot-password','/account/reset-password']);
-const intents=new Set(['compose','reply','topics','messages']);
+const intents=new Set(['compose','reply','topics','messages','bookmarks']);
 export const isAccountRoute=path=>routes.has(path.replace(/\/$/,''));
 export function safeReturn(value){
- if(value==='/'||value==='/admin')return value;
+ if(['/', '/admin','/notifications','/bookmarks','/my-topics'].includes(value))return value;
  if(typeof value==='string'&&/^\/t\/[A-Za-z0-9_-]{1,100}(?:\?post=[A-Za-z0-9_-]{1,100})?$/.test(value))return value;
  if(typeof value==='string'&&/^\/u\/[a-z][a-z0-9_]{2,31}$/.test(value))return value;
  if(typeof value==='string'&&/^\/search(?:\?[^#]*)?$/.test(value)&&value.length<=2000)return value;
@@ -15,7 +15,8 @@ export function safeReturn(value){
 
 // The server owns the challenge, grant, expiration and resend time. This module
 // retains only display state and an optional processed avatar in memory.
-export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage,getIdentity=()=>null,onAccountRender=()=>{}}){
+export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContinue,onLogout,beforeLogout=()=>true,getLanguage,getIdentity=()=>null,onAccountRender=()=>{},getPreference=()=>getLanguage(),onLanguage=()=>{},getReadingSize=()=> 'standard',onReadingSize=()=>{},onPrivatePage=()=>{}}){
+ let sectionOwner=null,accountSection='profile';
  let pendingLanguageRefresh=false,repainting=false,refreshView=null,generation=0,timer=null,flow=null,busy=false,writePending=false,avatarBusy=false,avatarData=null,avatarChanged=false,avatarVersion=0,previewVersion=0;
  const $=selector=>host.querySelector(selector);
  const post=(path,body={})=>api(path,{method:'POST',body:JSON.stringify(body)});
@@ -47,7 +48,7 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
  }
  function setBusy(value){
   busy=value;const locked=busy||writePending;host.setAttribute('aria-busy',String(locked||avatarBusy));
-  host.querySelectorAll('button,input').forEach(el=>{if(el.id!=='auth-resend')el.disabled=locked;});
+  host.querySelectorAll('button,input').forEach(el=>{if(el.id!=='auth-resend'&&el.dataset.profileControl===undefined&&!el.closest?.('.m5-profile-settings'))el.disabled=locked;});
   if($('#auth-avatar-save'))$('#auth-avatar-save').disabled=locked||avatarBusy||!avatarChanged;
   const button=$('[data-primary]');
   if(button){if(locked&&!button.dataset.label)button.dataset.label=button.textContent;button.textContent=locked?t('authProcessing'):(button.dataset.label||button.textContent);button.disabled=locked||avatarBusy;}
@@ -150,18 +151,32 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
   $('#auth-form').onsubmit=e=>{e.preventDefault();const password=new FormData(e.currentTarget).get('password');run(async version=>{const result=await post('/api/auth/email/start',{password,language:getLanguage()});if(await reconcileStaleFlow(version))return;flow=result;go('/account/verify');},'password');};
  }
  function refreshIdentity(){
-  const row=$('#auth-handle-row'),value=$('#auth-handle');if(!row||!value)return;
+  const display=$('#account-display-name');if(display&&getUser())display.textContent=getUser().name;const row=$('#auth-handle-row'),value=$('#auth-handle');if(!row||!value)return;
   const user=getUser(),identity=getIdentity(),valid=location.pathname.replace(/\/$/,'')==='/account'&&!!user&&identity?.id===user.id&&/^[a-z][a-z0-9_]{2,31}$/.test(identity?.handle||'');
   row.hidden=!valid;value.textContent=valid?'@'+identity.handle:'';
  }
+ function selectAccountSection(value){
+  accountSection=['profile','preferences','security'].includes(value)?value:'profile';
+  host.querySelectorAll('[data-account-panel]').forEach(node=>node.hidden=node.dataset.accountPanel!==accountSection);
+  host.querySelectorAll('[data-account-section]').forEach(node=>{node.setAttribute('aria-selected',String(node.dataset.accountSection===accountSection));});
+  if($('#account-profile-footer'))$('#account-profile-footer').hidden=accountSection!=='profile';
+ }
  function account(notice){refreshView=()=>account(notice);
   const user=getUser();if(!user){login();return;}
-  frame('account','',`<div class="auth-account-summary">${avatar(user)}<div><strong>${escape(user.name)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div></div><dl class="auth-details"><div><dt>${copy('name')}</dt><dd>${escape(user.name)}</dd></div><div><dt>${copy('email')}</dt><dd>${escape(user.email)}</dd></div><div id="auth-handle-row" hidden><dt>${copy('m4AccountHandle')}</dt><dd id="auth-handle"></dd></div></dl>${!user.emailVerified?`<p class="auth-help">${copy('authLegacyHelp')}</p><button class="auth-secondary" id="auth-legacy">${copy('authVerifyNow')}</button>`:''}<h2 class="auth-subheading">${copy('authAvatar')}</h2>${avatarPicker(user,true)}${errorBox()}${user.emailVerified?`<a class="auth-secondary" href="${escape(routeURL('/account/forgot-password'))}" data-account-route="/account/forgot-password">${copy('authResetTitle')}</a>`:''}<button class="auth-link auth-logout" id="auth-logout">${copy('logout')}</button>`,{notice});
-  refreshIdentity();onAccountRender(host);
-  bindAvatar(()=>({...getUser(),avatarUrl:avatarChanged?null:getUser().avatarUrl}),true);
+  if(sectionOwner!==user.id){sectionOwner=user.id;accountSection='profile';}
+  document.title=t('accountHeading')+' · Japan Life Base';
+  const options=[['system',t('system')],['zh-CN','简体中文'],['zh-TW','繁體中文'],['ja','日本語'],['en','English'],['ko','한국어']];const preference=getPreference();if(!options.some(([id])=>id===preference))options.push([preference,preference]);
+  host.innerHTML=`<div class="account-center"><header class="account-page-heading"><h1 id="auth-title" tabindex="-1">${copy('accountHeading')}</h1><button class="text-button" id="auth-back">${copy('backHome')}</button></header><div class="account-identity">${avatar(user)}<div><strong id="account-display-name">${escape(user.name)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div></div><div class="account-layout"><nav class="account-sections" role="tablist" aria-label="${copy('accountSettings')}">${[['profile','m5Profile'],['preferences','accountPreferences'],['security','accountSecurity']].map(([id,key])=>`<button type="button" role="tab" data-account-section="${id}" aria-controls="account-panel-${id}">${copy(key)}</button>`).join('')}</nav><div class="account-content"><section id="account-panel-profile" role="tabpanel" data-account-panel="profile"><h2>${copy('m5Profile')}</h2><p class="account-intro">${copy('accountPublicIntro')}</p><details class="account-avatar-details"><summary>${copy('accountChangeAvatar')}</summary>${avatarPicker(user,true)}<p class="auth-help">${copy('accountAvatarSeparate')}</p></details><div id="auth-handle-row" class="account-handle-row" hidden><span>${copy('m4AccountHandle')}</span><code id="auth-handle"></code><small>${copy('accountHandleHint')}</small></div><div class="account-profile-mount"></div></section><section id="account-panel-preferences" role="tabpanel" data-account-panel="preferences" hidden><h2>${copy('accountPreferences')}</h2><p class="account-intro">${copy('accountLanguageHint')}</p><label class="account-field"><span>${copy('language')}</span><select id="account-language">${options.map(([id,label])=>`<option value="${escape(id)}"${id===preference?' selected':''}>${escape(label)}</option>`).join('')}</select></label><label class="account-field"><span>${copy('accountReadingSize')}</span><select id="account-reading-size"><option value="standard"${getReadingSize()==='standard'?' selected':''}>${copy('accountStandard')}</option><option value="large"${getReadingSize()==='large'?' selected':''}>${copy('accountLarge')}</option></select><small>${copy('accountReadingHint')}</small></label><div class="account-preference-links"><button class="auth-secondary" data-private-page="notifications">${copy('m4Notifications')}</button><button class="auth-secondary" data-private-page="bookmarks">${copy('m4Bookmarks')}</button></div><p class="account-intro">${copy('accountProfilePrivate')}</p></section><section id="account-panel-security" role="tabpanel" data-account-panel="security" hidden><h2>${copy('accountSecurity')}</h2><p class="account-intro">${copy('accountSecurityIntro')}</p><div class="account-security-row"><span>${copy('email')}</span><strong>${escape(user.email)}</strong><span class="auth-status${user.emailVerified?'':' auth-pending'}">${copy(user.emailVerified?'authVerified':'authUnverified')}</span></div>${!user.emailVerified?`<p class="auth-help">${copy('authLegacyHelp')}</p><button class="auth-secondary" id="auth-legacy">${copy('authVerifyNow')}</button>`:`<a class="auth-secondary" id="account-reset-password" href="${escape(routeURL('/account/forgot-password'))}">${copy('authResetTitle')}</a>`}<p class="account-intro">${copy('accountProfilePrivate')}</p><button class="auth-link auth-logout" id="auth-logout">${copy('logout')}</button></section>${errorBox()}${notice?`<p class="auth-notice" role="status">${copy(notice)}</p>`:''}</div></div><footer class="account-profile-footer" id="account-profile-footer"><button type="button" id="account-profile-cancel" data-profile-control disabled>${copy('accountCancel')}</button><span id="account-save-status" class="account-save-status" role="status"></span><button type="submit" class="dark-button" form="account-profile-form" id="account-profile-submit" data-profile-control disabled>${copy('m5Save')}</button></footer></div>`;
+  $('#auth-back').onclick=()=>navigate(context().target);host.querySelectorAll('[data-account-section]').forEach(button=>button.onclick=()=>selectAccountSection(button.dataset.accountSection));
+  $('#account-language').onchange=event=>onLanguage(event.target.value);$('#account-reading-size').onchange=event=>onReadingSize(event.target.value);
+  host.querySelectorAll('[data-private-page]').forEach(button=>button.onclick=()=>onPrivatePage(button.dataset.privatePage));
+  if($('#account-reset-password'))$('#account-reset-password').onclick=event=>{event.preventDefault();go('/account/forgot-password');};
+  selectAccountSection(accountSection);refreshIdentity();onAccountRender(host);bindAvatar(()=>({...getUser(),avatarUrl:avatarChanged?null:getUser().avatarUrl}),true);
   if($('#auth-legacy'))$('#auth-legacy').onclick=legacy;
   $('#auth-logout').onclick=()=>run(async version=>{if(!await beforeLogout())return;await post('/api/logout');onUser(null);onLogout();avatarData=null;avatarChanged=false;if(version===generation)go('/account/login');});
+  setBusy(busy);
  }
+
  function success(title,notice){refreshView=()=>success(title,notice);
   clearInterval(timer);frame(title,'authAccountReady',`<div class="auth-success" aria-hidden="true">✓</div><div class="auth-account-summary">${avatar(getUser()||{})}<strong>${escape(getUser()?.name||'')}</strong></div><button class="dark-button auth-primary" id="auth-continue">${copy(continueKey())}</button><a class="auth-secondary" href="${escape(routeURL('/account'))}" data-account-route="/account">${copy('account')}</a>`,{notice});
   $('#auth-continue').onclick=()=>{const c=context();onContinue(c.target,c.intent);};
@@ -191,9 +206,10 @@ export function createAuthUI({host,api,t,getUser,onUser,avatar,navigate,onContin
  }
  async function refreshLanguage(){
   if(!refreshView)return;if(busy||writePending||avatarBusy){pendingLanguageRefresh=true;return;}pendingLanguageRefresh=false;
-  const fields=[...host.querySelectorAll('input')].map(el=>({id:el.id,value:el.value,type:el.type,checked:el.checked,start:el.selectionStart,end:el.selectionEnd,active:el===document.activeElement}));
+  const avatarOpen=$('.account-avatar-details')?.open;const fields=[...host.querySelectorAll('input')].map(el=>({id:el.id,value:el.value,type:el.type,checked:el.checked,start:el.selectionStart,end:el.selectionEnd,active:el===document.activeElement}));
   clearInterval(timer);timer=null;repainting=true;try{refreshView();}finally{repainting=false;}
   for(const field of fields){const el=field.id?host.querySelector('#'+field.id):null;if(!el||field.type==='file')continue;el.value=field.value;el.checked=field.checked;if(field.active){el.focus({preventScroll:true});if(typeof el.setSelectionRange==='function'&&field.start!==null)el.setSelectionRange(field.start,field.end);}}
+  if(avatarOpen&&$('.account-avatar-details'))$('.account-avatar-details').open=true;
   if(avatarData)previewAvatar(getUser()||{name:$('#auth-name')?.value||'?'});
  }
  return {render,refreshLanguage,refreshIdentity,leave(){refreshView=null;generation++;avatarVersion++;clearInterval(timer);timer=null;busy=false;avatarBusy=false;avatarData=null;avatarChanged=false;host.replaceChildren();},open(mode,{target='/',intent=''}={}){const p=new URLSearchParams();target=safeReturn(target);if(target!=='/')p.set('return',target);if(intents.has(intent))p.set('intent',intent);navigate(`/account/${mode==='register'?'register':'login'}${p.size?'?'+p:''}`);}};

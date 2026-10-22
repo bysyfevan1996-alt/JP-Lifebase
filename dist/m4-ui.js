@@ -1,6 +1,6 @@
-import {categoryLabel} from './community-directory.js?v=20261022042008490';
-import {renderMarkdown} from './markdown.js?v=20261022042008490';
-import {formatContentTime} from './content-time.js?v=20261022042008490';
+import {categoryLabel} from './community-directory.js?v=20261022055817972';
+import {renderMarkdown} from './markdown.js?v=20261022055817972';
+import {formatContentTime} from './content-time.js?v=20261022055817972';
 
 const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const button=(text,work,className='m4-button')=>{const node=element('button',text,className);node.type='button';node.onclick=work;return node;};
@@ -11,7 +11,7 @@ const subscriptionKeys={watching:['m4Watching','m4WatchingHint'],tracking:['m4Tr
 
 export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,toast=()=>{},onChange=()=>{}}){
  let disposed=false,actor=undefined,generation=0,identity=null,unreadCount=0,polling=false,identityLoading=false;
- let controller=new AbortController();const dialogs=new Set(),topics=new Set();
+ let controller=new AbortController();const dialogs=new Set(),privatePages=new Set(),topics=new Set();
  const current=(owner,ticket)=>!disposed&&(getUser()?.id||null)===owner&&generation===ticket;
  const request=(url,config={})=>api(url,{...config,signal:config.signal||controller.signal});
  const update=()=>{if(!disposed)onChange({identity,unreadCount});};
@@ -22,7 +22,11 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
   header.append(element('h2',title),button(t('close'),()=>node.close(),'m4-modal-close'));node.append(header,body);document.body.append(node);dialogs.add(node);document.body.classList.add('m4-modal-open');
   node.addEventListener('close',()=>{dialogs.delete(node);node.remove();if(!dialogs.size)document.body.classList.remove('m4-modal-open');if(trigger?.isConnected)trigger.focus({preventScroll:true});},{once:true});node.showModal();return {node,body};
  }
- function closeDialogs(){for(const value of [...dialogs])value.close();}
+ function privatePage(title,host){
+  const node=element('section',undefined,'m4-private-page'),body=element('div',undefined,'m4-private-body');node.append(element('h1',title),body);host.append(node);node.open=true;privatePages.add(node);
+  node.close=()=>{if(!node.open)return;node.open=false;privatePages.delete(node);node.remove();};return {node,body};
+ }
+ function closeDialogs(){for(const value of [...dialogs,...privatePages])value.close();}
  function askAuth(intent=''){closeDialogs();onAuth(intent);}
  async function poll(){
   if(disposed||polling||!getUser()||document.hidden)return;
@@ -48,8 +52,8 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
    const footer=element('div',undefined,'m4-source-footer');footer.append(button(t('m4OpenTopic'),()=>{closeDialogs();onOpenTopic(content.topicId);}));body.append(text,footer);
   }catch(error){if(current(owner,ticket)&&node.open){body.replaceChildren(element('p',error.status===404?t('m4Unavailable'):fail(error),'m4-modal-error'));if(error.status!==404)body.append(button(t('retry'),()=>{node.close();source(ref,trigger);}));}}
  }
- function openNotifications(){
-  if(!getUser()){askAuth('messages');return;}const owner=getUser().id,ticket=generation,{node,body}=modal(t('m4Notifications'));
+ function openNotifications({host}={}){
+  if(!getUser()){askAuth('messages');return;}const owner=getUser().id,ticket=generation,{node,body}=host?privatePage(t('m4Notifications'),host):modal(t('m4Notifications'));
   const toolbar=element('div',undefined,'m4-inbox-toolbar'),tabs=element('div',undefined,'m4-inbox-tabs'),all=button(t('m4All'),()=>switchFilter(false)),unread=button(t('m4Unread'),()=>switchFilter(true)),markAll=button(t('m4ReadAll'),markEverything);
   tabs.append(all,unread);toolbar.append(tabs,markAll);const list=element('div'),status=element('p',undefined,'m4-modal-error'),more=button(t('loadMore'),()=>load(false),'m4-button m4-load-more');body.append(toolbar,list,status,more);status.hidden=more.hidden=true;
   let onlyUnread=false,cursor=null,busy=false,loadId=0,empty=null;const known=new Set();
@@ -63,7 +67,7 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
    if(reset){cursor=null;empty=null;known.clear();list.replaceChildren(element('p',t('loading'),'m4-empty'));more.hidden=true;}
    try{const result=await request('/api/me/notifications?'+new URLSearchParams({...onlyUnread?{unread:'1'}:{},...cursor?{cursor}:{} }));if(!alive()||attempt!==loadId)return;
     if(reset)list.replaceChildren();unreadCount=Number(result.unreadCount)||0;update();
-    for(const item of result.notifications||[]){if(known.has(item.id))continue;known.add(item.id);empty?.remove();empty=null;let read=null;const row=element('article',undefined,'m4-notification'+(item.readAt?' m4-read':''));function reflectRead(){item.readAt=item.readAt||true;row.classList.add('m4-read');read?.remove();if(onlyUnread){row.remove();emptyState();}}const open=button('',async()=>{try{if(!item.readAt)await mark([item.id]);if(!alive())return;reflectRead();source(item,open);}catch(error){if(alive()){status.textContent=fail(error);status.hidden=false;}}},'m4-notification-open');
+    for(const item of result.notifications||[]){if(known.has(item.id))continue;known.add(item.id);empty?.remove();empty=null;let read=null;const row=element('article',undefined,'m4-notification'+(item.readAt?' m4-read':''));function reflectRead(){item.readAt=item.readAt||true;row.classList.add('m4-read');read?.remove();if(onlyUnread){row.remove();emptyState();}}const open=button('',async()=>{try{if(!item.readAt)await mark([item.id]);if(!alive())return;reflectRead();if(host)onOpenTopic(item.topicId);else source(item,open);}catch(error){if(alive()){status.textContent=fail(error);status.hidden=false;}}},'m4-notification-open');
      const heading=element('strong',item.topicTitle),summary=element('span',(item.actor?.name||'')+' '+t(noticeKeys[item.type]||'m4NoticeReply'));open.append(heading,summary);const stamp=element('time',time(item.createdAt));stamp.dateTime=item.createdAt;open.append(stamp);
      const actions=element('div',undefined,'m4-inbox-actions');if(!item.readAt){read=button(t('m4MarkRead'),async()=>{read.disabled=true;try{await mark([item.id]);if(!alive())return;reflectRead();}catch(error){if(alive()){read.disabled=false;status.textContent=fail(error);status.hidden=false;}}});actions.append(read);}row.append(open,actions);list.append(row);
     }
@@ -73,8 +77,8 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
   }
   load(true);
  }
- function openBookmarks(){
-  if(!getUser()){askAuth('bookmarks');return;}const owner=getUser().id,ticket=generation,{node,body}=modal(t('m4Bookmarks')),list=element('div'),status=element('p',undefined,'m4-modal-error'),more=button(t('loadMore'),load,'m4-button m4-load-more');body.append(list,status,more);status.hidden=more.hidden=true;let cursor=null,busy=false,first=true;const seen=new Set(),alive=()=>current(owner,ticket)&&node.open;
+ function openBookmarks({host}={}){
+  if(!getUser()){askAuth('bookmarks');return;}const owner=getUser().id,ticket=generation,{node,body}=host?privatePage(t('m4Bookmarks'),host):modal(t('m4Bookmarks')),list=element('div'),status=element('p',undefined,'m4-modal-error'),more=button(t('loadMore'),load,'m4-button m4-load-more');body.append(list,status,more);status.hidden=more.hidden=true;let cursor=null,busy=false,first=true;const seen=new Set(),alive=()=>current(owner,ticket)&&node.open;
   async function load(){if(busy||!alive())return;busy=true;more.disabled=true;status.hidden=true;if(first)list.replaceChildren(element('p',t('loading'),'m4-empty'));
    try{const result=await request('/api/me/bookmarks'+(cursor?'?cursor='+encodeURIComponent(cursor):''));if(!alive())return;if(first){list.replaceChildren();first=false;}for(const item of result.bookmarks||[]){if(seen.has(item.topicId))continue;seen.add(item.topicId);const row=button('',()=>{node.close();onOpenTopic(item.topicId);},'m4-notification-open');row.append(element('strong',item.title),element('span',categoryLabel(item.category,document.documentElement.lang,t)));const card=element('article',undefined,'m4-notification');card.append(row);list.append(card);}cursor=result.nextCursor||null;more.hidden=!cursor;more.textContent=t('loadMore');if(!seen.size)list.append(element('p',t('m4NoBookmarks'),'m4-empty'));}
    catch(error){if(alive()){status.textContent=fail(error);status.hidden=false;more.hidden=false;more.textContent=t('retry');}}finally{if(alive()){busy=false;more.disabled=false;}}

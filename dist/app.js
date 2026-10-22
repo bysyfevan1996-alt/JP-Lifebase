@@ -1,24 +1,25 @@
-import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261022042008490';
-import {m5Dictionaries} from './m5-i18n.js?v=20261022042008490';
-import {createM5UI,searchURL} from './m5-ui.js?v=20261022042008490';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022042008490';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261022042008490';
-import {categories,avatarColors} from './topics.js?v=20261022042008490';
-import {selectTopics} from './select-topics.js?v=20261022042008490';
-import {icon} from './icons.js?v=20261022042008490';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261022042008490';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261022042008490';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261022042008490';
-import {createContentUI} from './m3-ui.js?v=20261022042008490';
-import {m3Dictionaries} from './m3-i18n.js?v=20261022042008490';
-import {createCommunityInteractionsUI} from './m4-ui.js?v=20261022042008490';
-import {m4Dictionaries} from './m4-i18n.js?v=20261022042008490';
-import {createComposer} from './composer.js?v=20261022042008490';
-import {composerDictionaries} from './composer-i18n.js?v=20261022042008490';
-import {renderMarkdown} from './markdown.js?v=20261022042008490';
-import {createReadingNavigation} from './reading-nav.js?v=20261022042008490';
-import {createMobileReading} from './mobile-reading.js?v=20261022042008490';
-import {topicTags} from './topic-tags.js?v=20261022042008490';
+import {createInterfaceShell} from './interface-shell.js?v=20261022055817972';
+import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261022055817972';
+import {m5Dictionaries} from './m5-i18n.js?v=20261022055817972';
+import {createM5UI,searchURL} from './m5-ui.js?v=20261022055817972';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022055817972';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261022055817972';
+import {categories,avatarColors} from './topics.js?v=20261022055817972';
+import {selectTopics} from './select-topics.js?v=20261022055817972';
+import {icon} from './icons.js?v=20261022055817972';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261022055817972';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261022055817972';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261022055817972';
+import {createContentUI} from './m3-ui.js?v=20261022055817972';
+import {m3Dictionaries} from './m3-i18n.js?v=20261022055817972';
+import {createCommunityInteractionsUI} from './m4-ui.js?v=20261022055817972';
+import {m4Dictionaries} from './m4-i18n.js?v=20261022055817972';
+import {createComposer} from './composer.js?v=20261022055817972';
+import {composerDictionaries} from './composer-i18n.js?v=20261022055817972';
+import {renderMarkdown} from './markdown.js?v=20261022055817972';
+import {createReadingNavigation} from './reading-nav.js?v=20261022055817972';
+import {createMobileReading} from './mobile-reading.js?v=20261022055817972';
+import {topicTags} from './topic-tags.js?v=20261022055817972';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 for(const [language,copy] of Object.entries(m3Dictionaries))Object.assign(dictionaries[language],copy);
@@ -30,11 +31,11 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const stored=key=>{try{return localStorage.getItem(key);}catch{return null;}};
 const persist=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
 const requestedTag=new URLSearchParams(location.search).get('tag');
-const state={category:'all',tag:topicTags.some(tag=>tag.id===requestedTag)?requestedTag:null,query:'',sort:'latest',solved:'all',limit:12,unanswered:false,showBanner:stored('jlb-banner')!=='hidden',user:null,topicId:null,scrollY:0,topics:[],loading:true,error:null,language:'zh-CN',dictionary:dictionaries['zh-CN'],uiAutomatic:false,uiUnavailable:false,original:false,translation:{},preference:readLanguagePreference()};
+const state={category:'all',tag:topicTags.some(tag=>tag.id===requestedTag)?requestedTag:null,query:'',sort:'latest',solved:'all',limit:12,unanswered:false,showBanner:stored('jlb-banner')==='visible',user:null,topicId:null,scrollY:0,topics:[],loading:true,error:null,language:'zh-CN',dictionary:dictionaries['zh-CN'],uiAutomatic:false,uiUnavailable:false,original:false,translation:{},preference:readLanguagePreference()};
 let quote=null,toastTimer=null,listRequest=0,detailRequest=0,languageRequest=0,savedReplyDraft=null,composer=null,authAfter=null,initialReady=false,privateRequest=0;
 const replyDrafts=new Map();
 const replyDraftKey=(topicId,owner=state.user?.id||null)=>JSON.stringify([owner,topicId]);
-let contentUI=null,interactionsUI=null,disposeInteractions=null,m5UI=null;
+let contentUI=null,interactionsUI=null,disposeInteractions=null,m5UI=null,interfaceShell=null;
 let readingNavigation=null,readingState={topicId:null,window:'first',bookmark:null};
 const t=(key,values={})=>String(state.dictionary[values.count===1&&state.dictionary[key+'One']?key+'One':key]??dictionaries.en[key]??key).replace(/\{(\w+)\}/g,(_,k)=>values[k]??`{${k}}`);
 const svgInit=(parent=document)=>parent.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
@@ -73,16 +74,16 @@ const preferences=createLanguagePreferences({api,onChange:value=>setLanguage(val
 function applyUser(user){if((state.user?.id||null)!==(user?.id||null)){disposeContent();const anonymous=!state.user&&user?savedReplyDraft:null;replyDrafts.clear();savedReplyDraft=anonymous?.owner===null?{...anonymous,owner:user.id,pending:null,attachmentIds:[],editDraft:null}:null;if(savedReplyDraft)replyDrafts.set(replyDraftKey(savedReplyDraft.topicId,user.id),savedReplyDraft);detailRequest++;}state.user=user;m5UI?.setUser();composer?.setUser(user);renderAccounts();return preferences.setUser(user);}
 function clearPrivateData(){disposeContent();detailRequest++;privateRequest++;savedReplyDraft=null;replyDrafts.clear();composer?.logout();authAfter=null;quote=null;interactionsUI?.refreshIdentity();if(dialog.open)dialog.close();$('#dialog-body').replaceChildren();}
 function navigatePage(url){composer?.suspend();if(dialog.open)dialog.close();history.pushState(null,'',url);closeFilter();closeDrawer();renderRoute();window.scrollTo({top:0});}
-function continueAuth(target,intent){const callback=authAfter;authAfter=null;const destination=safeReturn(target);if(destination==='/admin'){location.assign(destination);return;}navigatePage(destination);if(callback)callback();else if(intent==='compose')openComposer();else if(['topics','messages','bookmarks'].includes(intent))openPersonal(intent);}
+function continueAuth(target,intent){const callback=authAfter;authAfter=null;const destination=safeReturn(target);if(destination==='/admin'){location.assign(destination);return;}navigatePage(destination);if(callback)callback();else if(intent==='compose')openComposer();else if(['topics','messages','bookmarks'].includes(intent)&&!['/notifications','/bookmarks','/my-topics'].includes(destination))openPersonal(intent);}
 let accountIdentity=null;
-const authUI=createAuthUI({host:$('#account-view'),api,t,getUser:()=>state.user,getIdentity:()=>accountIdentity,onAccountRender:host=>m5UI?.mountSettings(host),onUser:user=>{applyUser(user);loadTopics();},avatar,navigate:navigatePage,onContinue:continueAuth,onLogout:clearPrivateData,beforeLogout:()=>composer?.beforeLogout()??true,getLanguage:()=>state.language});
+const authUI=createAuthUI({host:$('#account-view'),api,t,getUser:()=>state.user,getIdentity:()=>accountIdentity,onAccountRender:host=>m5UI?.mountSettings(host),onUser:user=>{applyUser(user);loadTopics();},avatar,navigate:navigatePage,onContinue:continueAuth,onLogout:clearPrivateData,beforeLogout:()=>composer?.beforeLogout()??true,getLanguage:()=>state.language,getPreference:()=>state.preference,onLanguage:value=>preferences.choose(value),getReadingSize:()=>document.body.classList.contains('reading-size-large')?'large':'standard',onReadingSize:value=>{document.body.classList.toggle('reading-size-large',value==='large');persist('jlb-reading-size',value==='large'?'large':'standard');},onPrivatePage:page=>navigatePage('/'+page)});
 function syncSidebar(){const hidden=document.body.classList.contains('composer-open')||(drawerQuery.matches?!document.body.classList.contains('drawer-open'):document.body.classList.contains('nav-collapsed'));$('#sidebar').inert=hidden;$('#sidebar').setAttribute('aria-hidden',String(hidden));}
 function closeDrawer(){document.body.classList.remove('drawer-open');syncSidebar();$('#drawer-shade').hidden=true;$('#menu-toggle').setAttribute('aria-expanded',String(!drawerQuery.matches&&!document.body.classList.contains('nav-collapsed')));}
 function closeFilter(){$('#filter-popover').hidden=true;$('#filter-toggle').setAttribute('aria-expanded','false');}
 function bindCategories(parent){parent.querySelectorAll('[data-category]').forEach(b=>b.addEventListener('click',()=>setCategory(b.dataset.category)));}
 function updateTranslation(translation=state.translation){state.translation=translation;const unavailable=state.uiUnavailable||translation.unavailable,automatic=state.uiAutomatic||translation.automatic;$('#translation-notice').hidden=!(unavailable||automatic||state.original);$('#translation-label').textContent=unavailable?t('translationUnavailable')+(state.uiUnavailable?' '+t('interfaceEnglish'):''):automatic?t('machineNote'):t('showOriginal');$('#original-toggle').textContent=state.original?t('showTranslation'):t('showOriginal');$('#original-toggle').hidden=!(translation.automatic||translation.unavailable||state.original);}
 function renderAccounts(){const adminEntry=document.getElementById('admin-entry');if(adminEntry)adminEntry.hidden=state.user?.role!=='admin';const box=$('#account-actions');box.innerHTML=state.user?`<button class="pill" id="my-account" aria-label="${escape(t('account')+': '+state.user.name)}">${avatar(state.user)}</button>`:`<button class="pill" data-auth="register">${escape(t('register'))}</button><button class="pill" data-auth="login">${escape(t('login'))}</button>`;box.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>openAuth(b.dataset.auth)));if(state.user)$('#my-account').onclick=()=>{const p=new URLSearchParams();const target=isAccountRoute(location.pathname)?safeReturn(new URLSearchParams(location.search).get('return')):safeReturn(location.pathname+location.search+location.hash);if(target!=='/')p.set('return',target);navigatePage('/account'+(p.size?'?'+p:''));};interactionsUI?.refreshIdentity();}
-function applyLanguage(){composer?.refreshLanguage();document.documentElement.lang=state.uiUnavailable?'en':state.language;document.title='Japan Life Base';document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));$('#search-input').placeholder=t('search');$('#search-input').ariaLabel=t('search');$('#menu-toggle').ariaLabel=t('menu');$('#filter-toggle').ariaLabel=t('searchSettings');$('#banner-close').ariaLabel=t('close');$('#assistant-close').ariaLabel=t('close');$('#dialog-close').ariaLabel=t('close');$('#chat-input').placeholder=t('search');$('#chat-input').ariaLabel=t('search');$('#language-select').querySelector('[value="system"]').textContent=t('system');const label=new Intl.DisplayNames([state.uiUnavailable?'en':state.language],{type:'language'});$('#locale-label').textContent=label.of(state.language)||state.language;$('#category-links').innerHTML=Object.entries(categories).filter(([id,c])=>c.active!==false).map(([id,c])=>`<button class="side-link" data-category="${id}"><span class="category-marker" style="--cat:${c.color}"></span>${escape(categoryLabel(id,state.language,t))}</button>`).join('');$('#category-select').innerHTML=`<option value="all">${escape(t('allCategories'))}</option>`+Object.keys(categories).filter(id=>categories[id].active!==false||id===state.category).map(id=>`<option value="${id}">${escape(categoryLabel(id,state.language,t))}</option>`).join('');bindCategories($('#category-links'));ensureLanguageOption($('#language-select'),state.preference,state.language);$('#language-select').value=state.preference;renderAccounts();updateTranslation();svgInit();}
+function applyLanguage(){composer?.refreshLanguage();document.documentElement.lang=state.uiUnavailable?'en':state.language;document.title='Japan Life Base';document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));$('#search-input').placeholder=t('search');$('#search-input').ariaLabel=t('search');$('#menu-toggle').ariaLabel=t('menu');$('#filter-toggle').ariaLabel=t('searchSettings');$('#banner-close').ariaLabel=t('close');$('#assistant-close').ariaLabel=t('close');$('#dialog-close').ariaLabel=t('close');$('#chat-input').placeholder=t('search');$('#chat-input').ariaLabel=t('search');$('#language-select').querySelector('[value="system"]').textContent=t('system');const label=new Intl.DisplayNames([state.uiUnavailable?'en':state.language],{type:'language'});$('#locale-label').textContent=label.of(state.language)||state.language;$('#category-links').innerHTML=Object.entries(categories).filter(([id,c])=>c.active!==false).map(([id,c])=>`<button class="side-link" data-category="${id}"><span class="category-marker" style="--cat:${c.color}"></span>${escape(categoryLabel(id,state.language,t))}</button>`).join('');$('#category-select').innerHTML=`<option value="all">${escape(t('allCategories'))}</option>`+Object.keys(categories).filter(id=>categories[id].active!==false||id===state.category).map(id=>`<option value="${id}">${escape(categoryLabel(id,state.language,t))}</option>`).join('');bindCategories($('#category-links'));ensureLanguageOption($('#language-select'),state.preference,state.language);$('#language-select').value=state.preference;renderAccounts();interfaceShell?.refresh();updateTranslation();svgInit();}
 async function setLanguage(preference){
  const ticket=++languageRequest,route=location.pathname+location.search+location.hash,scroll=window.scrollY;
  const reply=$('#reply-text'),replyFocused=reply===document.activeElement,replySelection=reply?[reply.selectionStart,reply.selectionEnd]:null;
@@ -111,15 +112,18 @@ function setTag(id){if(id!==null&&!topicTags.some(tag=>tag.id===id))return;state
 function renderRoute(){
  disposeContent();m5UI?.leave();interactionsUI?.leaveRoute();readingNavigation?.destroy();readingNavigation=null;document.body.classList.remove('topic-reading');$('#reading-mobile').hidden=true;
  const path=location.pathname.replace(/\/$/,''),account=isAccountRoute(location.pathname),tool=['/denkikakaku','/moving-checklist'].includes(path),profile=path.match(/^\/u\/([a-z][a-z0-9_]{2,31})$/),search=path==='/search',topicPath=path.match(/^\/t\/([A-Za-z0-9_-]{1,100})$/);
- const id=!account&&!tool&&!profile&&!search?(topicPath?.[1]||new URLSearchParams(location.hash.slice(1)).get('topic')):null;
+ const privatePage=['/notifications','/bookmarks','/my-topics'].includes(path);
+ document.body.classList.toggle('account-center-active',account&&path==='/account'&&!!state.user);if(search)$('#search-input').value=new URLSearchParams(location.search).get('q')||'';interfaceShell?.refresh();
+ const id=!account&&!tool&&!profile&&!search&&!privatePage?(topicPath?.[1]||new URLSearchParams(location.hash.slice(1)).get('topic')):null;
  const canonical=document.querySelector('link[rel="canonical"]');if(canonical)canonical.href='https://www.jp-lifebase.com'+(id?'/t/'+encodeURIComponent(id):'/');
  const description=document.querySelector('meta[name="description"]');if(description)description.content='Japan Life Base，在日本生活的讨论社区。';
- let robots=document.querySelector('meta[name="robots"]');if(account||profile||search){if(!robots){robots=document.createElement('meta');robots.name='robots';document.head.append(robots);}robots.content='noindex, follow';}else if(robots)robots.remove();
+ let robots=document.querySelector('meta[name="robots"]');if(account||profile||search||privatePage){if(!robots){robots=document.createElement('meta');robots.name='robots';document.head.append(robots);}robots.content='noindex, follow';}else if(robots)robots.remove();
 
  if(readingState.topicId!==id)readingState={topicId:id,window:'first',bookmark:null};
- $('#community-actions').hidden=account||tool||!!id||!!profile||search;if(id||account||tool||profile||search)toggleAssistant(false);composer?.setRoute(account||!!profile||search);
- $('#account-view').hidden=!account;$('#tool-view').hidden=!tool;$('#list-view').hidden=tool||account||!!profile||search;$('#detail-view').hidden=!id;$('#m5-view').hidden=!profile&&!search;
+ $('#community-actions').hidden=account||tool||!!id||!!profile||search||privatePage;if(id||account||tool||profile||search||privatePage)toggleAssistant(false);composer?.setRoute(account||!!profile||search||privatePage);
+ $('#account-view').hidden=!account;$('#tool-view').hidden=!tool;$('#list-view').hidden=tool||account||!!profile||search||privatePage;$('#detail-view').hidden=!id;$('#m5-view').hidden=!profile&&!search&&!privatePage;
  if(account){state.topicId=null;detailRequest++;if(initialReady)authUI.render();else $('#account-view').innerHTML=`<div class="empty-state" role="status">${escape(t('loading'))}</div>`;return;}authUI.leave();
+ if(privatePage){state.topicId=null;detailRequest++;if(initialReady)renderPrivatePage(path);return;}
  if(profile||search){state.topicId=null;detailRequest++;if(profile)m5UI?.renderProfile(profile[1]);else m5UI?.renderSearch();return;}
  if(tool){state.topicId=null;const denki=path==='/denkikakaku';$('#tool-view').innerHTML=`<a class="back-button" href="/">${icon('arrow-left')}${escape(t('backHome'))}</a><div class="tool-placeholder"><h1>${escape(t(denki?'electricityTool':'movingTool'))}</h1><p>${escape(t(denki?'electricityBody':'movingBody'))}</p></div>`;return;}
  const queryTag=new URLSearchParams(location.search).get('tag');if(!location.hash&&location.pathname==='/'&&state.tag!==(topicTags.some(tag=>tag.id===queryTag)?queryTag:null)){state.tag=topicTags.some(tag=>tag.id===queryTag)?queryTag:null;state.limit=12;loadTopics();}
@@ -147,7 +151,7 @@ async function loadDetail(id,mode=readingState.window,jump=null){
 function renderDetail(result){
  const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=String(result.topic?.excerpt||result.topic?.title||'').slice(0,180);
  const topic=result.topic,root=$('#topic-detail'),mobile=$('#reading-mobile');
- document.title=topic.title+' · Japan Life Base';root.className='topic-reading-layout';root.dataset.topicId=topic.id;root.dataset.replyCount=String(topic.replies||0);
+ document.title=topic.title+' · Japan Life Base';root.className='topic-reading-layout';root.dataset.topicId=topic.id;root.dataset.flowHeader='true';root.dataset.replyCount=String(topic.replies||0);
  const navButton=(action,key,primary=false,hidden=false)=>{
   const symbol={original:'book',replies:'message',latest:'chevron-down',write:'reply',return:'arrow-left'}[action]||'message';
   return '<button type="button" data-reading-action="'+action+'" class="reading-action'+(primary?' reading-primary':'')+(action==='return'?' reading-return':'')+'"'+(hidden?' hidden':'')+(action==='return'?' disabled':'')+' aria-label="'+escape(t(key,{count:topic.replies||0}))+'"><span class="reading-action-icon">'+icon(symbol)+'</span><span class="reading-action-label">'+escape(t(action==='replies'?'readingRepliesLabel':key))+'</span>'+(action==='replies'?'<span class="reading-count">'+Number(topic.replies||0)+'</span>':'')+'</button>';
@@ -162,6 +166,7 @@ function renderDetail(result){
   '<div class="posts"><div class="original-post"></div><section id="topic-replies" class="topic-replies" aria-labelledby="replies-title"><div class="replies-heading"><h2 id="replies-title" tabindex="-1">'+escape(t('readingRepliesHeading',{count:topic.replies||0}))+'</h2>'+navButton('latest','readingLatest',false,!topic.replies)+'</div><p class="reply-window-note" hidden></p><div class="reply-posts"></div><div class="no-replies"'+(topic.replies?' hidden':'')+'><p>'+escape(t('readingNoReplies'))+'</p>'+navButton('write','readingFirstReply')+'</div></section></div>',
   '<section id="topic-reply-editor" class="reply-editor"><label for="reply-text">'+escape(t('reply'))+'</label><blockquote id="reply-quote" class="quote" hidden></blockquote><button class="plain-button" id="cancel-quote" hidden>'+escape(t('cancelQuote'))+'</button><textarea id="reply-text" placeholder="'+escape(t('replyPlaceholder'))+'" maxlength="5000"></textarea><div class="editor-actions"><button class="dark-button" id="send-reply">'+escape(t('sendReply'))+'</button></div><p class="form-error" id="reply-error" hidden></p></section></div>',
  ].join('');
+ const aside=document.createElement('aside');aside.className='reading-desktop-aside';aside.append(root.querySelector('.reading-nav'));root.append(aside);
  (result.posts||[]).forEach((post,index)=>{
   const el=document.createElement('article');el.className='post';el.tabIndex=-1;el.dataset.postId=post.id;
   if(index===0)el.id='topic-original';
@@ -197,26 +202,28 @@ function requireAuth(after,intent=''){if(state.user)after();else openAuth('login
 function openAuth(mode,after,intent=''){saveReplyState();composer?.suspend();const previous=new URLSearchParams(location.search);const target=isAccountRoute(location.pathname)?safeReturn(previous.get('return')):safeReturn(location.pathname+location.search+location.hash);authAfter=after||null;authUI.open(mode,{target,intent:intent||previous.get('intent')||''});}
 function openComposer(){closeFilter();closeDrawer();toggleAssistant(false);composer.open();}
 composer=createComposer({api,t,getUser:()=>state.user,getCategory:()=>state.category,getLanguage:()=>state.language,categories,onClose:syncSidebar,onAuth:()=>{state.user=null;composer.setUser(null);renderAccounts();openAuth('login',openComposer,'compose');},onPublished:topic=>{openTopic(topic.id);loadTopics();toast(t('published'));},toast});
-m5UI=createM5UI({api,t,getUser:()=>state.user,getLanguage:()=>state.language,navigate:navigatePage,openTopic,toast,host:$('#m5-view')});
+m5UI=createM5UI({onProfileSaved:async(result,owner)=>{const session=await api('/api/session');if(state.user?.id===owner&&session.user?.id===owner){await applyUser(session.user);authUI.refreshIdentity();}},api,t,getUser:()=>state.user,getLanguage:()=>state.language,navigate:navigatePage,openTopic,toast,host:$('#m5-view')});
 interactionsUI=createCommunityInteractionsUI({api,t,getUser:()=>state.user,onAuth:intent=>openAuth('login',null,intent),onOpenTopic:openTopic,toast,onChange:value=>{
  const count=$('#notification-count');if(Object.hasOwn(value,'unreadCount')){count.hidden=!value.unreadCount;count.textContent=value.unreadCount>99?'99+':String(value.unreadCount||0);count.setAttribute('aria-label',t('m4Unread')+': '+String(value.unreadCount||0));}
+ interfaceShell?.refresh(value);
  if(Object.hasOwn(value,'identity')){accountIdentity=value.identity;authUI.refreshIdentity();}
  if(value.topicId){const topic=state.topics.find(item=>item.id===value.topicId);if(topic)Object.assign(topic,{solved:value.solved,answerPostId:value.answerPostId});renderList();}
 }});
-async function openPersonal(kind){if(kind==='messages'||kind==='bookmarks'){closeDrawer();closeFilter();saveReplyState();if(kind==='messages')interactionsUI.openNotifications();else interactionsUI.openBookmarks();return;}requireAuth(async()=>{
- openDialog(t(kind==='topics'?'myTopics':'myMessages'),`<div class="empty-state">${escape(t('loading'))}</div>`);
- const ticket=++privateRequest;
- try{
-  const result=await api(`/api/me/${kind}?lang=${encodeURIComponent(dataLanguage())}`);
-  if(ticket!==privateRequest||!dialog.open)return;
-  const items=kind==='topics'?result.topics:result.messages;
-  $('#dialog-body').innerHTML=items.length?items.map(item=>`<button class="personal-topic" data-open="${escape(kind==='topics'?item.id:item.topicId)}"><strong>${escape(item.title||item.topicTitle)}</strong>${kind==='messages'?`<span>${escape(item.author)} · ${escape(item.body)}</span>`:''}<time>${escape(time(item.updatedAt||item.createdAt))}</time></button>`).join(''):`<p class="dialog-copy">${escape(t(kind==='topics'?'emptyMyTopics':'emptyMessages'))}</p>`;
-  $('#dialog-body').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{dialog.close();openTopic(b.dataset.open);});
- }catch(error){if(ticket===privateRequest&&dialog.open)$('#dialog-body').innerHTML=`<p class="form-error">${escape(errorText(error))}</p>`;}
-},kind);}
+function openPersonal(kind){navigatePage(kind==='messages'?'/notifications':kind==='bookmarks'?'/bookmarks':'/my-topics');}
+async function renderPrivatePage(path){
+ const host=$('#m5-view');if(!state.user){authUI.open('login',{target:path,intent:path==='/notifications'?'messages':path==='/bookmarks'?'bookmarks':'topics'});return;}
+ if(path==='/notifications'){interactionsUI.openNotifications({host});return;}if(path==='/bookmarks'){interactionsUI.openBookmarks({host});return;}
+ const owner=state.user.id,ticket=++privateRequest;host.innerHTML='<section class="personal-page"><h1>'+escape(t('myTopics'))+'</h1><div class="personal-list">'+escape(t('loading'))+'</div></section>';
+ const alive=()=>state.user?.id===owner&&ticket===privateRequest&&location.pathname.replace(/\/$/,'')==='/my-topics';
+ try{const result=await api('/api/me/topics?lang=original');if(!alive())return;const list=host.querySelector('.personal-list');list.replaceChildren();let limit=12;
+  function draw(){list.replaceChildren();for(const topic of result.topics.slice(0,limit)){const row=document.createElement('article');row.className='m5-result';const link=document.createElement('a');link.href='/t/'+encodeURIComponent(topic.id);link.className='m5-result-title';link.textContent=topic.title;link.onclick=e=>{e.preventDefault();openTopic(topic.id);};const meta=document.createElement('p');meta.textContent=categoryLabel(topic.category,state.language,t)+' · '+t('repliesCount',{count:topic.replies||0});row.append(link,meta);list.append(row);}if(!result.topics.length)list.textContent=t('emptyMyTopics');if(result.topics.length>limit){const more=document.createElement('button');more.className='m5-button';more.textContent=t('loadMore');more.onclick=()=>{limit+=12;draw();};list.append(more);}}
+  draw();
+ }catch(error){if(alive()){host.querySelector('.personal-list').textContent=errorText(error);const retry=document.createElement('button');retry.className='m5-button';retry.textContent=t('retry');retry.onclick=()=>renderPrivatePage(path);host.append(retry);}}
+}
+
 function openContact(){openDialog(t('contactTitle'),`<form id="contact-form"><label class="form-field">${escape(t('name'))}<input name="name" autocomplete="name" required maxlength="60" value="${escape(state.user?.name||'')}"></label><label class="form-field">${escape(t('email'))}<input name="email" type="email" autocomplete="email" required maxlength="254"></label><label class="form-field">${escape(t('message'))}<textarea name="message" required minlength="5" maxlength="5000"></textarea></label><p class="form-note">${escape(t('contactNote'))}</p><p class="form-error" id="contact-error" hidden></p><button class="dark-button" type="submit">${escape(t('send'))}</button></form>`);$('#contact-form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,button=form.querySelector('button');button.disabled=true;try{await api('/api/contact',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(form)))});dialog.close();toast(t('contactSent'));}catch(error){showError('#contact-error',errorText(error));button.disabled=false;}};}
 function reset(){const hadTag=Boolean(state.tag)||state.solved!=='all';state.solved='all';state.category='all';state.tag=null;state.query='';state.unanswered=false;state.limit=12;$('#search-input').value='';if(hadTag){if(location.pathname==='/'&&!location.hash)history.replaceState(null,'','/');loadTopics();}else renderList();}
-function toggleAssistant(open){$('#topic-search-toggle').setAttribute('aria-expanded',String(open));$('#assistant-panel').hidden=!open;$('#assistant-launcher').setAttribute('aria-expanded',String(open));$('#quick-new-topic').hidden=open;if(open)$('#chat-input').focus();}
+function toggleAssistant(open){if(open){navigatePage('/search');return;}$('#topic-search-toggle').setAttribute('aria-expanded',String(open));$('#assistant-panel').hidden=!open;$('#assistant-launcher').setAttribute('aria-expanded',String(open));$('#quick-new-topic').hidden=open;if(open)$('#chat-input').focus();}
 $('#menu-toggle').onclick=()=>{if(drawerQuery.matches){const open=document.body.classList.toggle('drawer-open');$('#drawer-shade').hidden=!open;$('#menu-toggle').setAttribute('aria-expanded',String(open));syncSidebar();}else{const collapsed=document.body.classList.toggle('nav-collapsed');$('#menu-toggle').setAttribute('aria-expanded',String(!collapsed));syncSidebar();}};
 $('#drawer-shade').onclick=closeDrawer;document.querySelectorAll('.section-toggle').forEach(button=>button.onclick=()=>{const open=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!open));document.getElementById(button.getAttribute('aria-controls')).hidden=open;});
 $('#guide-link').onclick=event=>{event.preventDefault();navigatePage($('#guide-link').getAttribute('href'));};
@@ -225,7 +232,7 @@ document.querySelectorAll('[data-sort]').forEach(button=>button.onclick=()=>{sta
 document.querySelectorAll('[data-filter-shortcut]').forEach(button=>button.onclick=()=>{state.sort=button.dataset.filterShortcut==='popular'?'popular':'latest';state.unanswered=button.dataset.filterShortcut==='unanswered';state.limit=12;closeDrawer();navigateHome();window.scrollTo({top:0});});
 $('[data-view="all"]').onclick=()=>{reset();state.sort='latest';setCategory('all');};$('.brand').onclick=e=>{e.preventDefault();reset();state.sort='latest';setCategory('all');};
 $('#search-form').onsubmit=e=>{e.preventDefault();const q=$('#search-input').value.trim();navigatePage(searchURL({q}));$('#search-input').blur();closeFilter();};$('#search-input').oninput=()=>{};
-$('#filter-toggle').onclick=()=>{const open=$('#filter-popover').hidden;$('#filter-popover').hidden=!open;$('#filter-toggle').setAttribute('aria-expanded',String(open));};$('#category-select').onchange=e=>setCategory(e.target.value);$('#banner-toggle').onchange=e=>{state.showBanner=e.target.checked;persist('jlb-banner',state.showBanner?'visible':'hidden');renderList();};$('#banner-close').onclick=()=>{state.showBanner=false;persist('jlb-banner','hidden');renderList();};$('#clear-filters').onclick=reset;$('#reset-list').onclick=reset;$('#load-more').onclick=()=>{state.limit+=6;renderList();};
+$('#filter-toggle').onclick=()=>{const params=new URLSearchParams(location.pathname==='/search'?location.search:''),q=$('#search-input').value.trim();params.set('filters','1');if(q)params.set('q',q);else params.delete('q');navigatePage('/search?'+params);};$('#category-select').onchange=e=>setCategory(e.target.value);$('#banner-toggle').onchange=e=>{state.showBanner=e.target.checked;persist('jlb-banner',state.showBanner?'visible':'hidden');renderList();};$('#banner-close').onclick=()=>{state.showBanner=false;persist('jlb-banner','hidden');renderList();};$('#clear-filters').onclick=reset;$('#reset-list').onclick=reset;$('#load-more').onclick=()=>{state.limit+=6;renderList();};
 $('#banner-topic').onclick=()=>openTopic('electricity');$('#side-promo').onclick=()=>{reset();navigateHome();};$('#new-topic').onclick=()=>requireAuth(openComposer,'compose');$('#my-topics').onclick=()=>openPersonal('topics');$('#my-messages').onclick=()=>openPersonal('messages');$('#my-bookmarks').onclick=()=>openPersonal('bookmarks');$('#solved-filter').onchange=e=>{state.solved=e.target.value;state.limit=12;loadTopics();};$('#back-to-list').onclick=()=>{navigateHome();window.scrollTo({top:state.scrollY});};$('#contact-button').onclick=openContact;
 $('#dialog-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
 $('#topic-search-toggle').onclick=()=>toggleAssistant($('#assistant-panel').hidden);$('#assistant-launcher').onclick=()=>toggleAssistant($('#assistant-panel').hidden);$('#assistant-close').onclick=()=>toggleAssistant(false);$('#chat-form').onsubmit=e=>{e.preventDefault();const q=$('#chat-input').value.trim();if(!q)return;toggleAssistant(false);navigatePage(searchURL({q}));};
@@ -234,6 +241,7 @@ $('#language-select').onchange=e=>preferences.choose(e.target.value);$('#origina
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const drawer=document.body.classList.contains('drawer-open');closeDrawer();if(drawer)$('#menu-toggle').focus();closeFilter();toggleAssistant(false);}});document.addEventListener('click',e=>{if(!$('#filter-popover').hidden&&!$('#filter-popover').contains(e.target)&&!$('#filter-toggle').contains(e.target))closeFilter();});document.addEventListener('error',e=>{if(e.target instanceof HTMLImageElement&&e.target.hasAttribute('data-avatar-image'))e.target.remove();},true);drawerQuery.addEventListener('change',()=>{document.body.classList.remove('nav-collapsed');closeDrawer();closeFilter();});window.addEventListener('popstate',()=>{composer?.suspend();renderRoute();});bindCategories($('#channel-links'));
 for(const language of navigator.languages||[]){const resolved=resolveLocale(language,[]).language;if(![...$('#language-select').options].some(option=>option.value===resolved)){const option=document.createElement('option');option.value=resolved;option.textContent=new Intl.DisplayNames([resolved],{type:'language'}).of(resolved);$('#language-select').append(option);}}
 document.addEventListener('click',event=>{const link=event.target.closest?.('[data-profile]');if(link){event.preventDefault();navigatePage('/u/'+link.dataset.profile);}});
+interfaceShell=createInterfaceShell({t,icon,navigate:navigatePage,newTopic:()=>$('#new-topic').click(),getUser:()=>state.user});document.body.classList.toggle('reading-size-large',stored('jlb-reading-size')==='large');
 svgInit();closeDrawer();renderRoute();const sessionReady=api('/api/session').then(result=>{return applyUser(result.user);}).catch(()=>{});const directoryReady=api('/api/directory').then(result=>{applyDirectory(result);applyLanguage();composer?.refreshDirectory();}).catch(()=>toast(t('m5DirectoryUnavailable')));Promise.allSettled([sessionReady,setLanguage(state.preference),directoryReady]).then(()=>{initialReady=true;renderRoute();if(location.hash==='#contact'){history.replaceState(null,'','/');openContact();}});
 
 

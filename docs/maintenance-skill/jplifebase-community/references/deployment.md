@@ -106,3 +106,8 @@ M5实际最终发布20261021T225400Z-m5-guide，0.5.0/schema5、231文件，源�
 ## 手机阅读独立布局发布
 
 20261022T042225Z-mobile-reading，0.5.1/schema5，239文件，sourceSha256 5368275f2531bfddce3b559ce466bd1c950b6b92888db9d518c60647765e8ff0；274项Node/4项安装器/五语检查通过，真实41表副本无新增迁移、账本保留及恢复通过，电费仍v5。原指南以现有管理员通过edit-user-guide更新为v3（保留创建时间/编辑历史）并再次备份。Chrome手机320/390与桌面1440正式验证通过；iPhone Safari键盘/地址栏尚未真机验收。发布细节查项目docs/MOBILE_READING_RELEASE.md，历史次数不代表后续重跑。
+
+
+## 用户中心与社区外壳0.6.0发布
+
+20261022T060230Z-interface-v2，0.6.0/schema5，243文件，sourceSha256 ac3b704e28cf26aeb5edb0e1b7fcbf0cfd6194ba7f82cda5b87cb3ff490c6cd8；281项Node/4项安装器/五语检查通过。41表副本无新增迁移、账本和完整恢复保持，14份备份校验通过；电费v5不变。原指南更新v4保留创建时间与历史。新增interface-i18n/interface-shell/interface-v2.css/profile-payload必须包含在自动源码清单内。构建隔离未完成updater文件，核对发布运行文件等于Git暂存字节。Chrome320/390/980/1440正式检查已做；真机iPhone仍待验收。详细证据见docs/INTERFACE_V2_RELEASE.md，本段为历史证据不是未来已重跑声明。
