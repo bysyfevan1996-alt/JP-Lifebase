@@ -15,6 +15,9 @@ test('long topics expose chronological first/latest windows including equal time
  db.prepare('INSERT INTO users(id,name,email,password,salt,role,created_at) VALUES(?,?,?,?,?,?,?)').run('reader','Reader','reader@example.test','unused','unused','member',date);
  for(const id of ['long','empty','hidden'])db.prepare('INSERT INTO topics(id,title,body,excerpt,category,user_id,author,avatar,language,created_at,updated_at,hidden) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(id,'Long reading topic','Original text remains intact','Original text','daily','reader','Reader','R','en',date,date,Number(id==='hidden'));
  for(let i=0;i<253;i++)db.prepare('INSERT INTO posts(id,topic_id,user_id,body,language,created_at) VALUES(?,?,?,?,?,?)').run('reply-'+String(i).padStart(3,'0'),'long','reader','Reply '+i,'en',date);
+ for(const id of ['voter1','voter2','voter3','voter4'])db.prepare('INSERT INTO users(id,name,email,password,salt,role,created_at) VALUES(?,?,?,?,?,?,?)').run(id,id,id+'@example.test','unused','unused','member',date);
+ db.prepare('INSERT INTO topic_answers(topic_id,post_id,chosen_by,chosen_at) VALUES(?,?,?,?)').run('long','reply-252','reader',date);
+ for(const [postId,count] of [['reply-251',3],['reply-240',4],['reply-000',2],['reply-252',4]])for(let i=1;i<=count;i++)db.prepare('INSERT INTO content_reactions(kind,content_id,user_id,reaction,created_at) VALUES(?,?,?,?,?)').run('post',postId,'voter'+i,'like',date);
  db.close();
  const env={...process.env,PORT:await testPort(),JPL_DATA_DIR:dir,JPL_SEED:'0',NODE_ENV:'test',COOKIE_SECURE:'0'};
  for(const key of Object.keys(env))if(/^(TRANSLATION_|RESEND_|MAIL_)/.test(key)||key==='AUTH_TOKEN_SECRET')delete env[key];
@@ -24,8 +27,13 @@ test('long topics expose chronological first/latest windows including equal time
   const first=await(await fetch(base+'/api/topics/long?lang=original')).json();
   assert.equal(first.topic.body,'Original text remains intact');assert.equal(first.topic.replies,253);
   assert.equal(first.posts[1].id,'reply-000');assert.equal(first.posts.at(-1).id,'reply-249');assert.equal(first.replyWindow.hasLater,true);
+  assert.deepEqual(first.featuredReplies.map(post=>[post.id,post.featured,post.floor]),[['reply-252','answer',254],['reply-240','hot',242],['reply-251','hot',253]]);
+  assert.equal(first.posts[1].floor,2);assert.equal(first.posts.at(-1).floor,251);
+  assert.equal(first.posts.some(post=>post.id==='reply-252'),false,'featured reply outside the window is provided independently');
   const latest=await(await fetch(base+'/api/topics/long?lang=original&replyWindow=latest')).json();
   assert.equal(latest.posts.length,251);assert.equal(latest.posts[1].id,'reply-003');assert.equal(latest.posts.at(-1).id,'reply-252');assert.equal(latest.replyWindow.hasEarlier,true);assert.equal(latest.replyWindow.hasLater,false);
+  const changes=new DatabaseSync(path.join(dir,'community.sqlite'));changes.prepare("UPDATE posts SET hidden=1 WHERE id='reply-000'").run();changes.close();
+  const withGap=await(await fetch(base+'/api/topics/long?lang=original')).json();assert.equal(withGap.posts[1].id,'reply-001');assert.equal(withGap.posts[1].floor,3);assert.equal(withGap.featuredReplies[0].floor,254,'hidden earlier replies do not renumber the pinned answer');
   assert.equal((await fetch(base+'/api/topics/long?replyWindow=invalid')).status,400);
   assert.equal((await fetch(base+'/api/topics/hidden?replyWindow=latest')).status,404);
   const empty=await(await fetch(base+'/api/topics/empty?replyWindow=latest')).json();assert.equal(empty.posts.length,1);assert.equal(empty.replyWindow.total,0);assert.equal(empty.replyWindow.loaded,0);

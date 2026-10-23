@@ -1,5 +1,13 @@
 # 社区服务与数据
 
+## 当前精选回复读取契约（2026-10-23）
+
+应用0.6.1保持schema5，冻结迁移不改。`reply-highlights.mjs`的`selectReplyHighlights(db,topicId)`只读现有topic_answers/posts/topics/content_reactions，不新增排名表或写入副作用。先取同话题且主题/回复当前可见的有效答案；热门为同一可见话题的回复，like/thanks/helpful合计反应数至少3，排除答案，最多3条，按合计数降序、created_at升序、id升序确定性排序。隐藏主题返回空结果，隐藏/跨话题答案无效；旧隐藏/恢复语义继续生效。
+
+详情`posts`保留原first/latest时间窗口，附加独立`featuredReplies`让窗口外的答案/热门也能显示。每项复用正式回复序列化与可见性、图片、引用规则；同ID在前端只建立一个回复节点，再移动展示。`floor`由同话题所有更早记录（含隐藏记录，以created_at/id稳定排序）计数加2取得，不泄露隐藏正文，也不因隐藏而给后续回复改号。主楼为#1。`replyWindow`加载数/总数仍为可见窗口含义，不能直接当末楼号。
+
+M3/M4按内容ID关联，答案成功后立即本地移动并更新阅读导航，热门在下次详情读取时刷新。当前排名不提供独立分页或持续实时推送；热度门槛是产品规则，不将仅有1–2反应的回复标为热门。作者/管理员选答案权限、禁言/封禁、await后重验、隐藏内容过滤沿用既有接口。详见源码`docs/DESKTOP_READING_RELEASE.md`；本节不授权用生产账号制造投票或验证帖子。
+
 2026-10-22新增成员POST /api/tags（name、expectedUserId）：await body后及事务内重验账号/禁言/封禁；以NFKC、合并空白及大小写key匹配既有ID/名称/五语别名，停用名称不重建；新ID为名称key的SHA256前32位加tag-。创建与create_tag审计同事务，审计失败回滚；原账号24小时最多10个、全库200个，请求限速。没有给成员开放目录编辑、改名或停用权限；使用原community_tags/admin_actions表，schema仍5，冻结迁移不改。摄影/生活及汽车改名通过受现有管理员约束的ops/update-community-sections.mjs执行，保留历史分类ID。详见docs/COMMUNITY_CATALOG_UPDATE.md。
 
 先读当前 `server.mjs`、`auth.mjs` 与 `ops/README.md`。项目使用 Node.js **24+** 的内置 HTTP、crypto、SQLite，无外部运行依赖或打包步骤，不沿早期规划另建 WordPress／FastAPI。账号流程在 `auth.mjs`，投递在 `mailer.mjs`，头像校验在 `avatar.mjs`，独立账户页面在 `dist/auth-ui.js`。

@@ -1,25 +1,26 @@
-import {createInterfaceShell} from './interface-shell.js?v=20261022055817972';
-import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261022055817972';
-import {m5Dictionaries} from './m5-i18n.js?v=20261022055817972';
-import {createM5UI,searchURL} from './m5-ui.js?v=20261022055817972';
-import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261022055817972';
-import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261022055817972';
-import {categories,avatarColors} from './topics.js?v=20261022055817972';
-import {selectTopics} from './select-topics.js?v=20261022055817972';
-import {icon} from './icons.js?v=20261022055817972';
-import {dictionaries,loadDictionary} from './i18n.js?v=20261022055817972';
-import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261022055817972';
-import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261022055817972';
-import {createContentUI} from './m3-ui.js?v=20261022055817972';
-import {m3Dictionaries} from './m3-i18n.js?v=20261022055817972';
-import {createCommunityInteractionsUI} from './m4-ui.js?v=20261022055817972';
-import {m4Dictionaries} from './m4-i18n.js?v=20261022055817972';
-import {createComposer} from './composer.js?v=20261022055817972';
-import {composerDictionaries} from './composer-i18n.js?v=20261022055817972';
-import {renderMarkdown} from './markdown.js?v=20261022055817972';
-import {createReadingNavigation} from './reading-nav.js?v=20261022055817972';
-import {createMobileReading} from './mobile-reading.js?v=20261022055817972';
-import {topicTags} from './topic-tags.js?v=20261022055817972';
+import {createReplyHighlights} from './reply-highlights.js?v=20261023030157187';
+import {createInterfaceShell} from './interface-shell.js?v=20261023030157187';
+import {applyDirectory,getDirectory,categoryLabel,tagLabel} from './community-directory.js?v=20261023030157187';
+import {m5Dictionaries} from './m5-i18n.js?v=20261023030157187';
+import {createM5UI,searchURL} from './m5-ui.js?v=20261023030157187';
+import {createLanguagePreferences,readLanguagePreference} from './preferences.js?v=20261023030157187';
+import {renderLanguageSuggestion,ensureLanguageOption} from './language-ui.js?v=20261023030157187';
+import {categories,avatarColors} from './topics.js?v=20261023030157187';
+import {selectTopics} from './select-topics.js?v=20261023030157187';
+import {icon} from './icons.js?v=20261023030157187';
+import {dictionaries,loadDictionary} from './i18n.js?v=20261023030157187';
+import {resolveLocale,relativeTime,communityContentLanguage} from './locale.js?v=20261023030157187';
+import {createAuthUI,isAccountRoute,safeReturn} from './auth-ui.js?v=20261023030157187';
+import {createContentUI} from './m3-ui.js?v=20261023030157187';
+import {m3Dictionaries} from './m3-i18n.js?v=20261023030157187';
+import {createCommunityInteractionsUI} from './m4-ui.js?v=20261023030157187';
+import {m4Dictionaries} from './m4-i18n.js?v=20261023030157187';
+import {createComposer} from './composer.js?v=20261023030157187';
+import {composerDictionaries} from './composer-i18n.js?v=20261023030157187';
+import {renderMarkdown} from './markdown.js?v=20261023030157187';
+import {createReadingNavigation} from './reading-nav.js?v=20261023030157187';
+import {createMobileReading} from './mobile-reading.js?v=20261023030157187';
+import {topicTags} from './topic-tags.js?v=20261023030157187';
 for(const [language,copy] of Object.entries(composerDictionaries))Object.assign(dictionaries[language],copy);
 
 for(const [language,copy] of Object.entries(m3Dictionaries))Object.assign(dictionaries[language],copy);
@@ -151,26 +152,27 @@ async function loadDetail(id,mode=readingState.window,jump=null){
 function renderDetail(result){
  const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=String(result.topic?.excerpt||result.topic?.title||'').slice(0,180);
  const topic=result.topic,root=$('#topic-detail'),mobile=$('#reading-mobile');
- document.title=topic.title+' · Japan Life Base';root.className='topic-reading-layout';root.dataset.topicId=topic.id;root.dataset.flowHeader='true';root.dataset.replyCount=String(topic.replies||0);
+ const posts=[...(result.posts||[])];for(const post of result.featuredReplies||[])if(!posts.some(row=>row.id===post.id))posts.push(post);
+ document.title=topic.title+' · Japan Life Base';root.className='topic-reading-layout';root.dataset.topicId=topic.id;root.dataset.flowHeader='true';root.dataset.desktopSticky='true';root.dataset.replyCount=String(topic.replies||0);
  const navButton=(action,key,primary=false,hidden=false)=>{
-  const symbol={original:'book',replies:'message',latest:'chevron-down',write:'reply',return:'arrow-left'}[action]||'message';
+  const symbol={original:'book',replies:'message',latest:'chevron-down',answer:'check',hot:'heart',write:'reply',return:'arrow-left'}[action]||'message';
   return '<button type="button" data-reading-action="'+action+'" class="reading-action'+(primary?' reading-primary':'')+(action==='return'?' reading-return':'')+'"'+(hidden?' hidden':'')+(action==='return'?' disabled':'')+' aria-label="'+escape(t(key,{count:topic.replies||0}))+'"><span class="reading-action-icon">'+icon(symbol)+'</span><span class="reading-action-label">'+escape(t(action==='replies'?'readingRepliesLabel':key))+'</span>'+(action==='replies'?'<span class="reading-count">'+Number(topic.replies||0)+'</span>':'')+'</button>';
  };
  root.innerHTML=[
-  '<header class="reading-topic-header"><div class="reading-header-surface"><div class="reading-heading-group">',
+  '<header class="reading-topic-header"><div class="reading-header-surface"><button type="button" class="reading-header-back">'+icon('arrow-left')+escape(t('back'))+'</button><button type="button" class="reading-header-search" aria-label="'+escape(t('communitySearch'))+'">'+icon('search')+'</button><div class="reading-heading-group">',
   '<h1 class="detail-heading">'+escape(topic.title)+'</h1>',
-  '<div class="detail-summary">'+categoryTag(topic.category)+topicTagMarkup(topic.tagIds)+'<button type="button" class="reading-count-button" data-reading-action="replies">'+icon('message')+escape(t('repliesCount',{count:topic.replies||0}))+'</button>'+(topic.seed?'<span class="sample-tag">'+escape(t('sample'))+'</span>':'')+'</div></div>',
-  '<nav class="reading-nav" aria-label="'+escape(t('topicReadingNav'))+'"><span class="reading-nav-title">'+escape(t('topicReadingNav'))+'</span>'+navButton('original','readingOriginal')+navButton('replies','readingReplies')+navButton('latest','readingLatest',false,!topic.replies)+'<div class="reading-nav-footer">'+navButton('return','readingReturn')+navButton('write','readingWrite',true)+'</div></nav>',
+  '<div class="detail-summary">'+categoryTag(topic.category)+topicTagMarkup(topic.tagIds)+'<button type="button" class="reading-count-button" data-reading-action="replies">'+icon('message')+escape(t('repliesCount',{count:topic.replies||0}))+'</button>'+(topic.seed?'<span class="sample-tag">'+escape(t('sample'))+'</span>':'')+'</div></div><div class="reading-owner">'+avatar(topic)+'<span class="reading-owner-name">'+escape(topic.author)+'</span><span class="post-role">'+escape(t('originalPoster'))+'</span><time datetime="'+escape(topic.createdAt)+'">'+escape(time(topic.createdAt))+'</time></div>',
+  '<nav class="reading-nav" aria-label="'+escape(t('topicReadingNav'))+'"><span class="reading-nav-title">'+escape(t('topicReadingNav'))+'</span>'+navButton('original','readingOriginal')+navButton('replies','readingReplies')+navButton('answer','m4BestAnswer',false,true)+navButton('hot','readingHotReplies',false,true)+navButton('latest','readingLatest',false,!topic.replies)+'<div class="reading-nav-footer">'+navButton('return','readingReturn')+navButton('write','readingWrite',true)+'</div></nav>',
   '</div></header><div class="topic-reading-main">',
   topic.seed?'<p class="form-note seed-notice">'+escape(t('sampleNotice'))+'</p>':'',
   '<div class="posts"><div class="original-post"></div><section id="topic-replies" class="topic-replies" aria-labelledby="replies-title"><div class="replies-heading"><h2 id="replies-title" tabindex="-1">'+escape(t('readingRepliesHeading',{count:topic.replies||0}))+'</h2>'+navButton('latest','readingLatest',false,!topic.replies)+'</div><p class="reply-window-note" hidden></p><div class="reply-posts"></div><div class="no-replies"'+(topic.replies?' hidden':'')+'><p>'+escape(t('readingNoReplies'))+'</p>'+navButton('write','readingFirstReply')+'</div></section></div>',
   '<section id="topic-reply-editor" class="reply-editor"><label for="reply-text">'+escape(t('reply'))+'</label><blockquote id="reply-quote" class="quote" hidden></blockquote><button class="plain-button" id="cancel-quote" hidden>'+escape(t('cancelQuote'))+'</button><textarea id="reply-text" placeholder="'+escape(t('replyPlaceholder'))+'" maxlength="5000"></textarea><div class="editor-actions"><button class="dark-button" id="send-reply">'+escape(t('sendReply'))+'</button></div><p class="form-error" id="reply-error" hidden></p></section></div>',
  ].join('');
  const aside=document.createElement('aside');aside.className='reading-desktop-aside';aside.append(root.querySelector('.reading-nav'));root.append(aside);
- (result.posts||[]).forEach((post,index)=>{
+ posts.forEach((post,index)=>{
   const el=document.createElement('article');el.className='post';el.tabIndex=-1;el.dataset.postId=post.id;
   if(index===0)el.id='topic-original';
-  const floor=index===0?1:(result.replyWindow?.hasEarlier?Number(topic.replies)-Number(result.replyWindow.loaded):0)+index+1;
+  const floor=index===0?1:Number(post.floor)||(result.replyWindow?.hasEarlier?Number(topic.replies)-Number(result.replyWindow.loaded):0)+index+1;el.dataset.floor=String(floor);
   el.innerHTML=avatar(post)+'<div><div class="post-header"><strong>'+escape(post.author)+'</strong>'+(index===0?'<span class="post-role">'+escape(t('originalPoster'))+'</span>':'')+'<time datetime="'+escape(post.createdAt)+'">'+escape(time(post.createdAt))+' · #'+floor+'</time></div>'+(post.quote?'<blockquote class="quote">'+escape(typeof post.quote==='string'?post.quote:[post.quote.author,post.quote.body].join(': '))+'</blockquote>':'')+'<div class="post-body">'+escape(post.body)+'</div><div class="post-tools"><button class="quote-post">'+icon('reply')+escape(t('reply'))+'</button></div></div>';
   if(/^[a-z][a-z0-9_]{2,31}$/.test(post.authorHandle||'')){const a=document.createElement('a');a.href='/u/'+post.authorHandle;a.dataset.profile=post.authorHandle;a.textContent=post.author;el.querySelector('.post-header strong').replaceChildren(a);}
   if(post.bodyFormat==='markdown'){const content=el.querySelector('.post-body');content.classList.add('markdown-body');renderMarkdown(content,post.body);}
@@ -180,6 +182,8 @@ function renderDetail(result){
  });
  if(result.replyWindow?.hasEarlier||result.replyWindow?.hasLater){const note=root.querySelector('.reply-window-note');note.hidden=false;note.textContent=t(result.replyWindow.hasEarlier?'readingLatestWindow':'readingMoreReplies',{count:result.replyWindow.loaded});}
 
+ const highlights=createReplyHighlights({root,featured:result.featuredReplies||[],t});
+ root.querySelector('.reading-header-back').onclick=()=>$('#back-to-list').click();root.querySelector('.reading-header-search').onclick=()=>toggleAssistant(true);
  mobile.innerHTML='<button type="button" class="reading-action" data-reading-mobile-left data-reading-action="replies"><span class="reading-action-icon">'+icon('message')+'</span><span class="reading-action-label">'+escape(t('readingRepliesLabel'))+'</span><span class="reading-count">'+Number(topic.replies||0)+'</span></button>'+navButton('write','readingWrite',true);
  mobile.hidden=false;document.body.classList.add('topic-reading');
  function mountReading(){const bookmark=readingNavigation?.getBookmark()||readingState.bookmark;readingNavigation?.destroy();readingNavigation=createReadingNavigation({root,mobile,t,bookmark,replyInput:document.getElementById('reply-text'),onWrite:()=>contentUI?.openWriter()||false,onBookmark:point=>{readingState.bookmark=point?{...point,window:readingState.window}:null;},onWindow:action=>{
@@ -190,8 +194,8 @@ function renderDetail(result){
  }});}
  mountReading();
  bindCategories(root);bindTopicTags(root);
- contentUI=createContentUI({root,topic,posts:result.posts||[],api,t,getUser:()=>state.user,getLanguage:()=>state.language,replyState:replyDrafts.get(replyDraftKey(topic.id))||{},onReplyState:value=>{savedReplyDraft={topicId:topic.id,owner:state.user?.id||null,...value};replyDrafts.set(replyDraftKey(topic.id),savedReplyDraft);},navigateWrite:()=>readingNavigation.navigate('write'),onLayout:mountReading,onAuth:()=>openAuth('login',null,'reply'),onChanged:async jump=>{const owner=state.user?.id||null,scroll=window.scrollY;await loadTopics();if(state.topicId===topic.id&&(state.user?.id||null)===owner){await loadDetail(topic.id,jump==='latest'?'latest':readingState.window,jump==='latest'?'latest':null);if(jump!=='latest')window.scrollTo({top:scroll,behavior:'instant'});}},onHidden:async content=>{const owner=state.user?.id||null,current=()=>state.topicId===topic.id&&(state.user?.id||null)===owner;if(!current())return;if(content.kind==='topic'){navigateHome();await loadTopics();}else{await loadTopics();if(current())await loadDetail(topic.id);}},toast});
- const disposeTopic=interactionsUI?.attachTopic({root,topic,posts:result.posts||[]});
+ contentUI=createContentUI({root,topic,posts,api,t,getUser:()=>state.user,getLanguage:()=>state.language,replyState:replyDrafts.get(replyDraftKey(topic.id))||{},onReplyState:value=>{savedReplyDraft={topicId:topic.id,owner:state.user?.id||null,...value};replyDrafts.set(replyDraftKey(topic.id),savedReplyDraft);},navigateWrite:()=>readingNavigation.navigate('write'),onLayout:mountReading,onAuth:()=>openAuth('login',null,'reply'),onChanged:async jump=>{const owner=state.user?.id||null,scroll=window.scrollY;await loadTopics();if(state.topicId===topic.id&&(state.user?.id||null)===owner){await loadDetail(topic.id,jump==='latest'?'latest':readingState.window,jump==='latest'?'latest':null);if(jump!=='latest')window.scrollTo({top:scroll,behavior:'instant'});}},onHidden:async content=>{const owner=state.user?.id||null,current=()=>state.topicId===topic.id&&(state.user?.id||null)===owner;if(!current())return;if(content.kind==='topic'){navigateHome();await loadTopics();}else{await loadTopics();if(current())await loadDetail(topic.id);}},toast});
+ const disposeTopic=interactionsUI?.attachTopic({root,topic,posts,onAnswer:id=>{highlights.setAnswer(id);readingNavigation?.update?.();}});
  const phoneReading=createMobileReading({root,topic,t,onBack:()=>$('#back-to-list').click(),onSearch:()=>toggleAssistant(true),onMenu:()=>$('#menu-toggle').click()});
  disposeInteractions=()=>{phoneReading.destroy();disposeTopic?.();};mountReading();
 }

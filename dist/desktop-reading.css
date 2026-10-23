@@ -1,0 +1,46 @@
+/* Desktop title and author remain together; phone uses its own reading toolbar. */
+.reading-header-back,.reading-owner,.reading-header-search{display:none}
+.featured-reply-label{grid-column:1/-1;font-size:11px;color:#737d86;margin:0 0 10px;font-weight:600;display:flex;align-items:center;gap:7px}
+.featured-reply-label::before{content:'↟';font-size:15px}
+.interface-v2 .reply-posts .post.featured-reply{padding:18px;margin:12px 0 18px;background:#f7f8f9;border:1px solid #e5e8eb;border-radius:9px}
+.interface-v2 .post>.featured-reply-label{display:flex!important;grid-column:1/-1;grid-row:auto}
+.interface-v2 .featured-reply>.avatar{grid-row:2}
+@media(min-width:761px){
+ .interface-v2.topic-reading .detail-top-actions{display:none}
+ .interface-v2 .reading-topic-header{position:sticky;top:60px;z-index:17;height:var(--reading-expanded-height,auto);pointer-events:none;align-self:start}
+ .interface-v2 .reading-header-surface,.interface-v2 .reading-topic-header[data-ready] .reading-header-surface{position:absolute;inset:0 0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:calc(13px - var(--reading-progress,0)*9px) 18px;padding:calc(18px - var(--reading-progress,0)*10px) 0 calc(20px - var(--reading-progress,0)*10px);background:#fff;pointer-events:auto}
+ .interface-v2 .reading-topic-header.is-stuck .reading-header-surface{box-shadow:0 6px 10px -9px #0003}
+ .interface-v2 .reading-header-back{display:inline-flex;grid-column:1;grid-row:1;gap:7px;align-items:center;justify-content:flex-start;min-height:27px;width:max-content;border:0;background:none;color:#7d8790;font-size:12px;padding:0 4px 0 0;border-radius:4px}
+ .reading-header-back svg,.reading-header-search svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
+ .interface-v2 .reading-header-search{display:inline-flex;grid-column:2;grid-row:1;justify-self:end;width:30px;height:27px;align-items:center;justify-content:center;padding:4px;border:0;background:none;color:#7d8790;border-radius:4px}
+ .reading-header-back:hover,.reading-header-search:hover{background:#f3f4f5}
+ .interface-v2 .reading-heading-group{grid-column:1/-1;grid-row:2;min-width:0}
+ .interface-v2 .reading-topic-header .detail-heading{font-size:calc(25px - var(--reading-progress,0)*8px);line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
+ .interface-v2 .reading-topic-header .detail-summary{max-height:calc(48px*(1 - var(--reading-progress,0)));opacity:calc(1 - var(--reading-progress,0)*1.5);overflow:hidden;margin-top:calc(9px*(1 - var(--reading-progress,0)));visibility:visible}
+ .interface-v2 .reading-owner{display:flex;grid-column:1/-1;grid-row:3;align-items:center;gap:8px;min-width:0;font-size:12px;color:#414b54}
+ .reading-owner>.avatar{width:calc(30px - var(--reading-progress,0)*6px);height:calc(30px - var(--reading-progress,0)*6px);font-size:11px;flex:none}
+ .reading-owner-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;font-weight:550}
+ .reading-owner-name a{color:inherit;text-decoration:none}
+ .reading-owner .post-role{font-size:10px;flex:none}
+ .reading-owner time{font-size:11px;color:#929ba3}
+ .interface-v2 .reading-topic-header[data-compact] .reading-heading-group{grid-column:1;grid-row:2}
+ .interface-v2 .reading-topic-header[data-compact] .detail-heading{white-space:nowrap;display:block;text-overflow:ellipsis;overflow:hidden}
+ .interface-v2 .reading-topic-header[data-compact] .detail-summary{display:none}
+ .interface-v2 .reading-topic-header[data-compact] .reading-owner{grid-column:2;grid-row:2;max-width:210px}
+ .interface-v2 .reading-topic-header[data-compact] .reading-owner time{display:none}
+ .interface-v2 .reading-desktop-aside{top:calc(60px + var(--reading-live-height,90px) + 16px)}
+}
+@media(min-width:761px) and (max-width:1199px){
+ .interface-v2 .reading-desktop-aside{top:calc(60px + var(--reading-live-height,90px));z-index:16}
+ .interface-v2 .reading-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+ .interface-v2 .reading-nav .reading-action{white-space:nowrap;flex:none}
+ .interface-v2 .reading-nav .m4-topic-controls{flex:none}
+ .reading-owner-name{max-width:150px}
+}
+@media(max-width:760px){
+ .interface-v2 .reply-posts .post.featured-reply{padding:14px 12px;margin:10px 0 16px}
+ .featured-reply-label{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.reading-topic-header *{transition:none!important}}
+
+.featured-reply[data-featured="answer"] .m4-answer-marker{display:none}

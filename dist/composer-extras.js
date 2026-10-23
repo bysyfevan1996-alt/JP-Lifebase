@@ -1,7 +1,7 @@
-import {tagLabel,applyDirectory} from './community-directory.js?v=20261022055817972';
-import {normalizeTagName,tagNameKey} from './tag-name.js?v=20261022055817972';
-import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261022055817972';
-import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261022055817972';
+import {tagLabel,applyDirectory} from './community-directory.js?v=20261023030157187';
+import {normalizeTagName,tagNameKey} from './tag-name.js?v=20261023030157187';
+import {topicTags,normalizeTopicTags} from './topic-tags.js?v=20261023030157187';
+import {prepareTopicImage,uploadTopicImage,validAttachment} from './composer-images.js?v=20261023030157187';
 
 export function createComposerExtras({root,t,api,getContext,getLanguage=()=>document.documentElement?.lang||'en',onChange,onAuth,onProblem,onState}){
  const $=id=>root.querySelector('#write-'+id);

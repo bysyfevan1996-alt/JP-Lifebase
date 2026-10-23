@@ -1,7 +1,9 @@
-import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261022055817972';
-import {readingControls} from './reading-controls.js?v=20261022055817972';
-import {icon} from './icons.js?v=20261022055817972';
-import {createReadingHeader} from './reading-header.js?v=20261022055817972';
+import {captureReadingPosition,restoreReadingPosition} from './reading-position.js?v=20261023030157187';
+import {readingControls} from './reading-controls.js?v=20261023030157187';
+import {icon} from './icons.js?v=20261023030157187';
+import {createReadingHeader} from './reading-header.js?v=20261023030157187';
+
+export function latestReplyElement(nodes){return [...nodes].reduce((latest,node)=>Number(node.dataset?.floor)>Number(latest?.dataset?.floor||0)?node:latest,null);}
 
 // Page-local return points. No browser history or persistent read/unread state.
 export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,onWindow,onWrite,replyInput=null}){
@@ -62,7 +64,7 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
  }
  function navigate(action,{rememberPosition=true}={}){
   if(disposed)return;
-  if(['replies','latest','write'].includes(action)){if(rememberPosition)remember();jumped=true;}
+  if(['replies','latest','write','answer','hot'].includes(action)){if(rememberPosition)remember();jumped=true;}
   if(onWindow?.(action,returnPoint))return;
   if(action==='write'&&onWrite?.())return;
   if(action==='return'&&returnPoint){
@@ -87,7 +89,8 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
   restoring=false;
   if(action==='original'){jumped=false;scrollToElement(original||root.querySelector('.detail-heading'));}
   if(action==='replies')scrollToElement(replies.querySelector('h2'),true);
-  if(action==='latest')scrollToElement(replies.querySelector('.reply-posts .post:last-child')||replies.querySelector('h2'),true);
+  if(action==='latest')scrollToElement(latestReplyElement(replies.querySelectorAll?.('.post')||[])||replies.querySelector('.reply-posts .post:last-child')||replies.querySelector('h2'),true);
+  if(action==='answer'||action==='hot')scrollToElement(root.querySelector('[data-featured="'+action+'"]'),true);
   if(action==='write')scrollToElement(input,true);
   schedule();
  }
@@ -99,5 +102,5 @@ export function createReadingNavigation({root,mobile,t,bookmark=null,onBookmark,
  root.addEventListener('focusin',schedule,options);root.addEventListener('focusout',schedule,options);
  root.addEventListener('load',schedule,{...options,capture:true});
  update();
- return {navigate,getBookmark:()=>returnPoint,destroy(){disposed=true;controller.abort();header.destroy();if(frame)cancelAnimationFrame(frame);document.body.classList.remove('reading-keyboard-open');}};
+ return {navigate,update:schedule,getBookmark:()=>returnPoint,destroy(){disposed=true;controller.abort();header.destroy();if(frame)cancelAnimationFrame(frame);document.body.classList.remove('reading-keyboard-open');}};
 }

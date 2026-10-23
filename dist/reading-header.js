@@ -1,4 +1,4 @@
-import {readingHeaderProgress} from './reading-header-state.js?v=20261022055817972';
+import {readingHeaderProgress} from './reading-header-state.js?v=20261023030157187';
 
 // Keep a stable space in the document while the visible sticky header shrinks.
 export function createReadingHeader(root){
@@ -6,6 +6,7 @@ export function createReadingHeader(root){
  const topInset=()=>{
   if(root.dataset?.mobileReading==='true')return 52;
   const topbar=document.querySelector('.topbar');
+  if(root.dataset?.desktopSticky==='true')return topbar?.getBoundingClientRect().bottom||0;
   if(root.dataset?.flowHeader==='true'){const row=typeof matchMedia==='function'&&matchMedia('(min-width:761px) and (max-width:1199px)').matches?root.querySelector('.reading-desktop-aside'):null;return (topbar?.getBoundingClientRect().bottom||0)+(row?.getBoundingClientRect().height||0);}
   const detailView=root.closest?.('#detail-view');
   const actions=detailView?.querySelector('.detail-top-actions');
@@ -16,7 +17,7 @@ export function createReadingHeader(root){
  let width=-1,disposed=false,wasMobile=false;
  function update(){
   if(disposed)return;
-  if(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'){
+  if(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'&&root.dataset?.desktopSticky!=='true'){
    wasMobile=true;width=-1;
    header.style.setProperty('--reading-progress','0');
    header.style.removeProperty('--reading-expanded-height');
@@ -41,5 +42,5 @@ export function createReadingHeader(root){
  const observer=typeof ResizeObserver==='function'?new ResizeObserver(update):null;
  observer?.observe(root);
  update();
- return {update,inset:()=>topInset()+(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'?0:surface.getBoundingClientRect().height)+12,destroy(){disposed=true;observer?.disconnect();root.style.removeProperty('--reading-live-height');}};
+ return {update,inset:()=>{const desktop=root.dataset?.desktopSticky==='true'&&root.dataset?.mobileReading!=='true';const row=desktop&&typeof matchMedia==='function'&&matchMedia('(min-width:761px) and (max-width:1199px)').matches?root.querySelector('.reading-desktop-aside'):null;return topInset()+(root.dataset?.mobileReading==='true'||root.dataset?.flowHeader==='true'&&!desktop?0:surface.getBoundingClientRect().height)+(row?.getBoundingClientRect().height||0)+12;},destroy(){disposed=true;observer?.disconnect();root.style.removeProperty('--reading-live-height');}};
 }

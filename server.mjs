@@ -1,3 +1,4 @@
+import {selectReplyHighlights} from './reply-highlights.mjs';
 import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {randomUUID} from 'node:crypto';
@@ -109,14 +110,21 @@ async function getTopic(id,target,replyWindow='first'){
  const row=q(topicQuery+' WHERE t.id=? AND t.hidden=0').get(id);if(!row)throw httpError(404,'topic_not_found');
  const localized=await localizedTopics([row],target,true),topic=localized.topics[0];
  const direction=replyWindow==='latest'?'DESC':'ASC';
- const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? AND p.hidden=0 ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
+ const replies=q(`SELECT p.*,u.name AS author,u.avatar_hash,(SELECT count(*) FROM posts preceding WHERE preceding.topic_id=p.topic_id AND (preceding.created_at<p.created_at OR preceding.created_at=p.created_at AND preceding.id<p.id))+2 AS floor FROM posts p JOIN users u ON u.id=p.user_id WHERE p.topic_id=? AND p.hidden=0 ORDER BY p.created_at ${direction},p.id ${direction} LIMIT 250`).all(id);
  if(replyWindow==='latest')replies.reverse();
  const posts=[{id:'first-'+id,authorHandle:topic.authorHandle,version:topic.version,editedAt:topic.editedAt,author:topic.author,avatar:topic.avatar,tone:topic.tone,avatarUrl:topic.avatarUrl,body:topic.body,bodyFormat:topic.bodyFormat,language:topic.language,userId:topic.userId,createdAt:topic.createdAt,original:topic.original,translation:topic.bodyFormat==='markdown'&&topic.translation?.unavailable?{...topic.translation,automatic:false}:topic.translation}];
  let automatic=localized.translation.automatic,unavailable=localized.translation.unavailable;
- for(const row of replies){const p={id:row.id,authorHandle:interactions.handleFor(row.user_id),version:row.content_version,editedAt:row.edited_at,attachments:topicAttachments.forPost(row.id),quoteRefs:communityContent.quoteRefs(row.id),author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:row.body_format||'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};
-  posts.push(p);
+ function serializeReply(row){return {id:row.id,authorHandle:interactions.handleFor(row.user_id),version:row.content_version,editedAt:row.edited_at,attachments:topicAttachments.forPost(row.id),quoteRefs:communityContent.quoteRefs(row.id),author:row.author,...defaultAvatar(row.author),avatarUrl:avatarUrl(row.user_id,row.avatar_hash),body:row.body,bodyFormat:row.body_format||'plain',quote:row.quote,language:row.language,userId:row.user_id,createdAt:row.created_at};}
+ const offset=replyWindow==='latest'?Math.max(0,topic.replies-replies.length):0;
+ for(const [index,row] of replies.entries())posts.push({...serializeReply(row),floor:Number(row.floor)||offset+index+2});
+ const highlights=selectReplyHighlights(db,id),featuredReplies=[];
+ for(const [postId,featured] of [[highlights.answerId,'answer'],...highlights.hotIds.map(postId=>[postId,'hot'])]){
+  if(!postId)continue;
+  const record=q('SELECT p.*,u.name AS author,u.avatar_hash,(SELECT count(*) FROM posts preceding WHERE preceding.topic_id=p.topic_id AND (preceding.created_at<p.created_at OR preceding.created_at=p.created_at AND preceding.id<p.id))+2 AS floor FROM posts p JOIN users u ON u.id=p.user_id WHERE p.id=? AND p.topic_id=? AND p.hidden=0').get(postId,id);
+  if(record)featuredReplies.push({...serializeReply(record),floor:Number(record.floor),featured});
  }
- return {topic,posts,replyWindow:{mode:replyWindow,total:topic.replies,loaded:replies.length,hasEarlier:replyWindow==='latest'&&topic.replies>replies.length,hasLater:replyWindow==='first'&&topic.replies>replies.length},translation:{automatic,unavailable,language:target}};
+
+ return {topic,posts,featuredReplies,replyWindow:{mode:replyWindow,total:topic.replies,loaded:replies.length,hasEarlier:replyWindow==='latest'&&topic.replies>replies.length,hasLater:replyWindow==='first'&&topic.replies>replies.length},translation:{automatic,unavailable,language:target}};
 }
 async function api(req,res,url){
  const route=url.pathname,method=req.method,target=language(url.searchParams.get('lang')||'zh-CN');

@@ -1,5 +1,17 @@
 # 页面与多语言
 
+## 当前桌面阅读与精选回复（2026-10-23）
+
+本节覆盖下文历史版本关于“桌面完整标题随正文滚走”和旧吸顶尺寸/偏移的描述；历史发布证据保留。`desktop-reading.css` 后加载，`reading-header.js` 依据 `dataset.desktopSticky` 进入新桌面分支。761px 以上保留双行收缩表面：上行返回讨论/社区搜索，下行标题和楼主信息；下滑96px内标题由25px收缩至17px，次要标签收起，楼主头像、昵称及楼主标记保留，紧凑态隐藏时间。返回讨论沿用原列表返回行为；“返回刚才位置”仍是本次话题的临时阅读返回点。
+
+宽屏灰色导航卡位于动态标题表面下方；761–1199px横栏与其接续固定，不能仍按旧60px顶栏单独定位。跳正文、首条/最新回复、最佳答案、热门回复和临时阅读位置时，`createReadingHeader.inset()`计入真实顶栏、收缩标题、窄桌面横栏及12px留白；CSS同步使用`--reading-live-height`。展开外壳保留高度，表面收缩不挤动正文。手机≤760px继续原独立52px阅读顶栏、56px+safe-area贴底回复双按钮；不将桌面双行卡套到手机。
+
+`reply-highlights.mjs`在全库同话题可见回复中选答案/热门，`server.mjs`将窗口外命中作为`featuredReplies`单独提供；不把首/末250条当全库排名。`dist/reply-highlights.js`把已有`article.post`原节点移动到回复区顶部：最佳答案第一、最多3个热门随后，其余按原楼号顺序。最佳答案排除在热门候选外，ID去重，原楼号不变；隐藏回复仍占原始楼号，不能以当前可见数组下标重排。主楼始终#1，回复从#2开始。
+
+M3编辑/历史/引用/翻译、M4反应/答案都按真实内容ID绑定，禁止靠DOM顺序或移动后的索引寻楼。移动节点保留原事件、图片、引用、反应控件，不复制回复、不重建或清空编辑器。更改最佳答案成功后立即移动既有节点并更新导航；热门名单在重新打开话题/重新读取详情时刷新，当前点击反应不承诺即时重新排名。热门显示合计反应门槛及确定性顺序见community.md。
+
+相关回归：`tests/reading-header.test.mjs`、`reading-nav.test.mjs`、`reading-api.test.mjs`、`reply-highlights.test.mjs`、`reply-highlights-ui.test.mjs`，以及M3/M4现有套件。涉及latest跳转时核对最大原始楼号，不能以当前可见回复总数或精选后最后一个DOM节点当“最新”。正式证据及真机限制见源码`docs/DESKTOP_READING_RELEASE.md`。
+
 相对路径均以 `D:/2.Work/7.JapanLifeBase/sites/community-home` 为根；基线 2026-10-21（M1）。
 
 2026-10-22目录与排序更新：摄影photography、生活life为独立分区，car只改名为“汽车”，原帖category ID保留。目录配置通过ops/update-community-sections.mjs与community-sections.json、现有管理员审计写入，不改冻结迁移。普通/站务列表均按createdAt倒序，同毫秒ID倒序；pinned与历史releaseOrder保留数据但不再抢排序。热门按回复数倒序、同数按发布时间；服务端取250条之前也先按created_at倒序，不能只改前端排序。该规则替代下文M1/M3的旧“置顶/版本顺序优先”描述。

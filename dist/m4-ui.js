@@ -1,6 +1,6 @@
-import {categoryLabel} from './community-directory.js?v=20261022055817972';
-import {renderMarkdown} from './markdown.js?v=20261022055817972';
-import {formatContentTime} from './content-time.js?v=20261022055817972';
+import {categoryLabel} from './community-directory.js?v=20261023030157187';
+import {renderMarkdown} from './markdown.js?v=20261023030157187';
+import {formatContentTime} from './content-time.js?v=20261023030157187';
 
 const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const button=(text,work,className='m4-button')=>{const node=element('button',text,className);node.type='button';node.onclick=work;return node;};
@@ -84,7 +84,7 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
    catch(error){if(alive()){status.textContent=fail(error);status.hidden=false;more.hidden=false;more.textContent=t('retry');}}finally{if(alive()){busy=false;more.disabled=false;}}
   }load();
  }
- function attachTopic({root,topic,posts}){
+ function attachTopic({root,topic,posts,onAnswer}){
   const owner=getUser()?.id||null,ticket=generation,life=new AbortController();let active=true,interaction=null,changing=false;
   const alive=()=>active&&current(owner,ticket)&&root.isConnected;
   const controls=element('section',undefined,'m4-topic-controls'),actions=element('div',undefined,'m4-topic-actions'),hint=element('p',undefined,'m4-subscription-note'),error=element('div'),label=element('label'),select=element('select',undefined,'m4-subscription'),bookmark=button(t('m4Bookmark'),()=>change('bookmark',{bookmarked:!interaction?.bookmark})),answer=button(t('m4BestAnswer'),()=>interaction?.answerPostId&&source({kind:'post',id:interaction.answerPostId},answer)),newCount=element('span',undefined,'m4-seen-count'),seen=button(t('m4Seen'),()=>change('seen',{}));
@@ -93,7 +93,7 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
   const answerButtons=[];
   function render(){if(!interaction||!alive())return;select.value=interaction.subscription||'normal';hint.textContent=t(subscriptionKeys[select.value]?.[1]||'m4NormalHint');select.title=hint.textContent;bookmark.textContent=t(interaction.bookmark?'m4Bookmarked':'m4Bookmark');bookmark.setAttribute('aria-pressed',String(!!interaction.bookmark));answer.hidden=!interaction.answerPostId;answer.textContent=t('m4Solved')+' · '+t('m4BestAnswer');newCount.textContent=t('m4NewReplies',{count:interaction.newReplies||0});newCount.hidden=seen.hidden=!owner||!interaction.newReplies;
    for(const entry of answerButtons){const chosen=interaction.answerPostId===entry.id;entry.marker.hidden=!chosen;entry.button.hidden=!interaction.canChooseAnswer;entry.button.textContent=t(chosen?'m4RemoveAnswer':'m4ChooseAnswer');entry.button.disabled=changing;entry.button.setAttribute('aria-pressed',String(chosen));}
-   select.disabled=bookmark.disabled=changing;
+   select.disabled=bookmark.disabled=changing;onAnswer?.(interaction.answerPostId);
   }
   async function load(){try{const result=await request('/api/topics/'+encodeURIComponent(topic.id)+'/interaction',{signal:life.signal});if(!alive())return;interaction=result.interaction;error.replaceChildren();render();}catch(e){if(alive()){error.replaceChildren();errorRow(error,e,load);}}}
   async function change(kind,data){if(!owner){askAuth();return;}if(changing||!alive())return;changing=true;select.disabled=bookmark.disabled=seen.disabled=true;error.replaceChildren();render();
@@ -105,7 +105,7 @@ export function createCommunityInteractionsUI({api,t,getUser,onAuth,onOpenTopic,
   const mounted=[];
   const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){observer.unobserve(entry.target);entry.target.dispatchEvent(new Event('m4-load-reactions'));}},{rootMargin:'300px'}):null;
   [...root.querySelectorAll('.post')].forEach((article,index)=>{
-   const post=posts[index],kind=index===0?'topic':'post',id=index===0?topic.id:post.id,postOwner=post.userId||index===0&&topic.userId,handle=post.authorHandle||index===0&&topic.authorHandle,header=article.querySelector('.post-header');
+   const matched=article.dataset?.postId?posts.findIndex(post=>post.id===article.dataset.postId):-1;index=matched<0?index:matched;const post=posts[index],kind=index===0?'topic':'post',id=index===0?topic.id:post.id,postOwner=post.userId||index===0&&topic.userId,handle=post.authorHandle||index===0&&topic.authorHandle,header=article.querySelector('.post-header');
    if(validHandle(handle)){const tag=element('span','@'+handle,'m4-handle');header.querySelector('strong').after(tag);mounted.push(tag);if(postOwner!==owner){const mention=button('@',()=>owner?insertMention(handle):askAuth(),'m4-mention-button');mention.setAttribute('aria-label',t('m4Mention')+' @'+handle);tag.after(mention);mounted.push(mention);}}
    const row=element('div',undefined,'m4-post-interactions'),reactions=element('div',undefined,'m4-reactions'),problem=element('div');row.append(reactions);const state={mine:null,counts:{}},buttons=[];let busy=false,loaded=false;
    const base='/api/content/'+kind+'/'+encodeURIComponent(id)+'/reactions';

@@ -1,8 +1,8 @@
-import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261022055817972';
-import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261022055817972';
-import {createReplyMedia} from './m3-media.js?v=20261022055817972';
-import {createReplyWriting} from './reply-writing.js?v=20261022055817972';
-import {formatContentTime} from './content-time.js?v=20261022055817972';
+import {renderMarkdown,renderMarkdownDocument} from './markdown.js?v=20261023030157187';
+import {createBodyEditor,languageSelect} from './m3-editor.js?v=20261023030157187';
+import {createReplyMedia} from './m3-media.js?v=20261023030157187';
+import {createReplyWriting} from './reply-writing.js?v=20261023030157187';
+import {formatContentTime} from './content-time.js?v=20261023030157187';
 
 const el=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
 const action=(text,handler,className='')=>{const node=el('button',text,className);node.type='button';node.onclick=handler;return node;};
@@ -117,11 +117,11 @@ export function createContentUI({root,topic,posts,api,t,getUser,getLanguage,onCh
   }
   if(actor&&(actor===content.userId||getUser()?.role==='admin')){tools.append(action(t('m3Edit'),()=>edit(content)),action(t('m3History'),()=>history(content)),action(t('m3Hide'),()=>hide(content)));}
  }
- [...root.querySelectorAll('.post')].forEach((article,index)=>attachPost(article,posts[index],index));
+ [...root.querySelectorAll('.post')].forEach((article,index)=>{const matched=article.dataset?.postId?posts.findIndex(post=>post.id===article.dataset.postId):-1,position=matched<0?index:matched;attachPost(article,posts[position],position);});
  const selectionButton=action(t('m3QuoteSelection'),()=>{const selected=selection;if(selected){selection=null;selectionButton.hidden=true;addQuote(selected.content,selected.text);}},'m3-selection-quote');selectionButton.hidden=true;replyHost.before(selectionButton);let selection=null;
  root.addEventListener('mouseup',captureSelection,options);root.addEventListener('keyup',captureSelection,options);root.addEventListener('touchend',captureSelection,options);
  function captureSelection(){const selected=window.getSelection();if(!selected||selected.isCollapsed||selected.rangeCount!==1){selectionButton.hidden=true;selection=null;return;}const range=selected.getRangeAt(0),start=range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentElement,end=range.endContainer.nodeType===1?range.endContainer:range.endContainer.parentElement;
-  const body=start?.closest('.post-body');if(!body||!body.contains(end)||!root.contains(body)||body.dataset.original!=='true'){selection=null;selectionButton.hidden=true;return;}const article=body.closest('.post'),index=[...root.querySelectorAll('.post')].indexOf(article),post=posts[index];selection={text:selected.toString(),content:{kind:index===0?'topic':'post',id:index===0?topic.id:post.id,version:Number(post.version||topic.version)||1,author:post.author}};selectionButton.hidden=false;const rect=range.getBoundingClientRect();selectionButton.style.left=Math.max(12,Math.min(rect.left,window.innerWidth-220))+'px';selectionButton.style.top=Math.max(8,Math.min(rect.bottom+8,window.innerHeight-100))+'px';
+  const body=start?.closest('.post-body');if(!body||!body.contains(end)||!root.contains(body)||body.dataset.original!=='true'){selection=null;selectionButton.hidden=true;return;}const article=body.closest('.post'),index=article.dataset?.postId?posts.findIndex(post=>post.id===article.dataset.postId):-1,post=posts[index];if(!post){selection=null;selectionButton.hidden=true;return;}selection={text:selected.toString(),content:{kind:index===0?'topic':'post',id:index===0?topic.id:post.id,version:Number(post.version||topic.version)||1,author:post.author}};selectionButton.hidden=false;const rect=range.getBoundingClientRect();selectionButton.style.left=Math.max(12,Math.min(rect.left,window.innerWidth-220))+'px';selectionButton.style.top=Math.max(8,Math.min(rect.bottom+8,window.innerHeight-100))+'px';
  }
  selectionButton.addEventListener('pointerdown',event=>event.preventDefault(),options);
  root.addEventListener('click',event=>{const link=event.target.closest('.topic-image-gallery a');if(!link||!root.contains(link))return;const links=[...link.parentElement.querySelectorAll('a')].filter(value=>/^\/api\/topic-attachments\/[a-f0-9-]{36}$/i.test(value.getAttribute('href')||''));if(!links.includes(link))return;event.preventDefault();lightbox(links,links.indexOf(link));},options);

@@ -59,6 +59,12 @@ test('sticky title reserves expanded height, shrinks on both layouts, remeasures
   assert.equal(header.style.getPropertyValue('--reading-expanded-height'),'240px','same-width transition restores desktop measurement');
   assert.equal(controller.inset(),284,'desktop still includes its header surface');
   root.dataset.flowHeader='true';controller.update();assert.equal(controller.inset(),124,'new flow title does not remain in the jump offset');assert.equal(header.style.getPropertyValue('--reading-expanded-height'),undefined);
+  root.dataset.desktopSticky='true';root.dataset.mobileReading='false';topInset=60;globalThis.window.scrollY=300;controller.update();
+  assert.equal(header.style.getPropertyValue('--reading-progress'),'1');assert.equal(classes.has('is-stuck'),true);
+  assert.equal(controller.inset(),232,'two-row desktop includes the measured compact header, not the old back row');
+  assert.equal(root.style.getPropertyValue('--reading-live-height'),'160px');
+  globalThis.window.scrollY=0;controller.update();assert.equal(header.style.getPropertyValue('--reading-progress'),'0');assert.equal(controller.inset(),312);
+  root.dataset.mobileReading='true';controller.update();assert.equal(controller.inset(),64,'phone retains its independent toolbar');
   controller.destroy();controller=null;assert.equal(disconnected,true);
   assert.equal(root.style.getPropertyValue('--reading-live-height'),undefined);
  }finally{controller?.destroy();for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key]}}

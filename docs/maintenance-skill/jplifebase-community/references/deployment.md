@@ -1,5 +1,13 @@
 # 发布与运维
 
+## 当前桌面阅读与精选回复发布（2026-10-23）
+
+此次生产基线是`20261023T011527Z-denki-regions`，schema5、电费数据`2026-10-23.regions-v6`，必须保留已上线电费区域等其他任务变更，不回退到0.6.0旧整包。桌面阅读应用0.6.1不增加迁移。构建应包含`reply-highlights.mjs`、`dist/reply-highlights.js`、`dist/desktop-reading.css`，并核对暂存运行字节等于清单；其他聊天未完成的updater文件不进入本轮提交或发布。
+
+首轮发布`20261023T025253Z-desktop-reading`已完成实际浏览器检查；latest最大原始楼号回归随后修正，最终修正版构建为`20261023T030158Z-desktop-reading`，309文件，sourceSha256 `5fe9d6fee2e8eab9ca7707d68762325f81575abc59d24fa9d3a72fbff327ac25`，保留生产基线全部denki文件SHA。安装/公网和最终测试结果以源码`docs/DESKTOP_READING_RELEASE.md`中的完成证据为准。不要把此首轮ID当最终修正版，亦不改写下文历史发布记录。
+
+本地最终完整304项Node、4项Python安装器、五语字典检查通过，并补充隐藏回复保留楼号专项。正式Chrome1440/980/390验证：桌面标题紧凑时保留返回/楼主；窄桌面操作栏位于动态标题之下；手机52px阅读栏、56px贴底回复条保持。iPhone Safari真机键盘/地址栏未验收。指南继续原topic `32122823-b43c-46b6-95ba-6625763f03c7`，版本5，保留创建时间及历史；14份备份校验和既有5项服务active已核验。测试数与服务状态仅代表此轮实际证据，不代表未来自动通过。
+
 仅在当前任务或仍有效授权涵盖上线时执行。先读源码 `ops/README.md` 和 `docs/IMPLEMENTATION_PROGRESS.md`。连接沿用 [VPS skill](C:/Users/byeva/.codex/skills/whyfshenlab-vps/SKILL.md) 及已核实 SSH 包装器，不跳过主机密钥校验。
 
 ## 位置与隔离

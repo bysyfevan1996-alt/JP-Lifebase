@@ -81,3 +81,6 @@ export const readingCopy={
   readingLatestWindow:'마지막 {count}개의 답글을 표시합니다.'
  }
 };
+
+const featuredCopy={en:{readingPinnedAnswer:"Best answer · Pinned",readingPinnedHot:"Popular reply · Pinned",readingHotReplies:"Popular replies"},ja:{readingPinnedAnswer:"ベストアンサー · 固定",readingPinnedHot:"人気の返信 · 固定",readingHotReplies:"人気の返信"},"zh-CN":{readingPinnedAnswer:"最佳答案 · 已置顶",readingPinnedHot:"热门回复 · 已置顶",readingHotReplies:"热门回复"},"zh-TW":{readingPinnedAnswer:"最佳解答 · 已置頂",readingPinnedHot:"熱門回覆 · 已置頂",readingHotReplies:"熱門回覆"},ko:{readingPinnedAnswer:"채택 답변 · 상단 고정",readingPinnedHot:"인기 답글 · 상단 고정",readingHotReplies:"인기 답글"}};
+for(const [language,copy] of Object.entries(featuredCopy))Object.assign(readingCopy[language],copy);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createReadingNavigation} from '../dist/reading-nav.js';
+import {createReadingNavigation,latestReplyElement} from '../dist/reading-nav.js';
 export function createNavigationDOMHarness(createReadingNavigation, {
  width=1440, viewport=900, scroll=700, repliesTop=2400,
  repliesBottom=3200, editorTop=3300, docHeight=4200, bookmark=null,portaled=false,onWrite,
@@ -114,4 +114,13 @@ test('opening the phone writer remembers the paragraph without scrolling to the 
  let opened=0;const harness=createNavigationDOMHarness(createReadingNavigation,{width:390,onWrite:()=>{opened++;return true;}});
  try{harness.input.value='Existing draft';harness.navigation.navigate('write');harness.flush();assert.equal(opened,1);assert.ok(harness.bookmark());assert.equal(harness.window.scrollY,700);assert.equal(harness.input.value,'Existing draft');harness.click('return');assert.equal(harness.window.scrollY,700);assert.equal(harness.bookmark(),null);}
  finally{harness.dispose();}
+});
+
+
+test('latest reply uses its original floor after answers and popular replies move ahead of ordinary replies',()=>{
+ const answer={dataset:{floor:'254'}},hot={dataset:{floor:'242'}},early={dataset:{floor:'2'}},tail={dataset:{floor:'251'}};
+ assert.equal(latestReplyElement([answer,hot,early,tail]),answer);
+ assert.equal(latestReplyElement([hot,answer]),answer);
+ assert.equal(latestReplyElement([early,tail]),tail);
+ assert.equal(latestReplyElement([]),null);
 });
