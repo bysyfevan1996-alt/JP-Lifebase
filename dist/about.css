@@ -1,0 +1,7 @@
+.about-copy{color:#59616a;font-size:14px;line-height:1.95;overflow-wrap:anywhere}
+.about-copy p{margin:0 0 16px}
+.about-copy h2{font-size:16px;font-weight:600;line-height:1.6;color:#30363b;margin:25px 0 12px}
+.about-copy ul{margin:0 0 18px;padding-left:21px}
+.about-copy li{margin:0 0 9px}
+.about-copy>:last-child{margin-bottom:0}
+@media(max-width:760px){.about-copy{font-size:15px;line-height:1.9}.about-copy h2{font-size:16px}}

@@ -175,3 +175,8 @@ interface-v2.css最后加载，interface-shell.js复用全站真实入口：桌�
 /notifications、/bookmarks、/my-topics为真实私人页面，复用原API与可见过滤；M4同时保留旧modal调用兼容。privatePages与dialogs分别管理，避免页面挂载触发modal锁屏；离页/换账号abort并清私有内容。通知页点击进入话题，不再嵌套来源弹窗；不要声称已做精确回复滚动。safeReturn仅新增这三个精确本地路径。统一搜索到/search，filters=1展开原高级条件，不能恢复另一个独立首页过滤搜索。
 
 reading根dataset.flowHeader=true：完整标题随正文滚走；原reading-nav同节点移到reading-desktop-aside。>=1200为168px灰卡从正文顶部开始后固定，761–1199横排sticky；偏移仅计60px顶栏与窄桌面导航实测高度。手机延用mobileReading偏移/标题阈值/同一全屏回复表单。运行布局分支保留legacy测试，勿重新把完整标题加进滚动偏移。新文案在interface-i18n五语人工维护并纳入check-i18n。实际证据见docs/INTERFACE_V2_RELEASE.md。
+
+
+## 关于本站文案（2026-10-23）
+
+about-i18n.js维护简中/繁中/日/英/韩的about与aboutBody，合入i18n.js；about同时用于左栏和弹窗标题。正文经现有安全renderMarkdown呈现，about.css仅约束.about-copy。关于仍为既有data-info弹窗，使用指南仍导航原公告帖，不将二者混同或恢复guide短弹窗。定位是在日生活知识与经验共享，允许不同意见，禁止仇恨暴力、人身骚扰、违法诈骗、泄露隐私和恶意刷屏广告；具体文案更改按用户确认稿，维护时同步人工五语。实际发布证据见docs/ABOUT_CONTENT_RELEASE.md。

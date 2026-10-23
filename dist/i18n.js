@@ -1,3 +1,4 @@
+import {aboutCopy} from './about-i18n.js?v=20261023030157187';
 import {commonCopy} from './m1-i18n.js?v=20261023030157187';
 import {readingCopy} from './reading-i18n.js?v=20261023030157187';
 import {mobileReadingCopy} from './mobile-reading-i18n.js?v=20261023030157187';
@@ -124,3 +125,5 @@ for(const [language,copy] of Object.entries(commonCopy))Object.assign(dictionari
 for(const [language,copy] of Object.entries(readingCopy))Object.assign(dictionaries[language],copy);
 for(const [language,copy] of Object.entries(mobileReadingCopy))Object.assign(dictionaries[language],copy);
 for(const [language,copy] of Object.entries(interfaceCopy))Object.assign(dictionaries[language],copy);
+
+for(const [language,copy] of Object.entries(aboutCopy))Object.assign(dictionaries[language],copy);
